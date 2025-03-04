@@ -9,9 +9,9 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @SuperBuilder
 @EqualsAndHashCode(callSuper = true)
-public class OrderUpdateRequest extends OrderCreateRequest {
+public class OrderPOSUpdateRequest extends OrderPOSCreateRequest {
 
-    @NotNull
+    @NotNull(message = "ID đơn hàng không được để trống")
     private Integer id;
 
 }

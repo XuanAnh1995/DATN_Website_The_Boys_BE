@@ -14,6 +14,8 @@ import java.io.Serializable;
 @AllArgsConstructor
 @Builder
 public class MaterialCreateRequest implements Serializable {
+
     @NotNull(message = "Vui lòng điền thông tin tên chất liệu")
     String materialName;
+
 }

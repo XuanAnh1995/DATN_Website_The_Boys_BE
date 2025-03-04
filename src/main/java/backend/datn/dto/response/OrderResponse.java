@@ -1,8 +1,12 @@
 package backend.datn.dto.response;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -11,30 +15,34 @@ import java.util.List;
 
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class OrderResponse implements Serializable {
 
-    Integer id;
+    private Integer id;
 
-    EmployeeResponse employee;
+    private EmployeeResponse employee;
 
-    VoucherResponse voucher;
+    private VoucherResponse voucher;
 
-    CustomerResponse customer;
+    private CustomerResponse customer;
 
-    String orderCode;
+    private String orderCode;
 
-    Instant createDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "UTC")
+    private Instant createDate;
 
-    Integer totalAmount;
+    private Integer totalAmount;
 
-    BigDecimal totalBill;
+    private BigDecimal totalBill;
 
-    Integer paymentMethod;
+    private Integer paymentMethod;
 
-    Integer statusOrder;
+    private Boolean kindOfOrder;
 
-    Integer kindOfOrder;
+    private Integer statusOrder;
 
-    List<OrderDetailResponse> orderDetailResponses;
+    @JsonIgnoreProperties("order")
+    private List<OrderDetailResponse> orderDetails;
 }

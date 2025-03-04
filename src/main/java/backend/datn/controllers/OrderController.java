@@ -1,8 +1,10 @@
 package backend.datn.controllers;
 
 import backend.datn.dto.ApiResponse;
-import backend.datn.dto.request.OrderCreateRequest;
+import backend.datn.dto.request.OrderPOSCreateRequest;
 import backend.datn.dto.response.OrderResponse;
+import backend.datn.dto.response.PagedResponse;
+import backend.datn.dto.response.VoucherResponse;
 import backend.datn.entities.*;
 import backend.datn.exceptions.EntityNotFoundException;
 import backend.datn.services.*;
@@ -43,7 +45,11 @@ public class OrderController {
             @RequestParam(defaultValue = "asc") String sortDir) {
         try {
             Page<OrderResponse> orderPage = orderService.getAllOrders(search, page, size, sortBy, sortDir);
-            ApiResponse response = new ApiResponse("success", "Lấy danh sách hóa đơn thành công", orderPage);
+
+            // Bọc dữ liệu vào PagedResponse
+            PagedResponse<OrderResponse> responseData = new PagedResponse<>(orderPage);
+
+            ApiResponse response = new ApiResponse("success", "Lấy danh sách hóa đơn thành công", responseData);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             ApiResponse response = new ApiResponse("error", "Đã xảy ra lỗi khi lấy danh sách hóa đơn", null);
@@ -103,7 +109,7 @@ public class OrderController {
     // API: Bán hàng trực tiếp tại quầy POS
     // API này sẽ tạo một đơn hàng mới, sau đó cập nhật trạng thái đơn hàng thành "Hoàn thành" sau khi thanh toán
     @PostMapping("/checkout")
-    public ResponseEntity<ApiResponse> checkoutPOS(@RequestBody OrderCreateRequest request) {
+    public ResponseEntity<ApiResponse> checkoutPOS(@RequestBody OrderPOSCreateRequest request) {
         try {
             // Lấy thông tin khách hàng
             Customer customer = customerService.findById(request.getCustomerId())

@@ -7,6 +7,8 @@ import lombok.Data;
 @Data
 @Builder
 public class CategoryCreateRequest {
+
     @NotNull(message = "Vui lòng điền thông tin tên thể loại")
     String name;
+
 }
