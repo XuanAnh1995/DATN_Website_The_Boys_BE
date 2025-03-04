@@ -23,13 +23,16 @@ public class OrderCreateRequest{
     @NotNull
     private Integer customerId;
 
+    //remove this
     @NotEmpty
     private String orderCode;
 
+    //remove this
     @NotNull
     @PositiveOrZero
     private Integer totalAmount;
 
+    //remove this
     @NotNull
     @Positive
     private BigDecimal totalBill;

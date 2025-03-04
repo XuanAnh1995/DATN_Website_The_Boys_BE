@@ -96,6 +96,10 @@ public class OrderController {
         }
     }
 
+    //Xu li nghiep vu o service, controller chi goi service
+    //Bo sung tinh tien
+    //Bo sung check voucher
+
     // API: Bán hàng trực tiếp tại quầy POS
     // API này sẽ tạo một đơn hàng mới, sau đó cập nhật trạng thái đơn hàng thành "Hoàn thành" sau khi thanh toán
     @PostMapping("/checkout")
@@ -109,9 +113,12 @@ public class OrderController {
             Employee employee = employeeService.findById(request.getEmployeeId())
                     .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy nhân viên với ID: " + request.getEmployeeId()));
 
-            // Lấy thông tin voucher (nếu có)
-            Voucher voucher = request.getVoucherId() != null ?
-                    voucherService.findById(request.getVoucherId()).orElse(null) : null;
+            //da sua
+            Voucher voucher = null;
+            if(request.getVoucherId()!=null){
+                voucher = voucherService.findById(request.getVoucherId())
+                        .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy voucher với ID: " + request.getVoucherId()));
+            }
 
             // Tạo danh sách chi tiết đơn hàng từ request (giả sử có danh sách sản phẩm trong request)
             List<OrderDetail> orderDetails = request.getOrderDetails().stream().map(detailReq -> {
