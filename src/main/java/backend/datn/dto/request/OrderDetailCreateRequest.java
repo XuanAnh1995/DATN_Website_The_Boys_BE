@@ -13,14 +13,14 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 public class OrderDetailCreateRequest {
 
-    @NotNull
+    @NotNull(message = "ID đơn hàng không được để trống")
     private Integer orderId;
 
-    @NotNull
+    @NotNull(message = "ID chi tiết sản phẩm không được để trống")
     private Integer productDetailId;
 
-    @NotNull
-    @Positive
+    @NotNull(message = "Số lượng không được để trống")
+    @Positive(message = "Số lượng phải lớn hơn 0")
     private Integer quantity;
 
 }

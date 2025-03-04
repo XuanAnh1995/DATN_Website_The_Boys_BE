@@ -1,5 +1,6 @@
 package backend.datn.dto.request;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -7,23 +8,26 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.Instant;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class CustomerUpdateRequest {
-    @Size(max = 255, message = "Full name cannot exceed 255 characters")
-    String fullname;
 
-    @Size(max = 255, message = "Email cannot exceed 255 characters")
-    String email;
+    @NotNull(message = "ID khách hàng không được để trống")
+    private Integer id;
 
-    @Size(max = 20, message = "Phone number cannot exceed 20 characters")
-    String phone;
+    @Size(max = 255, message = "Họ và tên không được vượt quá 255 ký tự")
+    private String fullname;
 
-    @Size(max = 255, message = "Address cannot exceed 255 characters")
-    String address;
+    @Email(message = "Email không hợp lệ")
+    @Size(max = 255, message = "Email không được vượt quá 255 ký tự")
+    private String email;
+
+    @Size(max = 20, message = "Số điện thoại không được vượt quá 20 ký tự")
+    private String phone;
+
+    @Size(max = 255, message = "Địa chỉ không được vượt quá 255 ký tự")
+    private String address;
 
 }

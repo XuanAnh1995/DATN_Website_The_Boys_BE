@@ -11,10 +11,10 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface BrandRepository extends JpaRepository<Brand, Integer> {
 
-    @Query(value = """
-                SELECT * FROM brand 
-                WHERE COALESCE(:search, '') = '' OR LOWER(brand_name) LIKE LOWER(CONCAT('%', :search, '%'))
-            """, nativeQuery = true)
+    @Query("""
+                SELECT b FROM Brand b
+                WHERE (:search IS NULL OR :search = '' OR LOWER(b.brandName) LIKE LOWER('%' || :search || '%'))
+            """)
     Page<Brand> searchBrand(@Param("search") String search, Pageable pageable);
 
 

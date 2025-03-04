@@ -2,6 +2,7 @@ package backend.datn.dto.request;
 
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -13,40 +14,28 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-public class OrderCreateRequest{
+public class OrderPOSCreateRequest {
 
-    @NotNull
+    @NotNull(message = "ID nhân viên không được để trống")
     private Integer employeeId;
 
     private Integer voucherId;
 
-    @NotNull
+    @NotNull(message = "ID khách hàng không được để trống")
     private Integer customerId;
 
-    //remove this
-    @NotEmpty
-    private String orderCode;
-
-    //remove this
-    @NotNull
-    @PositiveOrZero
-    private Integer totalAmount;
-
-    //remove this
-    @NotNull
-    @Positive
-    private BigDecimal totalBill;
-
-    @NotNull
+    @NotNull(message = "Phương thức thanh toán không được để trống")
     private Integer paymentMethod;
 
-    @NotNull
-    private Boolean kindOfOrder;
+    @NotNull(message = "Loại đơn hàng không được để trống")
+    @Builder.Default
+    private Boolean kindOfOrder = true;
 
-    @NotNull
-    private Integer statusOrder;
+    @NotNull(message = "Trạng thái đơn hàng không được để trống")
+    @Builder.Default
+    private Integer statusOrder = 1;
 
-    // Thêm danh sách chi tiết sản phẩm trong đơn hàng
     @NotEmpty(message = "Danh sách sản phẩm không được để trống")
     private List<OrderDetailCreateRequest> orderDetails;
+
 }

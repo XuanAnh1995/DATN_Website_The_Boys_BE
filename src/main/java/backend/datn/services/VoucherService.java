@@ -26,16 +26,20 @@ public class VoucherService {
     VoucherRepository voucherRepository;
 
     public Page<VoucherResponse> getAllVoucher(String search, int page, int size, String sortBy, String sortDir) {
-        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
-        Pageable pageable = PageRequest.of(page , size, sort);
-        Page<Voucher> voucherPage = voucherRepository.searchVouchers(search, pageable);
-        return voucherPage.map(VoucherMapper::toVoucherRespone);
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ?
+                Sort.by(sortBy).ascending() :
+                Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        // Nếu search không rỗng, thêm ký tự '%' vào đầu và cuối
+        String formattedSearch = (search == null || search.isEmpty()) ? null : "%" + search.toLowerCase() + "%";
+
+        Page<Voucher> voucherPage = voucherRepository.searchVouchers(formattedSearch, pageable);
+
+        return voucherPage.map(VoucherMapper::toVoucherResponse);
     }
-    public VoucherResponse getVoucherById(Integer id) {
-        Voucher voucher = voucherRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Voucher không tồn tại với ID: " + id));
-        return VoucherMapper.toVoucherRespone(voucher);
-    }
+
 
 
     public VoucherResponse createVoucher(VoucherCreateRequest voucherRequest) {
@@ -56,7 +60,7 @@ public class VoucherService {
         voucher.setStatus(voucherRequest.getStatus());
 
         voucher = voucherRepository.save(voucher);
-        return VoucherMapper.toVoucherRespone(voucher);
+        return VoucherMapper.toVoucherResponse(voucher);
     }
 
     public VoucherResponse updateVoucher(VoucherUpdateRequest voucherUpdateRequest, Integer id) {
@@ -70,7 +74,7 @@ public class VoucherService {
         voucher.setEndDate(voucherUpdateRequest.getEndDate());
         voucher.setStatus(voucherUpdateRequest.getStatus());
         Voucher newVoucher = voucherRepository.save(voucher);
-        return VoucherMapper.toVoucherRespone(newVoucher);
+        return VoucherMapper.toVoucherResponse(newVoucher);
     }
     @Transactional
     public VoucherResponse toggleStatusVoucher(Integer id) {
@@ -79,7 +83,7 @@ public class VoucherService {
 
         voucher.setStatus(!voucher.getStatus());
         voucher = voucherRepository.save(voucher);
-        return VoucherMapper.toVoucherRespone(voucher);
+        return VoucherMapper.toVoucherResponse(voucher);
     }
     @Transactional
     public void deleteVoucher(Integer id) {

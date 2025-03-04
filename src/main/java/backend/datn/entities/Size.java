@@ -11,6 +11,7 @@ import org.hibernate.annotations.Nationalized;
 @Entity
 @Table(name = "\"size\"")
 public class Size {
+
     @Id
     @Column(name = "id", nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)

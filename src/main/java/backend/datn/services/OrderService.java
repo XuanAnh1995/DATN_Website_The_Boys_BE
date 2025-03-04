@@ -3,11 +3,13 @@ package backend.datn.services;
 
 import backend.datn.dto.response.OrderDetailResponse;
 import backend.datn.dto.response.OrderResponse;
+import backend.datn.dto.response.VoucherResponse;
 import backend.datn.entities.*;
 import backend.datn.exceptions.InsufficientStockException;
 import backend.datn.exceptions.ResourceNotFoundException;
 import backend.datn.mapper.OrderDetailMapper;
 import backend.datn.mapper.OrderMapper;
+import backend.datn.mapper.VoucherMapper;
 import backend.datn.repositories.OrderDetailRepository;
 import backend.datn.repositories.OrderRepository;
 import backend.datn.repositories.ProductDetailRepository;
@@ -43,11 +45,16 @@ public class OrderService {
     /**
      * Lấy danh sách đơn hàng với phân trang và tìm kiếm
      */
+
     public Page<OrderResponse> getAllOrders(String search, int page, int size, String sortBy, String sortDir) {
-        Sort sort = sortDir.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(page, size, sort);
-        Page<Order> orderPage = orderRepository.searchOrder(search, pageable);
-        return orderPage.map(OrderMapper::toOrderRespone);
+
+        // Nếu search không rỗng, thêm ký tự '%' vào đầu và cuối
+        String formattedSearch = (search == null || search.isEmpty()) ? null : "%" + search.toLowerCase() + "%";
+
+        Page<Order> orderPage = orderRepository.searchOrder(formattedSearch, pageable);
+        return orderPage.map(OrderMapper::toOrderResponse);
     }
 
     /**
@@ -55,7 +62,7 @@ public class OrderService {
      */
     public OrderResponse getOrderById(int id) {
         Order order = orderRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy đơn hàng với ID: " + id));
-        return OrderMapper.toOrderRespone(order);
+        return OrderMapper.toOrderResponse(order);
     }
 
     /**
@@ -68,8 +75,8 @@ public class OrderService {
         List<OrderDetail> orderDetails = orderDetailRepository.findByOrderId(orderId);
         List<OrderDetailResponse> orderDetailResponses = orderDetails.stream().map(OrderDetailMapper::toOrderDetailResponse).collect(Collectors.toList());
 
-        OrderResponse response = OrderMapper.toOrderRespone(order);
-        response.setOrderDetailResponses(orderDetailResponses);
+        OrderResponse response = OrderMapper.toOrderResponse(order);
+        response.setOrderDetails(orderDetailResponses);
 
         return response;
     }
@@ -147,7 +154,7 @@ public class OrderService {
 
         order.setStatusOrder(5);
         order = orderRepository.save(order);
-        return OrderMapper.toOrderRespone(order);
+        return OrderMapper.toOrderResponse(order);
     }
 
     /**
@@ -207,7 +214,7 @@ public class OrderService {
                 throw new IllegalStateException("Trạng thái đơn hàng không hợp lệ.");
         }
         order = orderRepository.save(order);
-        return OrderMapper.toOrderRespone(order);
+        return OrderMapper.toOrderResponse(order);
     }
 
     private void updateStock(Order order) {
@@ -234,7 +241,7 @@ public class OrderService {
 
         order.setStatusOrder(status);
         order = orderRepository.save(order);
-        return OrderMapper.toOrderRespone(order);
+        return OrderMapper.toOrderResponse(order);
     }
 }
 

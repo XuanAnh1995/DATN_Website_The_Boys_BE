@@ -14,10 +14,12 @@ import java.io.Serializable;
 @AllArgsConstructor
 @Builder
 public class MaterialUpdateRequest implements Serializable {
+
     @NotNull
     Integer id;
 
     @NotNull(message = "Vui lòng điền thông tin tên chất liệu")
     @Size(max = 100)
     String materialName;
+
 }

@@ -4,6 +4,8 @@ import backend.datn.dto.ApiResponse;
 import backend.datn.dto.request.BrandCreateRequest;
 import backend.datn.dto.request.BrandUpdateRequest;
 import backend.datn.dto.response.BrandResponse;
+import backend.datn.dto.response.PagedResponse;
+import backend.datn.dto.response.VoucherResponse;
 import backend.datn.exceptions.EntityAlreadyExistsException;
 import backend.datn.exceptions.EntityNotFoundException;
 import backend.datn.services.BrandService;
@@ -29,7 +31,11 @@ public class BrandController {
             @RequestParam(defaultValue = "asc") String sortDir) {
         try {
             Page<BrandResponse> brandPage = brandService.getAllBrand(search, page, size, sortBy, sortDir);
-            ApiResponse response = new ApiResponse("success", "Lấy được danh sách thương hiệu thành công", brandPage);
+
+            // Bọc dữ liệu vào PagedResponse
+            PagedResponse<BrandResponse> responseData = new PagedResponse<>(brandPage);
+
+            ApiResponse response = new ApiResponse("success", "Lấy được danh sách thương hiệu thành công", responseData);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             ApiResponse response = new ApiResponse("error", "Đã xảy ra lỗi khi truy xuất danh sách thương hiệu", null);

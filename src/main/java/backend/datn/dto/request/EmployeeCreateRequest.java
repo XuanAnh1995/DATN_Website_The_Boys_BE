@@ -18,6 +18,7 @@ import lombok.Data;
 
 @Data
 public class EmployeeCreateRequest implements Serializable {
+
     @NotNull(message = "ID vai trò không được để trống")
     String roleId;
 
@@ -43,4 +44,5 @@ public class EmployeeCreateRequest implements Serializable {
 
     @NotNull(message = "Giới tính không được để trống")
     Boolean gender;
+
 }

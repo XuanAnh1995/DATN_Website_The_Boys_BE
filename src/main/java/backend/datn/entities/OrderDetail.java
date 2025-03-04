@@ -35,7 +35,16 @@ public class OrderDetail {
     @Column(name = "quantity", nullable = false)
     private Integer quantity;
 
-    public BigDecimal getTotalPrice() {
-        return productDetail.getSalePrice().multiply(BigDecimal.valueOf(quantity));
+    public BigDecimal getPrice() {
+        BigDecimal salePrice = productDetail.getSalePrice();
+
+        if (productDetail.getPromotion() != null) {
+            BigDecimal discountPercent = BigDecimal.valueOf(100 - productDetail.getPromotion().getPromotionPercent())
+                    .divide(BigDecimal.valueOf(100));
+            return salePrice.multiply(discountPercent);
+        }
+
+        return salePrice; // Nếu không có khuyến mãi, trả về giá gốc
     }
+
 }

@@ -170,9 +170,11 @@ CREATE TABLE [order] (
     total_amount INT NOT NULL,
     total_bill DECIMAL(18, 2) NOT NULL,
     payment_method INT NOT NULL,
+								-- 0: Tiền mặt
+								-- 1: VNPay
     kind_of_order BIT NOT NULL CHECK (kind_of_order IN (0, 1)),  
                                      -- 0: Online
-                                     -- 1: Offline
+                                     -- 1: POS
     status_order INT NOT NULL CHECK (status_order IN (-1, 0, 1, 2, 3, 4, 5))
                                       -- -1: Đã hủy
                                       --  0: Chờ xác nhận

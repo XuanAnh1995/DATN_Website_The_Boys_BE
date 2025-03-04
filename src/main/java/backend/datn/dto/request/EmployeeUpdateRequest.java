@@ -14,6 +14,7 @@ import java.time.Instant;
 
 @Data
 public class EmployeeUpdateRequest  {
+
     @Size(max = 50, message = "Mã nhân viên không được vượt quá 50 ký tự")
     String employeeCode;
 
