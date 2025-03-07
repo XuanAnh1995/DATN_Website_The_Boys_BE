@@ -86,23 +86,21 @@ public class VoucherController {
         }
     }
 
-
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse> updateVoucher(@PathVariable Integer id,@Valid  @RequestBody VoucherUpdateRequest updateRequestvoucherRequest,BindingResult result) {
-        try {
-            VoucherResponse respons = voucherService.updateVoucher(updateRequestvoucherRequest,id);
-            ApiResponse response = new ApiResponse("success", "Update  successfully", updateRequestvoucherRequest);
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        } catch(EntityNotFoundException e){
-            ApiResponse response = new ApiResponse("error", e.getMessage(), null);
-            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    public ResponseEntity<ApiResponse> updateVoucher( @PathVariable int id,
+                                                      @Valid @RequestBody VoucherUpdateRequest updateRequestvoucherRequest,
+                                                      BindingResult result ){
+        if (result.hasErrors()){
+            List<String> errors = result.getAllErrors().stream()
+                    .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                    .collect(Collectors.toList());
+            return ResponseEntity.badRequest().body(new ApiResponse("error", "Dữ liệu không hợp lệ", errors));
         }
-        catch (EntityAlreadyExistsException e) {
-            ApiResponse response = new ApiResponse("error", e.getMessage(), null);
-            return new ResponseEntity<>(response, HttpStatus.CONFLICT);
-        } catch (Exception e) {
-            ApiResponse response = new ApiResponse("error", "An error", null);
-            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        try {
+            return ResponseEntity.ok(new ApiResponse("success", "Cập nhật voucher thành công",
+                    voucherService.updateVoucher(id, updateRequestvoucherRequest)));
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse("error", e.getMessage()));
         }
     }
 
