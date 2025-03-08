@@ -10,6 +10,8 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -67,4 +69,20 @@ public class Order {
     @Column(name = "kind_of_order", nullable = false)
     private Boolean kindOfOrder = false;
 
+
+    // Danh sách OrderDetail
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<OrderDetail> orderDetails = new ArrayList<>();
+
+    // Phương thức set để đảm bảo quan hệ 2 chiều
+    public void setOrderDetails(List<OrderDetail> orderDetails) {
+        this.orderDetails.clear();
+        if (orderDetails != null) {
+            for (OrderDetail orderDetail : orderDetails) {
+                orderDetail.setOrder(this);
+                this.orderDetails.add(orderDetail);
+            }
+        }
+    }
 }

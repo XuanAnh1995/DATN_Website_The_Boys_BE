@@ -98,6 +98,11 @@ public class ProductDetailService {
         return ProductDetailMapper.toProductDetailResponse(productDetail);
     }
 
+    // sửa soos lượng sản phẩm
+    @Transactional
+    public void update(ProductDetail productDetail) {
+        productDetailRepository.save(productDetail);
+    }
     private void validateExistence(ProductDetailCreateRequest request) {
         if(request.getPromotionId()!=null){
             promotionRepository.findById(request.getPromotionId())
