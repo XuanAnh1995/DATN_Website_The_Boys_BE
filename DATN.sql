@@ -7,85 +7,85 @@ GO
 
 CREATE TABLE brand (
     id INT IDENTITY(1,1) NOT NULL,
-    brand_name NVARCHAR(100) NOT NULL,
-    [status] BIT NOT NULL 
+    brand_name NVARCHAR(100) ,
+    [status] BIT  
 );
 
 CREATE TABLE category (
     id INT IDENTITY(1,1) NOT NULL,
-    category_name NVARCHAR(100) NOT NULL,
-    [status] BIT NOT NULL 
+    category_name NVARCHAR(100) ,
+    [status] BIT  
 );
 
 CREATE TABLE material (
     id INT IDENTITY(1,1) NOT NULL,
-    material_name NVARCHAR(100) NOT NULL,
-    [status] BIT NOT NULL 
+    material_name NVARCHAR(100) ,
+    [status] BIT  
 );
 
 -- DROP TABLE product
 
 CREATE TABLE [product] (
     id INT IDENTITY(1,1) NOT NULL,
-    brand_id INT NOT NULL,
-    category_id INT NOT NULL,
-	material_id INT NOT NULL,
+    brand_id INT ,
+    category_id INT ,
+	material_id INT ,
 	product_code VARCHAR(10) NOT NULL,
-    product_name NVARCHAR(255) NOT NULL,
-    [status] BIT NOT NULL 
+    product_name NVARCHAR(255) ,
+    [status] BIT 
 );
 
 CREATE TABLE promotion (
     id INT IDENTITY(1,1) NOT NULL,
-    promotion_name NVARCHAR(255) NOT NULL,
-    promotion_percent INT NOT NULL,
-    [start_date] DATETIME NOT NULL,
-    end_date DATETIME NOT NULL,
-    [description] NVARCHAR(500) NOT NULL,
-    [status] BIT NOT NULL
+    promotion_name NVARCHAR(255) ,
+    promotion_percent INT ,
+    [start_date] DATETIME ,
+    end_date DATETIME ,
+    [description] NVARCHAR(500),
+    [status] BIT 
 );
 
 CREATE TABLE color (
     id INT IDENTITY(1,1) NOT NULL,
-    color_name NVARCHAR(100) NOT NULL,
-    [status] BIT NOT NULL 
+    color_name NVARCHAR(100),
+    [status] BIT  
 );
 
 CREATE TABLE size (
     id INT IDENTITY(1,1) NOT NULL,
-    size_name NVARCHAR(100) NOT NULL,
-    [status] BIT NOT NULL 
+    size_name NVARCHAR(100),
+    [status] BIT  
 );
 
 CREATE TABLE collar(
 	id INT IDENTITY(1,1) NOT NULL,
-	collar_name NVARCHAR(100) NOT NULL,
-    [status] BIT NOT NULL 
+	collar_name NVARCHAR(100) ,
+    [status] BIT  
 );
 
 CREATE TABLE sleeve(
 	id INT IDENTITY(1,1) NOT NULL,
-	sleeve_name NVARCHAR(100) NOT NULL,
-    [status] BIT NOT NULL 
+	sleeve_name NVARCHAR(100),
+    [status] BIT 
 )
 
 -- DROP TABLE product_detail
 
 CREATE TABLE product_detail (
     id INT IDENTITY(1,1) NOT NULL,
-    product_id INT NOT NULL,
-    size_id INT NOT NULL ,
-    color_id INT NOT NULL,
-    promotion_id INT NOT NULL,
+    product_id INT,
+    size_id INT ,
+    color_id INT ,
+    promotion_id INT,
 	collar_id INT,
 	sleeve_id INT,
-	photo VARCHAR(250) NOT NULL,
+	photo VARCHAR(250) ,
     product_detail_code VARCHAR(50) NOT NULL,
-    import_price DECIMAL(18, 2) NOT NULL,
-    sale_price DECIMAL(18, 2) NOT NULL,
-	quantity INT NOT NULL,
-    [description] NVARCHAR(500) NOT NULL,
-    [status] BIT NOT NULL 	
+    import_price DECIMAL(18, 2),
+    sale_price DECIMAL(18, 2),
+	quantity INT,
+    [description] NVARCHAR(500),
+    [status] BIT  	
 );
 
 --ALTER TABLE product_detail
@@ -94,14 +94,14 @@ CREATE TABLE product_detail (
 CREATE TABLE voucher (
     id INT IDENTITY(1,1) NOT NULL,
     voucher_code VARCHAR(50) NOT NULL ,
-	voucher_name NVARCHAR(250) NOT NULL,
+	voucher_name NVARCHAR(250) ,
     [description] NVARCHAR(255),
-    min_condition DECIMAL(18, 2) NOT NULL,
-    max_discount DECIMAL(18, 2) NOT NULL,
-	reduced_percent FLOAT NOT NULL,
-    [start_date] DATETIME NOT NULL,
-    end_date DATETIME NOT NULL,
-    [status] BIT NOT NULL
+    min_condition DECIMAL(18, 2),
+    max_discount DECIMAL(18, 2),
+	reduced_percent FLOAT,
+    [start_date] DATETIME,
+    end_date DATETIME,
+    [status] BIT
 );
 
 CREATE TABLE [role] (
@@ -114,19 +114,19 @@ CREATE TABLE [role] (
 CREATE TABLE employee (
     id INT IDENTITY(1,1) NOT NULL,
     employee_code VARCHAR(50) NOT NULL,
-	role_id INT NOT NULL,
-    fullname NVARCHAR(255) NOT NULL,
-    username VARCHAR(100) NOT NULL,
-    [password] VARCHAR(255) NOT NULL,
-    email VARCHAR(255) NOT NULL,
-    phone VARCHAR(20) NOT NULL,
-	photo VARCHAR(250) NOT NULL,
-    [status] INT NOT NULL,
-    create_date DATETIME NOT NULL,
-	update_date DATETIME NOT NULL,
-	[address] NVARCHAR(255) NOT NULL,
+	role_id INT,
+    fullname NVARCHAR(255),
+    username VARCHAR(100) ,
+    [password] VARCHAR(255),
+    email VARCHAR(255) ,
+    phone VARCHAR(20) ,
+	photo VARCHAR(250) ,
+    [status] INT ,
+    create_date DATETIME ,
+	update_date DATETIME ,
+	[address] NVARCHAR(255) ,
 	forget_password BIT,
-    gender BIT NOT NULL
+    gender BIT 
 );
 
 --ALTER TABLE employee
@@ -136,10 +136,10 @@ CREATE TABLE employee (
 
 CREATE TABLE customer (
     id INT IDENTITY(1,1) NOT NULL ,
-    customer_code VARCHAR(50) NOT NULL,
+    customer_code VARCHAR(50),
     fullname NVARCHAR(255),
-	username VARCHAR(100) NOT NULL,
-    [password] VARCHAR(255) NOT NULL,
+	username VARCHAR(100),
+    [password] VARCHAR(255),
     email VARCHAR(255),
     phone VARCHAR(20),
     create_date DATETIME,
@@ -150,32 +150,32 @@ CREATE TABLE customer (
 
 CREATE TABLE [address] (
     id INT IDENTITY(1,1) NOT NULL,
-    customer_id INT NOT NULL,
-    province_id INT NOT NULL,
-	province_name NVARCHAR(50) NOT NULL,
-    district_id INT NOT NULL,
-	district_name NVARCHAR(50) NOT NULL,
-    ward_id INT NOT NULL,
-	ward_name NVARCHAR(50) NOT NULL,
-    address_detail NVARCHAR(255) NOT NULL,
+    customer_id INT ,
+    province_id INT ,
+	province_name NVARCHAR(50),
+    district_id INT ,
+	district_name NVARCHAR(50) ,
+    ward_id INT,
+	ward_name NVARCHAR(50) ,
+    address_detail NVARCHAR(255) ,
 );
 
 CREATE TABLE [order] (
     id INT IDENTITY(1,1) NOT NULL,
     employee_id INT,
     voucher_id INT,
-    customer_id INT NOT NULL,
+    customer_id INT,
     order_code VARCHAR(50) NOT NULL UNIQUE,
-    create_date DATETIME NOT NULL,
-    total_amount INT NOT NULL,
-    total_bill DECIMAL(18, 2) NOT NULL,
-    payment_method INT NOT NULL,
+    create_date DATETIME,
+    total_amount INT,
+    total_bill DECIMAL(18, 2),
+    payment_method INT ,
 								-- 0: Tiền mặt
 								-- 1: VNPay
-    kind_of_order BIT NOT NULL CHECK (kind_of_order IN (0, 1)),  
+    kind_of_order BIT CHECK (kind_of_order IN (0, 1)),  
                                      -- 0: Online
                                      -- 1: POS
-    status_order INT NOT NULL CHECK (status_order IN (-1, 0, 1, 2, 3, 4, 5))
+    status_order INT CHECK (status_order IN (-1, 0, 1, 2, 3, 4, 5))
                                       -- -1: Đã hủy
                                       --  0: Chờ xác nhận
                                       --  1: Chờ thanh toán
@@ -187,25 +187,18 @@ CREATE TABLE [order] (
 
 CREATE TABLE order_detail (
     id INT IDENTITY(1,1) NOT NULL ,
-    order_id INT NOT NULL,
-    product_detail_id INT NOT NULL,
-    quantity INT NOT NULL,
+    order_id INT,
+    product_detail_id INT,
+    quantity INT,
 );
 
 
 CREATE TABLE cart (
     id INT IDENTITY(1,1) NOT NULL,
-    customer_id INT NOT NULL,
-    product_detail_id INT NOT NULL,
-    quantity INT NOT NULL
+    customer_id INT ,
+    product_detail_id INT ,
+    quantity INT
 );
-
--- ** Chỉ mục (INDEX) tối ưu hiệu suất tìm kiếm
-
-CREATE INDEX idx_product_code ON [product](product_code);
-CREATE INDEX idx_order_code ON [order](order_code);
-CREATE INDEX idx_customer_email ON customer(email);
-CREATE INDEX idx_employee_username ON employee(username);
 
 
 -- ** PHẦN PK, FK CHO CÁC TABLE CỦA DATABASE
