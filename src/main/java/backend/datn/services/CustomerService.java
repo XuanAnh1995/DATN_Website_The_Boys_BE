@@ -121,4 +121,18 @@ public class CustomerService {
     public Optional<Customer> findById(@NotNull Integer customerId) {
         return customerRepository.findById(customerId);
     }
+
+
+    // thêm khach hàng vãng lai
+    public Customer getWalkInCustomer() {
+        // Tạo một khách hàng vãng lai với thông tin mặc định
+        Customer walkInCustomer = new Customer();
+        walkInCustomer.setId(0); // ID giả định cho khách vãng lai
+        walkInCustomer.setFullname("Khách Vãng Lai");
+        walkInCustomer.setPhone("0000000000"); // Hoặc số điện thoại mặc định
+        walkInCustomer.setEmail("walkin@customer.com"); // Email mặc định
+
+        return walkInCustomer;
+    }
+
 }

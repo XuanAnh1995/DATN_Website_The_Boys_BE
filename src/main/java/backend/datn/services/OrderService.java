@@ -25,8 +25,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 
@@ -243,5 +246,31 @@ public class OrderService {
         order = orderRepository.save(order);
         return OrderMapper.toOrderResponse(order);
     }
+
+
+    // hoa don trong
+    public Order createEmptyOrder(Customer customer, Employee employee, Integer paymentMethod) {
+        // Tạo một đơn hàng mới
+        Order order = new Order();
+
+        // Gán các giá trị bắt buộc cho đơn hàng
+        order.setOrderCode(UUID.randomUUID().toString());  // Tạo mã đơn hàng duy nhất (orderCode)
+        order.setCreateDate(LocalDateTime.now().atZone(ZoneOffset.UTC).toInstant()); // Thời gian tạo đơn hàng
+        order.setTotalAmount(0); // Tổng tiền ban đầu là 0
+        order.setTotalBill(BigDecimal.ZERO); // Tổng hóa đơn ban đầu là 0
+
+        // Gán các trường còn lại
+        order.setCustomer(customer); // Gán khách hàng
+        order.setEmployee(employee); // Gán nhân viên
+        order.setPaymentMethod(paymentMethod); // Gán phương thức thanh toán
+        order.setStatusOrder(3); // Trạng thái đơn hàng (ví dụ: Mới tạo, Chờ xử lý)
+
+        // Lưu đơn hàng vào cơ sở dữ liệu
+        order = orderRepository.save(order); // Lưu vào cơ sở dữ liệu thông qua repository
+
+        return order;
+    }
+
+
 }
 

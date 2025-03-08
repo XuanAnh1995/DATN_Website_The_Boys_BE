@@ -1,5 +1,6 @@
 package backend.datn.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -23,6 +24,7 @@ public class OrderDetail {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "order_id", nullable = false)
     @JsonIgnoreProperties("orderDetails")
+    @JsonIgnore
     private Order order;
 
     @NotNull
