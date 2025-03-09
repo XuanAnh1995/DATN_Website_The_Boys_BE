@@ -1,10 +1,8 @@
 package backend.datn.controllers;
 
 import backend.datn.dto.ApiResponse;
-import backend.datn.dto.request.OrderPOSCreateRequest;
 import backend.datn.dto.response.OrderResponse;
 import backend.datn.dto.response.PagedResponse;
-import backend.datn.dto.response.VoucherResponse;
 import backend.datn.entities.*;
 import backend.datn.exceptions.EntityNotFoundException;
 import backend.datn.services.*;
@@ -101,61 +99,6 @@ public class OrderController {
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
-    //Xu li nghiep vu o service, controller chi goi service
-    //Bo sung tinh tien
-    //Bo sung check voucher
-
-    // API: Bán hàng trực tiếp tại quầy POS
-    // API này sẽ tạo một đơn hàng mới, sau đó cập nhật trạng thái đơn hàng thành "Hoàn thành" sau khi thanh toán
-    @PostMapping("/checkout")
-    public ResponseEntity<ApiResponse> checkoutPOS(@RequestBody OrderPOSCreateRequest request) {
-        try {
-            // Lấy thông tin khách hàng
-            Customer customer = customerService.findById(request.getCustomerId())
-                    .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy khách hàng với ID: " + request.getCustomerId()));
-
-            // Lấy thông tin nhân viên
-            Employee employee = employeeService.findById(request.getEmployeeId())
-                    .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy nhân viên với ID: " + request.getEmployeeId()));
-
-
-            Voucher voucher = null;
-            if(request.getVoucherId()!=null){
-                voucher = voucherService.findById(request.getVoucherId())
-                        .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy voucher với ID: " + request.getVoucherId()));
-            }
-
-            // Tạo danh sách chi tiết đơn hàng từ request (giả sử có danh sách sản phẩm trong request)
-            List<OrderDetail> orderDetails = request.getOrderDetails().stream().map(detailReq -> {
-                ProductDetail productDetail = productDetailService.findById(detailReq.getProductDetailId())
-                        .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy sản phẩm với ID: " + detailReq.getProductDetailId()));
-
-                OrderDetail orderDetail = new OrderDetail();
-                orderDetail.setProductDetail(productDetail);
-                orderDetail.setQuantity(detailReq.getQuantity());
-                return orderDetail;
-            }).collect(Collectors.toList());
-
-            // Gọi service để tạo đơn hàng
-            Order order = orderService.createOrder(customer, employee, voucher, orderDetails, request.getPaymentMethod());
-
-            // Cập nhật trạng thái sau thanh toán
-            OrderResponse updatedOrder = orderService.updateOrderStatusAfterPayment(order.getId());
-
-            // Trả về phản hồi thành công
-            ApiResponse response = new ApiResponse("success", "Thanh toán POS thành công", updatedOrder);
-            return ResponseEntity.ok(response);
-
-        } catch (EntityNotFoundException e) {
-            ApiResponse response = new ApiResponse("error", e.getMessage(), null);
-            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            ApiResponse response = new ApiResponse("error", "Lỗi khi thanh toán tại POS", null);
-            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
 
     // Cập nhật trạng thái đơn hàng theo mã số
     @PutMapping("/{id}/pending")
