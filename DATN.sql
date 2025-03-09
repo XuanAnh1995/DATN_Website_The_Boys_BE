@@ -237,6 +237,11 @@ ALTER TABLE sleeve ADD CONSTRAINT UQ_sleeve_name UNIQUE (sleeve_name);
 ALTER TABLE [order] ADD CONSTRAINT UQ_order_code UNIQUE (order_code);
 ALTER TABLE product_detail ADD CONSTRAINT UQ_product_detail_code UNIQUE(product_detail_code);
 ALTER TABLE customer ADD CONSTRAINT UQ_customer_code UNIQUE(customer_code);
+
+ALTER TABLE customer ADD CONSTRAINT UQ_customer_username UNIQUE(username);
+ALTER TABLE customer ADD CONSTRAINT UQ_customer_email UNIQUE(email);
+ALTER TABLE customer ADD CONSTRAINT UQ_customer_phone UNIQUE(phone);
+
 ALTER TABLE voucher ADD CONSTRAINT UQ_voucher_code UNIQUE(voucher_code);
 ALTER TABLE employee ADD CONSTRAINT UQ_employee_code UNIQUE(employee_code);
 ALTER TABLE [product] ADD CONSTRAINT UQ_product_code UNIQUE(product_code);

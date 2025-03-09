@@ -11,6 +11,8 @@ import backend.datn.helpers.RandomHelper;
 import backend.datn.mapper.CustomerMapper;
 import backend.datn.repositories.CustomerRepository;
 import jakarta.validation.constraints.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.data.domain.Page;
@@ -24,6 +26,8 @@ import java.util.Optional;
 
 @Service
 public class CustomerService {
+    private static final Logger logger = LoggerFactory.getLogger(CustomerService.class);
+
     @Autowired
     private CustomerRepository customerRepository;
 
@@ -56,9 +60,12 @@ public class CustomerService {
     }
 
     public CustomerResponse createCustomer(CustomerCreateRequest request) {
-        if (customerRepository.existsByUsername(request.getUsername())) {
+        logger.info("Bắt đầu tạo khách hàng mới: {}", request.getFullname());
+
+        if (request.getUsername() != null && customerRepository.existsByUsername(request.getUsername())) {
             throw new EntityAlreadyExistsException("Tên đăng nhập đã tồn tại.");
         }
+
         if (customerRepository.existsByEmail(request.getEmail())) {
             throw new EntityAlreadyExistsException("Email đã tồn tại.");
         }
@@ -67,13 +74,24 @@ public class CustomerService {
         }
 
         Customer customer = new Customer();
-        customer.setCustomerCode(CodeGeneratorHelper.generateCode("USR"));
+        customer.setCustomerCode(CodeGeneratorHelper.generateCode("CUS"));
         customer.setFullname(request.getFullname());
-        customer.setUsername(request.getUsername());
+
+        // Sử dụng CodeGeneratorHelper để tạo username duy nhất, giới hạn 8 ký tự
+        String username = (request.getUsername() != null) ? request.getUsername() : CodeGeneratorHelper.generateCode("cus").substring(0, 10);
+        while (customerRepository.existsByUsername(username)) {
+            username = CodeGeneratorHelper.generateCode("cus").substring(0, 10);
+        }
+        customer.setUsername(username);
+
         customer.setEmail(request.getEmail());
         customer.setPhone(request.getPhone());
 
         customer.setCreateDate(Instant.now());
+
+        // ✅ Thêm giá trị mặc định cho updateDate khi tạo mới
+        customer.setUpdateDate(Instant.now());
+
         customer.setForgetPassword(false);
         customer.setStatus(true);
 
@@ -82,10 +100,14 @@ public class CustomerService {
         customer.setPassword(hashedPassword);
 
         customer = customerRepository.save(customer);
+        logger.info("Khách hàng đã lưu thành công với ID: {}", customer.getId());
+
+        CustomerResponse response = CustomerMapper.toCustomerResponse(customer);
+        logger.info("Response gửi về FE: {}", response); // 🔍 Kiểm tra lỗi trước khi gửi về FE
 
         mailService.sendNewPasswordMail(customer.getUsername(), customer.getEmail(), rawPassword);
 
-        return CustomerMapper.toCustomerResponse(customer);
+        return response;
     }
 
     public CustomerResponse updateCustomer(int id, CustomerUpdateRequest request) {

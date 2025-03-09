@@ -15,6 +15,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
@@ -127,5 +128,37 @@ public class VoucherService {
             throw new IllegalArgumentException("Lỗi: Ngày tháng không đúng định dạng (ISO 8601 hoặc timestamp).");
         }
         return null;
+    }
+
+    public BigDecimal applyVoucher(Voucher voucher, BigDecimal totalBill) {
+        if (voucher == null || !voucher.getStatus()) { // Sử dụng getStatus()
+            return totalBill; // Không áp dụng nếu voucher không hợp lệ
+        }
+
+        // Kiểm tra số tiền tối thiểu (nếu có)
+        if (voucher.getMinCondition() != null && totalBill.compareTo(voucher.getMinCondition()) < 0) { // Sử dụng getMinCondition()
+            return totalBill; // Không áp dụng nếu số tiền không đủ
+        }
+
+        // Kiểm tra thời gian voucher
+        if (voucher.getStartDate().isAfter(Instant.now()) || voucher.getEndDate().isBefore(Instant.now())){
+            return totalBill; // không áp dụng khi voucher không còn hiệu lực
+        }
+
+        // Áp dụng giảm giá theo phần trăm
+        BigDecimal discountAmount = BigDecimal.ZERO;
+        if (voucher.getReducedPercent() != null) { // Sử dụng getReducedPercent()
+            BigDecimal discountPercentage = BigDecimal.valueOf(voucher.getReducedPercent()).divide(new BigDecimal(100));
+            discountAmount = totalBill.multiply(discountPercentage);
+
+            // Kiểm tra và áp dụng giới hạn giảm giá tối đa (nếu có)
+            if (voucher.getMaxDiscount() != null && discountAmount.compareTo(voucher.getMaxDiscount()) > 0) { // Sử dụng getMaxDiscount()
+                discountAmount = voucher.getMaxDiscount();
+            }
+        }
+
+        // Tính tổng tiền sau khi giảm giá
+        BigDecimal discountedTotal = totalBill.subtract(discountAmount);
+        return discountedTotal.compareTo(BigDecimal.ZERO) > 0 ? discountedTotal : BigDecimal.ZERO; // Trả về 0 nếu tổng tiền âm
     }
 }
