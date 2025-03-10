@@ -518,6 +518,8 @@ INSERT INTO customer (customer_code, fullname, username, [password], email, phon
 ('CUST007', N'Hồ Hoàng G', 'hohoangg', 'password123', 'hohoangg@example.com', '0912345684', '2025-02-17', '2025-02-17', 0, 1),
 ('CUST008', N'Ngô Minh H', 'ngominhh', 'password123', 'ngominhh@example.com', '0912345685', '2025-02-17', '2025-02-17', 0, 1);
 
+INSERT INTO customer (customer_code, fullname, username, [password], email, phone, create_date, update_date, forget_password, [status])
+VALUES ('CUST999', N'Khách vãng lai', NULL, NULL, NULL, NULL, GETDATE(), GETDATE(), 0, 1)
 --DELETE FROM [address];
 --DBCC CHECKIDENT ('[address]', RESEED, 0);
 
