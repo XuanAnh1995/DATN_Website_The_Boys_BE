@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -31,7 +32,7 @@ public class OrderResponse implements Serializable {
     private String orderCode;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "UTC")
-    private Instant createDate;
+    private LocalDateTime createDate;
 
     private Integer totalAmount;
 

@@ -2,6 +2,7 @@ package backend.datn.controllers;
 
 import backend.datn.dto.ApiResponse;
 import backend.datn.dto.request.OrderDetailCreateRequest;
+import backend.datn.dto.request.OrderPOSCreateRequest;
 import backend.datn.dto.response.OrderResponse;
 import backend.datn.entities.*;
 import backend.datn.mapper.OrderMapper;
@@ -35,29 +36,62 @@ public class SalePOSController {
     private SalePOSService salePOSService;
 
     // tạo hoá đơn rỗng
+//    @PostMapping("/orders")
+//    public ResponseEntity<ApiResponse> createEmptyOrder(
+//            @RequestParam Integer customerId,
+//            @RequestParam Integer employeeId,
+//            @RequestParam(required = false) Integer voucherId,
+//            @RequestParam Integer paymentMethod) {
+//        try {
+//            // Lấy thông tin khách hàng
+//            Customer customer = resolveCustomer(customerId);
+//
+//            // Lấy thông tin nhân viên
+//            Employee employee = resolveEmployee(employeeId);
+//
+//            // Lấy thông tin voucher nếu có
+//            Voucher voucher = (voucherId != null) ? voucherService.findById(voucherId)
+//                    .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy voucher với ID: " + voucherId))
+//                    : null;
+//
+//            // Tạo đơn hàng trống
+//            Order order = salePOSService.createEmptyOrder(customer, employee, voucher, paymentMethod);
+//
+//            OrderResponse orderResponse = OrderMapper.toOrderResponse(order);
+//            return ResponseEntity.ok(new ApiResponse("success", "Tạo hóa đơn mới thành công", orderResponse));
+//        } catch (EntityNotFoundException e) {
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+//                    .body(new ApiResponse("error", e.getMessage(), null));
+//        } catch (Exception e) {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+//                    .body(new ApiResponse("error", "Lỗi khi tạo hóa đơn: " + e.getMessage(), null));
+//        }
+//    }
+
+
     @PostMapping("/orders")
-    public ResponseEntity<ApiResponse> createEmptyOrder(
-            @RequestParam Integer customerId,
-            @RequestParam Integer employeeId,
-            @RequestParam(required = false) Integer voucherId,
-            @RequestParam Integer paymentMethod) {
+    public ResponseEntity<ApiResponse> createEmptyOrder(@RequestBody OrderPOSCreateRequest request) {
         try {
-            // Lấy thông tin khách hàng
-            Customer customer = resolveCustomer(customerId);
+//        Customer customer = resolveCustomer(request.getCustomerId());
+            Customer customer = (request.getCustomerId() == null ||
+                    request.getCustomerId().toString().trim().isEmpty() ||
+                    request.getCustomerId() == -1)
+                    ? customerService.findById(-1).orElse(null)
+                    : resolveCustomer(request.getCustomerId());
 
-            // Lấy thông tin nhân viên
-            Employee employee = resolveEmployee(employeeId);
 
-            // Lấy thông tin voucher nếu có
-            Voucher voucher = (voucherId != null) ? voucherService.findById(voucherId)
-                    .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy voucher với ID: " + voucherId))
+            Employee employee = resolveEmployee(request.getEmployeeId());
+            Voucher voucher = (request.getVoucherId() != null)
+                    ? voucherService.findById(request.getVoucherId()).orElse(null)
                     : null;
 
-            // Tạo đơn hàng trống
-            Order order = salePOSService.createEmptyOrder(customer, employee, voucher, paymentMethod);
+            // Gọi createEmptyOrder trong SalePOSService
+            Order order = salePOSService.createEmptyOrder(customer, employee, voucher, request.getPaymentMethod());
 
-            OrderResponse orderResponse = OrderMapper.toOrderResponse(order);
-            return ResponseEntity.ok(new ApiResponse("success", "Tạo hóa đơn mới thành công", orderResponse));
+            return ResponseEntity.ok(new ApiResponse("success", "Tạo hóa đơn mới thành công", OrderMapper.toOrderResponse(order)));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse("error", e.getMessage(), null));
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new ApiResponse("error", e.getMessage(), null));
