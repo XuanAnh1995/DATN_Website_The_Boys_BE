@@ -15,5 +15,5 @@ public class ProductCreateRequest  {
     private Integer materialId;
 
     @NotNull(message = "Tên sản phẩm không được để trống")
-    private Integer productNameId;
+    private String productName;
 }

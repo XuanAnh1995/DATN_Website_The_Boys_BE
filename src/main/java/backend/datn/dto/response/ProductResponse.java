@@ -16,5 +16,6 @@ public class ProductResponse implements Serializable {
     private final CategoryResponse category;
     private final MaterialResponse material;
     private final String productName;
+    private final String productCode;
     private final Boolean status;
 }
