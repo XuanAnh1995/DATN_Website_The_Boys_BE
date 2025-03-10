@@ -73,6 +73,10 @@ public class SalePOSController {
     public ResponseEntity<ApiResponse> createEmptyOrder(@RequestBody OrderPOSCreateRequest request) {
         try {
 //        Customer customer = resolveCustomer(request.getCustomerId());
+
+            // 🔍 Log kiểm tra voucherId trước khi xử lý
+            System.out.println("🎟️ Voucher ID nhận được: " + request.getVoucherId());
+
             Customer customer = (request.getCustomerId() == null ||
                     request.getCustomerId().toString().trim().isEmpty() ||
                     request.getCustomerId() == -1)
@@ -87,6 +91,10 @@ public class SalePOSController {
 
             // Gọi createEmptyOrder trong SalePOSService
             Order order = salePOSService.createEmptyOrder(customer, employee, voucher, request.getPaymentMethod());
+
+            // 🔍 Kiểm tra order sau khi tạo
+            System.out.println("📌 Đơn hàng được tạo: " + order);
+            System.out.println("🎟️ Voucher trong đơn hàng: " + order.getVoucher());
 
             return ResponseEntity.ok(new ApiResponse("success", "Tạo hóa đơn mới thành công", OrderMapper.toOrderResponse(order)));
         } catch (IllegalArgumentException e) {
@@ -128,7 +136,14 @@ public class SalePOSController {
     @PutMapping("/orders/{orderId}/payment")
     public ResponseEntity<ApiResponse> updateOrderStatusAfterPayment(@PathVariable Integer orderId) {
         try {
+            // 🔍 Kiểm tra đơn hàng trước khi thanh toán
+            System.out.println("📌 Xác nhận thanh toán cho đơn hàng #" + orderId);
+
             OrderResponse response = salePOSService.updateOrderStatusAfterPayment(orderId);
+
+            // 🔍 Log totalBill sau khi cập nhật
+            System.out.println("💰 Tổng tiền sau khi thanh toán: " + response.getTotalBill());
+
             return ResponseEntity.ok(new ApiResponse("success", "Thanh toán thành công", response));
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
