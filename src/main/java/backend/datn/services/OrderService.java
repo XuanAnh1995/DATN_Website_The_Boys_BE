@@ -3,11 +3,13 @@ package backend.datn.services;
 
 import backend.datn.dto.response.OrderDetailResponse;
 import backend.datn.dto.response.OrderResponse;
+import backend.datn.dto.response.VoucherResponse;
 import backend.datn.entities.*;
 import backend.datn.exceptions.InsufficientStockException;
 import backend.datn.exceptions.ResourceNotFoundException;
 import backend.datn.mapper.OrderDetailMapper;
 import backend.datn.mapper.OrderMapper;
+import backend.datn.mapper.VoucherMapper;
 import backend.datn.repositories.OrderDetailRepository;
 import backend.datn.repositories.OrderRepository;
 import backend.datn.repositories.ProductDetailRepository;
@@ -23,8 +25,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 
@@ -43,11 +48,16 @@ public class OrderService {
     /**
      * Lấy danh sách đơn hàng với phân trang và tìm kiếm
      */
+
     public Page<OrderResponse> getAllOrders(String search, int page, int size, String sortBy, String sortDir) {
-        Sort sort = sortDir.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(page, size, sort);
-        Page<Order> orderPage = orderRepository.searchOrder(search, pageable);
-        return orderPage.map(OrderMapper::toOrderRespone);
+
+        // Nếu search không rỗng, thêm ký tự '%' vào đầu và cuối
+        String formattedSearch = (search == null || search.isEmpty()) ? null : "%" + search.toLowerCase() + "%";
+
+        Page<Order> orderPage = orderRepository.searchOrder(formattedSearch, pageable);
+        return orderPage.map(OrderMapper::toOrderResponse);
     }
 
     /**
@@ -55,7 +65,7 @@ public class OrderService {
      */
     public OrderResponse getOrderById(int id) {
         Order order = orderRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy đơn hàng với ID: " + id));
-        return OrderMapper.toOrderRespone(order);
+        return OrderMapper.toOrderResponse(order);
     }
 
     /**
@@ -68,8 +78,8 @@ public class OrderService {
         List<OrderDetail> orderDetails = orderDetailRepository.findByOrderId(orderId);
         List<OrderDetailResponse> orderDetailResponses = orderDetails.stream().map(OrderDetailMapper::toOrderDetailResponse).collect(Collectors.toList());
 
-        OrderResponse response = OrderMapper.toOrderRespone(order);
-        response.setOrderDetailResponses(orderDetailResponses);
+        OrderResponse response = OrderMapper.toOrderResponse(order);
+        response.setOrderDetails(orderDetailResponses);
 
         return response;
     }
@@ -147,7 +157,7 @@ public class OrderService {
 
         order.setStatusOrder(5);
         order = orderRepository.save(order);
-        return OrderMapper.toOrderRespone(order);
+        return OrderMapper.toOrderResponse(order);
     }
 
     /**
@@ -207,7 +217,7 @@ public class OrderService {
                 throw new IllegalStateException("Trạng thái đơn hàng không hợp lệ.");
         }
         order = orderRepository.save(order);
-        return OrderMapper.toOrderRespone(order);
+        return OrderMapper.toOrderResponse(order);
     }
 
     private void updateStock(Order order) {
@@ -234,7 +244,33 @@ public class OrderService {
 
         order.setStatusOrder(status);
         order = orderRepository.save(order);
-        return OrderMapper.toOrderRespone(order);
+        return OrderMapper.toOrderResponse(order);
     }
+
+
+    // hoa don trong
+    public Order createEmptyOrder(Customer customer, Employee employee, Integer paymentMethod) {
+        // Tạo một đơn hàng mới
+        Order order = new Order();
+
+        // Gán các giá trị bắt buộc cho đơn hàng
+        order.setOrderCode(UUID.randomUUID().toString());  // Tạo mã đơn hàng duy nhất (orderCode)
+        order.setCreateDate(LocalDateTime.now().atZone(ZoneOffset.UTC).toInstant()); // Thời gian tạo đơn hàng
+        order.setTotalAmount(0); // Tổng tiền ban đầu là 0
+        order.setTotalBill(BigDecimal.ZERO); // Tổng hóa đơn ban đầu là 0
+
+        // Gán các trường còn lại
+        order.setCustomer(customer); // Gán khách hàng
+        order.setEmployee(employee); // Gán nhân viên
+        order.setPaymentMethod(paymentMethod); // Gán phương thức thanh toán
+        order.setStatusOrder(3); // Trạng thái đơn hàng (ví dụ: Mới tạo, Chờ xử lý)
+
+        // Lưu đơn hàng vào cơ sở dữ liệu
+        order = orderRepository.save(order); // Lưu vào cơ sở dữ liệu thông qua repository
+
+        return order;
+    }
+
+
 }
 

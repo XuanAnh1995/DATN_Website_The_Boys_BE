@@ -16,23 +16,24 @@ import java.time.Instant;
 @AllArgsConstructor
 @Builder
 public class VoucherUpdateRequest implements Serializable {
-
-    @NotNull
-    @Size(max = 250)
+    @NotNull(message = "ID voucher không được để trống")
+Integer id ;
+    @NotNull(message = "Tên voucher không được để trống")
+    @Size(max = 250, message = "tên voucher không được vượt quá 250 ký tự")
     String voucherName;
-    @Size(max = 255)
+    @Size(max = 255, message = "mô tả không được vượt quá 255 ký tự")
     String description;
-    @NotNull
+    @NotNull(message = "Giá trị tối thiểu voucher không được để trống")
     BigDecimal minCondition;
-    @NotNull
+    @NotNull(message = "Giá trị tối đa voucher không được để trống")
     BigDecimal maxDiscount;
-    @NotNull
+    @NotNull(message = "Phần trăm giảm giá không được để trống")
     Double reducedPercent;
-    @NotNull
+    @NotNull(message = "Ngày bắt đầu không được để trống")
     Instant startDate;
-    @NotNull
+    @NotNull(message = "Ngày kết thúc không được để trống")
     Instant endDate;
-    @NotNull
+    @NotNull(message = "Trạng thái không được để trống")
     Boolean status;
 
 }

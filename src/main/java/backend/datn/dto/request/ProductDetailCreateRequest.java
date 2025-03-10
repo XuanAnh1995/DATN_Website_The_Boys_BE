@@ -10,6 +10,7 @@ import java.util.List;
 
 @Data
 public class ProductDetailCreateRequest {
+
     @NotNull(message = "Sản phẩm không được để trống")
     private Integer productId;
 
@@ -42,4 +43,5 @@ public class ProductDetailCreateRequest {
 
     @Size(max = 500, message = "Mô tả không được vượt quá 500 ký tự")
     private String description;
+
 }

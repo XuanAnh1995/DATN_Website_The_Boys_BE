@@ -29,6 +29,9 @@ public class BrandService {
 
         Pageable pageable = PageRequest.of(page, size, sort);
 
+        // Nếu search không rỗng, thêm ký tự '%' vào đầu và cuối
+        String formattedSearch = (search == null || search.isEmpty()) ? null : "%" + search.toLowerCase() + "%";
+
         Page<Brand> brandPage = brandRepository.searchBrand(search, pageable);
 
         return brandPage.map(BrandMapper::toBrandResponse);

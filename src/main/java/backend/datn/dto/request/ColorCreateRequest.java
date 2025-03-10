@@ -7,6 +7,8 @@ import lombok.Data;
 @Data
 @Builder
 public class ColorCreateRequest {
+
     @NotNull(message = "Vui lòng điền thông tin tên màu sắc")
     String name;
+
 }

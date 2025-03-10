@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 
 @Data
 public class ProductDetailUpdateRequest {
+
     @NotNull(message = "Sản phẩm không được để trống")
     private Integer productId;
 

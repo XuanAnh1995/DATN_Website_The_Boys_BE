@@ -13,6 +13,8 @@ import java.io.Serializable;
 @AllArgsConstructor
 @Builder
 public class BrandCreateRequest implements Serializable {
+
     @NotNull(message = "Vui lòng điền thông tin tên nhãn hàng")
     String brandName;
+
 }

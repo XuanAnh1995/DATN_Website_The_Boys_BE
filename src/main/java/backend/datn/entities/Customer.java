@@ -1,5 +1,6 @@
 package backend.datn.entities;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -20,7 +21,7 @@ public class Customer {
     private Integer id;
 
     @Size(max = 50)
-    @NotNull
+//    @NotNull
     @Column(name = "customer_code", nullable = false, length = 50)
     private String customerCode;
 
@@ -30,12 +31,12 @@ public class Customer {
     private String fullname;
 
     @Size(max = 100)
-    @NotNull
+//    @NotNull
     @Column(name = "username", nullable = false, length = 100)
     private String username;
 
     @Size(max = 255)
-    @NotNull
+//    @NotNull
     @Column(name = "password", nullable = false)
     private String password;
 
@@ -48,9 +49,11 @@ public class Customer {
     private String phone;
 
     @Column(name = "create_date")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "UTC")
     private Instant createDate;
 
     @Column(name = "update_date")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "UTC")
     private Instant updateDate;
 
     @Column(name = "forget_password")
@@ -58,5 +61,16 @@ public class Customer {
 
     @Column(name = "status")
     private Boolean status;
+
+    @PrePersist
+    protected void onCreate() {
+        createDate = Instant.now();
+        updateDate = Instant.now();  // ✅ Khi tạo mới, update_date = createDate
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updateDate = Instant.now();  // ✅ Khi update, update_date sẽ tự cập nhật
+    }
 
 }

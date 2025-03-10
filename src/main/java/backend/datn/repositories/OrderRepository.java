@@ -14,11 +14,12 @@ import java.util.List;
 
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Integer> {
-    @Query(value = """
-                SELECT * FROM [order] 
-                WHERE (:search IS NULL OR :search = '' OR LOWER(order_code) LIKE LOWER(CONCAT('%', :search, '%')))
-            """, nativeQuery = true)
+    @Query("""
+                SELECT o FROM Order o 
+                WHERE (:search IS NULL OR :search = '' OR LOWER(o.orderCode) LIKE LOWER('%' || :search || '%'))
+            """)
     Page<Order> searchOrder(@Param("search") String search, Pageable pageable);
+
 
     // Tìm đơn hàng theo mã
     Order findByOrderCode(String orderCode);

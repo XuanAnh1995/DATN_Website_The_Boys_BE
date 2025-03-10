@@ -7,6 +7,8 @@ import lombok.Data;
 @Data
 @Builder
 public class CollarCreateRequest {
+
     @NotNull(message = "Vui lòng điền thông tin tên tay áo")
     String name;
+
 }
