@@ -15,7 +15,9 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.UUID;
 
 @Service
 public class SalePOSService {
@@ -46,32 +48,26 @@ public class SalePOSService {
      */
     @Transactional
     public Order createEmptyOrder(Customer customer, Employee employee, Voucher voucher, Integer paymentMethod) {
-        logger.info("Bắt đầu tạo đơn hàng trống cho POS. Customer ID: {}, Employee ID: {}, Voucher ID: {}, Payment Method: {}",
-                customer != null ? customer.getId() : null, employee != null ? employee.getId() : null,
-                voucher != null ? voucher.getId() : null, paymentMethod);
-
-        if (customer == null || customerService.findById(customer.getId()).isEmpty()) {
-            logger.error("Khách hàng không tồn tại.");
-            throw new IllegalArgumentException("Khách hàng không tồn tại.");
-        }
+        logger.info("Bắt đầu tạo đơn hàng. Customer ID: {}, Employee ID: {}, Voucher ID: {}, Payment Method: {}",
+                (customer != null) ? customer.getId() : "Khách vãng lai",
+                employee.getId(),
+                (voucher != null) ? voucher.getId() : "Không có voucher",
+                paymentMethod);
 
         if (employee == null || employeeService.findById(employee.getId()).isEmpty()) {
-            logger.error("Nhân viên không tồn tại.");
             throw new IllegalArgumentException("Nhân viên không tồn tại.");
         }
 
         if (voucher != null && voucherService.findById(voucher.getId()).isEmpty()) {
-            logger.error("Voucher không tồn tại.");
             throw new IllegalArgumentException("Voucher không tồn tại.");
         }
 
         if (paymentMethod == null || paymentMethod < 0) {
-            logger.error("Phương thức thanh toán không hợp lệ.");
             throw new IllegalArgumentException("Phương thức thanh toán không hợp lệ.");
         }
 
         Order order = new Order();
-        order.setCustomer(customer);
+        order.setCustomer(customer); // Có thể null (khách vãng lai)
         order.setEmployee(employee);
         order.setVoucher(voucher);
         order.setPaymentMethod(paymentMethod);
@@ -80,11 +76,14 @@ public class SalePOSService {
         order.setOrderDetails(new ArrayList<>());
         order.setTotalAmount(0);
         order.setTotalBill(BigDecimal.ZERO);
+        order.setOrderCode("ORD-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase());
+        order.setCreateDate(LocalDateTime.now());
 
         Order savedOrder = orderRepository.save(order);
-        logger.info("Đơn hàng trống đã được tạo thành công. Order ID: {}", savedOrder.getId());
+        logger.info("Đã tạo đơn hàng. Order ID: {}, Order Code: {}", savedOrder.getId(), savedOrder.getOrderCode());
         return savedOrder;
     }
+
 
     /**
      * Thêm sản phẩm vào giỏ hàng của đơn hàng POS

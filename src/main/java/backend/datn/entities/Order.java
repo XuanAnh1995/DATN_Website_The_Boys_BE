@@ -10,8 +10,11 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -47,7 +50,7 @@ public class Order {
     @NotNull
     @Column(name = "create_date", nullable = false)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "UTC")
-    private Instant createDate;
+    private LocalDateTime createDate;
 
     @NotNull
     @Column(name = "total_amount", nullable = false)
@@ -83,6 +86,16 @@ public class Order {
                 orderDetail.setOrder(this);
                 this.orderDetails.add(orderDetail);
             }
+        }
+    }
+
+    @PrePersist
+    public void prePersist() {
+        if (this.createDate == null) {
+            this.createDate = LocalDateTime.now();
+        }
+        if (this.orderCode == null || this.orderCode.isEmpty()) {
+            this.orderCode = "ORD-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
         }
     }
 }

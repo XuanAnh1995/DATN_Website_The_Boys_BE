@@ -94,7 +94,7 @@ public class OrderService {
         order.setVoucher(voucher);
         order.setCustomer(customer);
         order.setOrderCode("ORD" + System.currentTimeMillis());
-        order.setCreateDate(Instant.now());
+        order.setCreateDate(LocalDateTime.now());
         order.setStatusOrder(0);
         order.setPaymentMethod(paymentMethod);
 
@@ -255,7 +255,7 @@ public class OrderService {
 
         // Gán các giá trị bắt buộc cho đơn hàng
         order.setOrderCode(UUID.randomUUID().toString());  // Tạo mã đơn hàng duy nhất (orderCode)
-        order.setCreateDate(LocalDateTime.now().atZone(ZoneOffset.UTC).toInstant()); // Thời gian tạo đơn hàng
+        order.setCreateDate(LocalDateTime.now()); // Thời gian tạo đơn hàng
         order.setTotalAmount(0); // Tổng tiền ban đầu là 0
         order.setTotalBill(BigDecimal.ZERO); // Tổng hóa đơn ban đầu là 0
 
