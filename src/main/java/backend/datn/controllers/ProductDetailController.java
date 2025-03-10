@@ -3,6 +3,8 @@ package backend.datn.controllers;
 import backend.datn.dto.ApiResponse;
 import backend.datn.dto.request.ProductDetailCreateRequest;
 import backend.datn.dto.request.ProductDetailUpdateRequest;
+import backend.datn.dto.response.ProductDetailGenerateResponse;
+import backend.datn.dto.response.ProductDetailGroupReponse;
 import backend.datn.dto.response.ProductDetailResponse;
 import backend.datn.exceptions.EntityAlreadyExistsException;
 import backend.datn.exceptions.EntityNotFoundException;
@@ -11,6 +13,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -28,14 +31,16 @@ public class ProductDetailController {
     @GetMapping
     public ResponseEntity<ApiResponse> getAllProductDetails(
             @RequestParam(required = false) String search,
-            @RequestParam(required = false) List<Integer> colorIds,
-            @RequestParam(required = false) List<Integer> collarIds,
-            @RequestParam(required = false) List<Integer> sizeIds,
-            @RequestParam(required = false) List<Integer> sleeveIds,
+            @RequestParam(required = false, defaultValue = "") List<Integer> colorIds,
+            @RequestParam(required = false, defaultValue = "") List<Integer> collarIds,
+            @RequestParam(required = false, defaultValue = "") List<Integer> sizeIds,
+            @RequestParam(required = false, defaultValue = "") List<Integer> sleeveIds,
             @RequestParam(required = false) Double minPrice,
             @RequestParam(required = false) Double maxPrice,
             Pageable pageable) {
         try {
+            System.out.println("Received CollarIds: " + collarIds); // Debug xem có nhận đúng không
+
             Page<ProductDetailResponse> productDetails = productDetailService.getAllProductDetails(
                     search, sizeIds, colorIds, collarIds, sleeveIds, minPrice, maxPrice, pageable);
             return ResponseEntity.ok(new ApiResponse("success", "Lấy danh sách chi tiết sản phẩm thành công", productDetails));
@@ -43,6 +48,7 @@ public class ProductDetailController {
             return ResponseEntity.status(500).body(new ApiResponse("error", "Lỗi khi lấy danh sách chi tiết sản phẩm: " + e.getMessage()));
         }
     }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse> getProductDetailById(@PathVariable Integer id) {
@@ -103,6 +109,16 @@ public class ProductDetailController {
             return ResponseEntity.status(404).body(new ApiResponse("error", "Không tìm thấy chi tiết sản phẩm: " + e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(new ApiResponse("error", "Lỗi khi toggle trạng thái chi tiết sản phẩm: " + e.getMessage()));
+        }
+    }
+
+    @PostMapping("/generate")
+    public ResponseEntity<ApiResponse> generateProductDetail(@RequestBody ProductDetailCreateRequest request) {
+        try {
+            List<ProductDetailGroupReponse> result = productDetailService.generateProductDetailsGroupedByColor(request);
+            return ResponseEntity.ok(new ApiResponse("success", "Tạo chi tiết sản phẩm thành công", result));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse("error", "Có lỗi xảy ra: " + e.getMessage(), null));
         }
     }
 }

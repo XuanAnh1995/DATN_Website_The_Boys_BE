@@ -23,7 +23,7 @@ public interface ProductDetailRepository extends JpaRepository<ProductDetail, In
                                                              @Param("sleeve") Integer sleeve);
 
     @Query("SELECT pd FROM ProductDetail pd " +
-            "WHERE (:search IS NULL OR pd.product.productName LIKE %:search% OR pd.productDetailCode LIKE  %:search% ) " +
+            "WHERE (:search IS NULL OR pd.product.productName LIKE %:search% OR pd.productDetailCode LIKE  :search OR pd.product.productCode LIKE :search  ) " +
             "AND (:sizeIds IS NULL OR pd.size.id IN :sizeIds) " +
             "AND (:colorIds IS NULL OR pd.color.id IN :colorIds) " +
             "AND (:collarIds IS NULL OR pd.collar.id IN :collarIds) " +
@@ -50,5 +50,8 @@ public interface ProductDetailRepository extends JpaRepository<ProductDetail, In
 
     // Tìm sản phẩm theo mã sản phẩm
     ProductDetail findByProductDetailCode(String productDetailCode);
+
+    @Query("SELECT pd FROM ProductDetail pd WHERE pd.product.productCode = :productCode")
+    List<ProductDetail> findByProductCode(@Param("productCode") String productCode);
 
 }

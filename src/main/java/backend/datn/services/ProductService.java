@@ -2,13 +2,14 @@ package backend.datn.services;
 
 import backend.datn.dto.request.ProductCreateRequest;
 import backend.datn.dto.request.ProductUpdateRequest;
+import backend.datn.dto.response.ProductDetailResponse;
 import backend.datn.dto.response.ProductResponse;
 import backend.datn.entities.Product;
+import backend.datn.entities.ProductDetail;
+import backend.datn.helpers.CodeGeneratorHelper;
+import backend.datn.mapper.ProductDetailMapper;
 import backend.datn.mapper.ProductMapper;
-import backend.datn.repositories.BrandRepository;
-import backend.datn.repositories.CategoryRepository;
-import backend.datn.repositories.MaterialRepository;
-import backend.datn.repositories.ProductRepository;
+import backend.datn.repositories.*;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -17,6 +18,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -32,6 +36,9 @@ public class ProductService {
 
     @Autowired
     CategoryRepository categoryRepository;
+
+    @Autowired
+    ProductDetailRepository productDetailRepository;
 
     public Page<ProductResponse> getAllProducts(String keyword, Boolean status, int page, int size, String sortBy, String sortDirection) {
         sortBy = (sortBy == null || sortBy.trim().isEmpty()) ? "id" : sortBy;
@@ -58,8 +65,9 @@ public class ProductService {
                 .orElseThrow(() -> new EntityNotFoundException("Category with ID " + request.getCategoryId() + " not found.")));
         product.setMaterial(materialRepository.findById(request.getMaterialId())
                 .orElseThrow(() -> new EntityNotFoundException("Material with ID " + request.getMaterialId() + " not found.")));
-        product.setProductName(request.getProductNameId().toString());
+        product.setProductName(request.getProductName());
         product.setStatus(true);
+        product.setProductCode(CodeGeneratorHelper.generateCode7("PRO"));
         product = productRepository.save(product);
         return ProductMapper.toProductResponse(product);
     }
@@ -74,7 +82,7 @@ public class ProductService {
                 .orElseThrow(() -> new EntityNotFoundException("Category with ID " + request.getCategoryId() + " not found.")));
         product.setMaterial(materialRepository.findById(request.getMaterialId())
                 .orElseThrow(() -> new EntityNotFoundException("Material with ID " + request.getMaterialId() + " not found.")));
-        product.setProductName(request.getProductNameId().toString());
+        product.setProductName(request.getProductName());
         product = productRepository.save(product);
         return ProductMapper.toProductResponse(product);
     }
@@ -94,5 +102,15 @@ public class ProductService {
         product.setStatus(!product.getStatus());
         product = productRepository.save(product);
         return ProductMapper.toProductResponse(product);
+    }
+
+    public List<ProductDetailResponse> getProductDetailsByProductCode(String productCode) {
+        List<ProductDetail> productDetails = productDetailRepository.findByProductCode(productCode);
+        if (productDetails.isEmpty()) {
+            throw new EntityNotFoundException("No product details found for product code: " + productCode);
+        }
+        return productDetails.stream()
+                .map(ProductDetailMapper::toProductDetailResponse)
+                .collect(Collectors.toList());
     }
 }

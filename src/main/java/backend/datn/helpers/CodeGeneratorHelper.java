@@ -19,6 +19,18 @@ public class CodeGeneratorHelper {
         return prefix.toUpperCase() + encodedTimestamp + randomPart;
     }
 
+    public static String generateCode7(String prefix) {
+        long timestamp = System.currentTimeMillis() % 1000000; // Lấy 6 chữ số cuối của timestamp
+        String encodedTimestamp = encodeBase36(timestamp); // Mã hóa Base36 (~5 ký tự)
+        String randomPart = getRandomString(2); // Thêm 2 ký tự random
+
+        String code = (prefix.toUpperCase() + encodedTimestamp + randomPart);
+        System.out.println("Generated Code: " + code + " (Length: " + code.length() + ")");
+
+        return code;
+    }
+
+
     /**
      * Mã hóa số nguyên sang hệ cơ số 36 (Base36)
      * @param value Giá trị cần mã hóa

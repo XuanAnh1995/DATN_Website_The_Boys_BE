@@ -5,7 +5,6 @@ import lombok.Data;
 
 @Data
 public class ProductUpdateRequest {
-
     @NotNull(message = "Thương hiệu không được để trống")
     private Integer brandId;
 
@@ -16,6 +15,5 @@ public class ProductUpdateRequest {
     private Integer materialId;
 
     @NotNull(message = "Tên sản phẩm không được để trống")
-    private Integer productNameId;
-
+    private String productName;
 }

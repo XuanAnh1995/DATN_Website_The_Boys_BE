@@ -12,6 +12,7 @@ public class ProductMapper {
                 .category(CategoryMapper.toCategoryResponse(product.getCategory()))
                 .material(MaterialMapper.toMaterialResponse(product.getMaterial()))
                 .productName(product.getProductName())
+                .productCode(product.getProductCode())
                 .status(product.getStatus())
                 .build();
     }

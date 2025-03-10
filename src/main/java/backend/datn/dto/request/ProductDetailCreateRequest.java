@@ -42,7 +42,6 @@ public class ProductDetailCreateRequest {
     private Integer quantity;
 
     @Size(max = 500, message = "Mô tả không được vượt quá 500 ký tự")
-    @NotNull(message = "Mô tả không được để trống")
     private String description;
 
 }

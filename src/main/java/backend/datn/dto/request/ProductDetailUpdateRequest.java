@@ -21,14 +21,14 @@ public class ProductDetailUpdateRequest {
 
     private Integer promotionId;
 
-    @NotEmpty(message = "Cổ áo không được để trống")
+    @NotNull(message = "Cổ áo không được để trống")
     private Integer collarId;
 
-    @NotEmpty(message = "Tay áo không được để trống")
+    @NotNull(message = "Tay áo không được để trống")
     private Integer sleeveId;
 
     @Size(max = 250, message = "Ảnh không được vượt quá 250 ký tự")
-    @NotNull(message = "Ảnh không được để trống")
+    @NotEmpty(message = "Ảnh không được để trống")
     private String photo;
 
     @NotNull(message = "Giá nhập không được để trống")
