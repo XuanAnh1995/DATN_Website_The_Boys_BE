@@ -1,11 +1,11 @@
 package backend.datn.services;
 
 import backend.datn.dto.request.OrderDetailCreateRequest;
+import backend.datn.dto.request.OrderPOSCreateRequest;
 import backend.datn.dto.response.OrderResponse;
 import backend.datn.entities.*;
 import backend.datn.mapper.OrderMapper;
-import backend.datn.repositories.OrderRepository;
-import backend.datn.repositories.OrderDetailRepository;
+import backend.datn.repositories.*;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -34,6 +35,9 @@ public class SalePOSService {
     private CustomerService customerService;
 
     @Autowired
+    private CustomerRepository customerRepository;
+
+    @Autowired
     private EmployeeService employeeService;
 
     @Autowired
@@ -41,6 +45,15 @@ public class SalePOSService {
 
     @Autowired
     private VoucherService voucherService;
+    @Autowired
+    private ProductRepository productRepository;
+
+    @Autowired
+    private ProductDetailRepository productDetailRepository;
+    @Autowired
+    private EmployeeRepository employeeRepository;
+    @Autowired
+    private VoucherRepository voucherRepository;
 
     /**
      * Tạo mới đơn hàng rỗng cho POS
@@ -219,5 +232,68 @@ public class SalePOSService {
         order.setStatusOrder(5);
         return OrderMapper.toOrderResponse(orderRepository.save(order));
     }
+    @Transactional
+    public Order thanhToan(OrderPOSCreateRequest request) {
+        if (request.getOrderId() == null) {
+            throw new IllegalArgumentException("Order ID không được để trống.");
+        }
 
+        // Tìm đơn hàng đã tồn tại
+        Order order = orderRepository.findById(request.getOrderId())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn."));
+
+        // Cập nhật trạng thái và tổng tiền
+        order.setTotalAmount(request.getTotalAmount());
+        order.setStatusOrder(request.getStatusOrder());
+
+        // Xử lý danh sách sản phẩm
+        BigDecimal totalBill = BigDecimal.ZERO;
+        for (OrderDetailCreateRequest detailRequest : request.getOrderDetails()) {
+            ProductDetail productDetail = productDetailRepository.findById(detailRequest.getProductDetailId())
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm."));
+
+            if (productDetail.getQuantity() < detailRequest.getQuantity()) {
+                throw new RuntimeException("Sản phẩm " + productDetail.getProductDetailCode() + " không đủ số lượng tồn kho.");
+            }
+
+            // Cập nhật số lượng tồn kho của sản phẩm
+            productDetail.setQuantity(productDetail.getQuantity() - detailRequest.getQuantity());
+            productDetailRepository.save(productDetail);  // Lưu vào DB
+
+            // Kiểm tra nếu chi tiết đơn hàng đã tồn tại, cập nhật số lượng thay vì tạo mới
+            OrderDetail orderDetail = orderDetailRepository.findByOrderAndProductDetail(order, productDetail)
+                    .orElse(new OrderDetail());
+
+            orderDetail.setOrder(order);
+            orderDetail.setProductDetail(productDetail);
+
+            // Xử lý trường hợp quantity bị null
+            int currentQuantity = (orderDetail.getQuantity() == null) ? 0 : orderDetail.getQuantity();
+            orderDetail.setQuantity(currentQuantity + detailRequest.getQuantity());
+
+            orderDetailRepository.save(orderDetail);  // Lưu vào DB
+
+            // Tính tổng tiền
+            totalBill = totalBill.add(getDiscountedPrice(productDetail).multiply(BigDecimal.valueOf(detailRequest.getQuantity())));
+        }
+
+        // Cập nhật tổng tiền đơn hàng
+        order.setTotalBill(totalBill);
+
+        // Lưu đơn hàng vào DB và trả về
+        return orderRepository.save(order);  // Lưu vào DB
+    }
+
+
+    private BigDecimal getDiscountedPrice(ProductDetail productDetail) {
+        BigDecimal salePrice = productDetail.getSalePrice();
+
+        if (productDetail.getPromotion() != null) {
+            BigDecimal discountPercent = BigDecimal.valueOf(100 - productDetail.getPromotion().getPromotionPercent())
+                    .divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP);
+            return salePrice.multiply(discountPercent);
+        }
+
+        return salePrice; // Nếu không có khuyến mãi, trả về giá gốc
+    }
 }
