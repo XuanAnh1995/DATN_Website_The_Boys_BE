@@ -8,9 +8,11 @@ import backend.datn.entities.*;
 import backend.datn.mapper.OrderMapper;
 import backend.datn.services.*;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -175,6 +177,20 @@ public class SalePOSController {
     private Employee resolveEmployee(Integer employeeId) {
         return employeeService.findById(employeeId)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy nhân viên với ID: " + employeeId));
+    }
+
+
+    @PostMapping("/checkout")
+    public ResponseEntity<?> checkout(@Valid @RequestBody OrderPOSCreateRequest request, BindingResult result) {
+        if (result.hasErrors()) {
+            return ResponseEntity.badRequest().body(result.getAllErrors());
+        }
+        try {
+            Order order = salePOSService.thanhToan(request);
+            return ResponseEntity.ok(order);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
 }
