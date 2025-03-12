@@ -55,6 +55,11 @@ public class SalePOSService {
     @Autowired
     private VoucherRepository voucherRepository;
 
+    public Order findOrderById(Integer orderId) {
+        return orderRepository.findById(orderId)
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy đơn hàng #" + orderId));
+    }
+
     /**
      * Tạo mới đơn hàng rỗng cho POS
      * Được sử dụng khi bắt đầu một giao dịch bán hàng tại quầy.
@@ -224,14 +229,23 @@ public class SalePOSService {
         // Trừ tồn kho
         for (OrderDetail orderDetail : order.getOrderDetails()) {
             ProductDetail productDetail = orderDetail.getProductDetail();
-            productDetail.setQuantity(productDetail.getQuantity() - orderDetail.getQuantity());
+            int beforeQuantity = productDetail.getQuantity();
+            productDetail.setQuantity(beforeQuantity - orderDetail.getQuantity());
             productDetailService.update(productDetail);
+
+            logger.info("Cập nhật tồn kho sản phẩm: {} | Trước: {} | Sau: {} | Đã bán: {}",
+                    productDetail.getProduct().getProductName(), beforeQuantity, productDetail.getQuantity(), orderDetail.getQuantity());
         }
 
         // Cập nhật trạng thái đơn hàng thành "Hoàn thành"
         order.setStatusOrder(5);
-        return OrderMapper.toOrderResponse(orderRepository.save(order));
+        OrderResponse response = OrderMapper.toOrderResponse(orderRepository.save(order));
+        logger.info("Thanh toán thành công! Order ID: {}, Tổng tiền: {}, Tổng số lượng: {}",
+                order.getId(), order.getTotalBill(), order.getTotalAmount());
+
+        return response;
     }
+
     @Transactional
     public Order thanhToan(OrderPOSCreateRequest request) {
         if (request.getOrderId() == null) {

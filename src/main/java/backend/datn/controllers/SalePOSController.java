@@ -37,47 +37,14 @@ public class SalePOSController {
     @Autowired
     private SalePOSService salePOSService;
 
-    // tạo hoá đơn rỗng
-//    @PostMapping("/orders")
-//    public ResponseEntity<ApiResponse> createEmptyOrder(
-//            @RequestParam Integer customerId,
-//            @RequestParam Integer employeeId,
-//            @RequestParam(required = false) Integer voucherId,
-//            @RequestParam Integer paymentMethod) {
-//        try {
-//            // Lấy thông tin khách hàng
-//            Customer customer = resolveCustomer(customerId);
-//
-//            // Lấy thông tin nhân viên
-//            Employee employee = resolveEmployee(employeeId);
-//
-//            // Lấy thông tin voucher nếu có
-//            Voucher voucher = (voucherId != null) ? voucherService.findById(voucherId)
-//                    .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy voucher với ID: " + voucherId))
-//                    : null;
-//
-//            // Tạo đơn hàng trống
-//            Order order = salePOSService.createEmptyOrder(customer, employee, voucher, paymentMethod);
-//
-//            OrderResponse orderResponse = OrderMapper.toOrderResponse(order);
-//            return ResponseEntity.ok(new ApiResponse("success", "Tạo hóa đơn mới thành công", orderResponse));
-//        } catch (EntityNotFoundException e) {
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-//                    .body(new ApiResponse("error", e.getMessage(), null));
-//        } catch (Exception e) {
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-//                    .body(new ApiResponse("error", "Lỗi khi tạo hóa đơn: " + e.getMessage(), null));
-//        }
-//    }
-
-
     @PostMapping("/orders")
     public ResponseEntity<ApiResponse> createEmptyOrder(@RequestBody OrderPOSCreateRequest request) {
         try {
-//        Customer customer = resolveCustomer(request.getCustomerId());
 
-            // 🔍 Log kiểm tra voucherId trước khi xử lý
-            System.out.println("🎟️ Voucher ID nhận được: " + request.getVoucherId());
+            System.out.println("📌 [CREATE ORDER] Nhận yêu cầu tạo đơn hàng:");
+            System.out.println("👤 Khách hàng ID: " + request.getCustomerId());
+            System.out.println("💳 Phương thức thanh toán: " + request.getPaymentMethod());
+            System.out.println("🎟 Voucher ID: " + request.getVoucherId());
 
             Customer customer = (request.getCustomerId() == null ||
                     request.getCustomerId().toString().trim().isEmpty() ||
@@ -95,8 +62,7 @@ public class SalePOSController {
             Order order = salePOSService.createEmptyOrder(customer, employee, voucher, request.getPaymentMethod());
 
             // 🔍 Kiểm tra order sau khi tạo
-            System.out.println("📌 Đơn hàng được tạo: " + order);
-            System.out.println("🎟️ Voucher trong đơn hàng: " + order.getVoucher());
+            System.out.println("✅ [CREATE ORDER] Đơn hàng được tạo thành công: " + order.getId());
 
             return ResponseEntity.ok(new ApiResponse("success", "Tạo hóa đơn mới thành công", OrderMapper.toOrderResponse(order)));
         } catch (IllegalArgumentException e) {
@@ -116,12 +82,36 @@ public class SalePOSController {
      * Thêm sản phẩm vào giỏ hàng
      */
     @PostMapping("/orders/{orderId}/products")
-    public ResponseEntity<OrderResponse> addProductToCart(
+    public ResponseEntity<ApiResponse> addProductToCart(
             @PathVariable Integer orderId,
             @RequestBody OrderDetailCreateRequest request) {
         try {
+
+            System.out.println("📌 [ADD PRODUCT] Đang thêm sản phẩm vào đơn hàng #" + orderId);
+            System.out.println("🔍 Sản phẩm ID: " + request.getProductDetailId() + ", SL: " + request.getQuantity());
+
+            // Kiểm tra đơn hàng có tồn tại không
+            Order order = salePOSService.findOrderById(orderId);
+            if (order == null) {
+                System.err.println("❌ [ADD PRODUCT] Không tìm thấy đơn hàng #" + orderId);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new ApiResponse("error", "Không tìm thấy đơn hàng", null));
+            }
+
+            // Kiểm tra sản phẩm tồn tại và còn hàng không
+            ProductDetail productDetail = productDetailService.findById(request.getProductDetailId())
+                    .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy sản phẩm"));
+
+            if (productDetail.getQuantity() < request.getQuantity()) {
+                System.err.println("⚠ [ADD PRODUCT] Sản phẩm hết hàng! Còn lại: " + productDetail.getQuantity());
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(new ApiResponse("error", "Sản phẩm không đủ hàng", null));
+            }
+
+            // Thêm sản phẩm vào đơn hàng
             OrderResponse response = salePOSService.addProductToCart(orderId, request);
-            return ResponseEntity.ok(response);
+            System.out.println("✅ [ADD PRODUCT] Đã thêm sản phẩm vào đơn hàng #" + orderId);
+            return ResponseEntity.ok(new ApiResponse("success", "Thêm sản phẩm thành công", response));
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         } catch (IllegalArgumentException e) {
@@ -144,7 +134,7 @@ public class SalePOSController {
             OrderResponse response = salePOSService.updateOrderStatusAfterPayment(orderId);
 
             // 🔍 Log totalBill sau khi cập nhật
-            System.out.println("💰 Tổng tiền sau khi thanh toán: " + response.getTotalBill());
+            System.out.println("✅ [PAYMENT] Đơn hàng #" + orderId + " đã được thanh toán. Tổng tiền: " + response.getTotalBill());
 
             return ResponseEntity.ok(new ApiResponse("success", "Thanh toán thành công", response));
         } catch (EntityNotFoundException e) {
