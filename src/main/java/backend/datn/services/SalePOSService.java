@@ -84,8 +84,15 @@ public class SalePOSService {
             throw new IllegalArgumentException("Phương thức thanh toán không hợp lệ.");
         }
 
+        // Nếu khách hàng là null, gán khách hàng vãng lai (ID = -1)
+        if (customer == null) {
+            customer = new Customer();
+            customer.setId(-1);
+            customer.setFullname("Khách vãng lai");
+        }
+
         Order order = new Order();
-        order.setCustomer(customer); // Có thể null (khách vãng lai)
+        order.setCustomer(customer);
         order.setEmployee(employee);
         order.setVoucher(voucher);
         order.setPaymentMethod(paymentMethod);
@@ -100,6 +107,7 @@ public class SalePOSService {
         Order savedOrder = orderRepository.save(order);
         logger.info("Đã tạo đơn hàng. Order ID: {}, Order Code: {}", savedOrder.getId(), savedOrder.getOrderCode());
         return savedOrder;
+
     }
 
 
@@ -249,19 +257,20 @@ public class SalePOSService {
     @Transactional
     public Order thanhToan(OrderPOSCreateRequest request) {
         if (request.getOrderId() == null) {
+            logger.error("Order ID is null in request");
             throw new IllegalArgumentException("Order ID không được để trống.");
         }
 
-        // Tìm đơn hàng đã tồn tại
         Order order = orderRepository.findById(request.getOrderId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn."));
 
-        // Cập nhật trạng thái và tổng tiền
+        // Cập nhật thông tin tổng tiền và trạng thái đơn hàng
         order.setTotalAmount(request.getTotalAmount());
         order.setStatusOrder(request.getStatusOrder());
 
-        // Xử lý danh sách sản phẩm
-        BigDecimal totalBill = BigDecimal.ZERO;
+        BigDecimal originalTotal = BigDecimal.ZERO; // Tổng tiền trước giảm
+        BigDecimal totalBill = BigDecimal.ZERO;     // Tổng tiền sau giảm
+
         for (OrderDetailCreateRequest detailRequest : request.getOrderDetails()) {
             ProductDetail productDetail = productDetailRepository.findById(detailRequest.getProductDetailId())
                     .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm."));
@@ -270,44 +279,51 @@ public class SalePOSService {
                 throw new RuntimeException("Sản phẩm " + productDetail.getProductDetailCode() + " không đủ số lượng tồn kho.");
             }
 
-            // Cập nhật số lượng tồn kho của sản phẩm
+            // Cập nhật số lượng sản phẩm trong kho
             productDetail.setQuantity(productDetail.getQuantity() - detailRequest.getQuantity());
-            productDetailRepository.save(productDetail);  // Lưu vào DB
+            productDetailRepository.save(productDetail);
 
-            // Kiểm tra nếu chi tiết đơn hàng đã tồn tại, cập nhật số lượng thay vì tạo mới
+            // Tìm kiếm hoặc tạo mới chi tiết hóa đơn
             OrderDetail orderDetail = orderDetailRepository.findByOrderAndProductDetail(order, productDetail)
                     .orElse(new OrderDetail());
 
             orderDetail.setOrder(order);
             orderDetail.setProductDetail(productDetail);
 
-            // Xử lý trường hợp quantity bị null
+            // Cập nhật số lượng sản phẩm trong chi tiết hóa đơn
             int currentQuantity = (orderDetail.getQuantity() == null) ? 0 : orderDetail.getQuantity();
             orderDetail.setQuantity(currentQuantity + detailRequest.getQuantity());
 
-            orderDetailRepository.save(orderDetail);  // Lưu vào DB
+            // Lưu thông tin chi tiết hóa đơn
+            orderDetailRepository.save(orderDetail);
 
-            // Tính tổng tiền
-            totalBill = totalBill.add(getDiscountedPrice(productDetail).multiply(BigDecimal.valueOf(detailRequest.getQuantity())));
+            // Tính tổng tiền trước giảm và tổng tiền sau giảm
+            BigDecimal quantity = BigDecimal.valueOf(detailRequest.getQuantity());
+            originalTotal = originalTotal.add(productDetail.getSalePrice().multiply(quantity)); // Trước giảm
+            totalBill = totalBill.add(getDiscountedPrice(productDetail).multiply(quantity)); // Sau giảm
         }
 
-        // Cập nhật tổng tiền đơn hàng
-        order.setTotalBill(totalBill);
+        // Cập nhật tổng tiền trước và sau giảm vào hóa đơn
+        order.setOriginalTotal(originalTotal); // Lưu tổng tiền trước giảm
+        order.setTotalBill(totalBill);     // Lưu tổng tiền sau giảm
 
-        // Lưu đơn hàng vào DB và trả về
-        return orderRepository.save(order);  // Lưu vào DB
+        // Kiểm tra khách hàng là khách vãng lai
+        if (order.getCustomer().getId() == -1) {
+            logger.info("Xử lý đơn hàng cho khách vãng lai.");
+        }
+
+        // Lưu lại hóa đơn đã cập nhật vào cơ sở dữ liệu
+        return orderRepository.save(order);
     }
-
 
     private BigDecimal getDiscountedPrice(ProductDetail productDetail) {
         BigDecimal salePrice = productDetail.getSalePrice();
-
         if (productDetail.getPromotion() != null) {
             BigDecimal discountPercent = BigDecimal.valueOf(100 - productDetail.getPromotion().getPromotionPercent())
                     .divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP);
             return salePrice.multiply(discountPercent);
         }
-
-        return salePrice; // Nếu không có khuyến mãi, trả về giá gốc
+        return salePrice;
     }
+
 }

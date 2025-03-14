@@ -57,6 +57,11 @@ public class Order {
     private Integer totalAmount;
 
     @NotNull
+    @Column(name = "original_total", nullable = false, precision = 18, scale = 2)
+    private BigDecimal originalTotal; // Tổng tiền trước khi áp voucher
+
+
+    @NotNull
     @Column(name = "total_bill", nullable = false, precision = 18, scale = 2)
     private BigDecimal totalBill;
 
