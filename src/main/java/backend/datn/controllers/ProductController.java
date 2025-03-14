@@ -5,16 +5,21 @@ import backend.datn.dto.request.ProductCreateRequest;
 import backend.datn.dto.request.ProductUpdateRequest;
 import backend.datn.dto.response.ProductDetailResponse;
 import backend.datn.dto.response.ProductResponse;
+import backend.datn.dto.response.UserProductResponse;
 import backend.datn.services.ProductService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -122,4 +127,29 @@ public class ProductController {
             return new ResponseEntity<>(new ApiResponse("error", e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    @GetMapping("/filter")
+    public ResponseEntity<Page<UserProductResponse>> getFilteredProducts(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) List<Integer> brandIds,
+            @RequestParam(required = false) List<Integer> categoryIds,
+            @RequestParam(required = false) List<Integer> materialIds,
+            @RequestParam(required = false) List<Integer> collarIds,
+            @RequestParam(required = false) List<Integer> sleeveIds,
+            @RequestParam(required = false) List<Integer> colorIds,
+            @RequestParam(required = false) List<Integer> sizeIds,
+            @RequestParam(required = false) BigDecimal minPrice,
+            @RequestParam(required = false) BigDecimal maxPrice,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Page<UserProductResponse> products = productService.getAllProductUser(
+                search, brandIds, categoryIds, materialIds, collarIds, sleeveIds,
+                colorIds, sizeIds, minPrice, maxPrice, sortBy, sortDir, page, size
+        );
+        return ResponseEntity.ok(products);
+    }
+
+
 }

@@ -4,6 +4,7 @@ import backend.datn.dto.request.ProductCreateRequest;
 import backend.datn.dto.request.ProductUpdateRequest;
 import backend.datn.dto.response.ProductDetailResponse;
 import backend.datn.dto.response.ProductResponse;
+import backend.datn.dto.response.UserProductResponse;
 import backend.datn.entities.Product;
 import backend.datn.entities.ProductDetail;
 import backend.datn.helpers.CodeGeneratorHelper;
@@ -16,9 +17,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,6 +44,7 @@ public class ProductService {
 
     @Autowired
     ProductDetailRepository productDetailRepository;
+    
 
     public Page<ProductResponse> getAllProducts(String keyword, Boolean status, int page, int size, String sortBy, String sortDirection) {
         sortBy = (sortBy == null || sortBy.trim().isEmpty()) ? "id" : sortBy;
@@ -113,4 +119,27 @@ public class ProductService {
                 .map(ProductDetailMapper::toProductDetailResponse)
                 .collect(Collectors.toList());
     }
+    public Page<UserProductResponse> getAllProductUser(
+            String search, List<Integer> brandIds, List<Integer> categoryIds,
+            List<Integer> materialIds, List<Integer> collarIds, List<Integer> sleeveIds,
+            List<Integer> colorIds, List<Integer> sizeIds, BigDecimal minPrice,
+            BigDecimal maxPrice, String sortBy, String sortDir, int page, int size
+    ) {
+        // Kiểm tra giá trị hợp lệ của sortBy
+        List<String> allowedSortFields = List.of("id", "productName", "quantity", "salePrice");
+        if (!allowedSortFields.contains(sortBy)) {
+            sortBy = "id"; // Mặc định nếu không hợp lệ
+        }
+
+        // Tạo Sort object từ sortBy và sortDir
+        Sort sort = "asc".equalsIgnoreCase(sortDir) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        return productRepository.findAllWithFilters(
+                search, brandIds, categoryIds, materialIds, collarIds, sleeveIds, colorIds, sizeIds, minPrice, maxPrice, pageable
+        );
+    }
+
+
+
 }
