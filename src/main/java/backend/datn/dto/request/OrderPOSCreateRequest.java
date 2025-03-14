@@ -16,8 +16,7 @@ import java.util.List;
 @SuperBuilder
 public class OrderPOSCreateRequest {
 
-    @NotNull
-    @Min(1)
+
     private Integer orderId;
 
     @NotNull(message = "ID nhân viên không được để trống")
