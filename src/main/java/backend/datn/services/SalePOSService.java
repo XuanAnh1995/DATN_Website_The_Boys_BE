@@ -304,7 +304,7 @@ public class SalePOSService {
         }
 
         // Cập nhật tổng tiền trước và sau giảm vào hóa đơn
-        order.setOriginalTotal(originalTotal); // Lưu tổng tiền trước giảm
+//        order.setOriginalTotal(originalTotal); // Lưu tổng tiền trước giảm
         order.setTotalBill(totalBill);     // Lưu tổng tiền sau giảm
 
         // Kiểm tra khách hàng là khách vãng lai
