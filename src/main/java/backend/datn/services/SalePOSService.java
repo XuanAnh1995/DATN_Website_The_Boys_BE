@@ -174,30 +174,50 @@ public class SalePOSService {
             }
 
             BigDecimal price = orderDetail.getProductDetail().getSalePrice(); // Sử dụng sale_price từ product_detail
+            BigDecimal originalPrice = price; // Lưu giá gốc để debug
             ProductDetail productDetail = orderDetail.getProductDetail();
 
             // Kiểm tra và áp dụng khuyến mãi (Promotion) nếu có
-            if (productDetail.getPromotion() != null && productDetail.getPromotion().getStatus()) {
+            if (productDetail.getPromotion() != null) {
                 Promotion promotion = productDetail.getPromotion();
-                if (promotion.getStartDate().isBefore(Instant.now()) && promotion.getEndDate().isAfter(Instant.now())) {
-                    // Khuyến mãi đang hoạt động
-                    BigDecimal discountPercentage = BigDecimal.valueOf(promotion.getPromotionPercent()).divide(new BigDecimal(100));
+                if (!promotion.getStatus()) {
+                    logger.warn("⚠️ [PROMOTION] Khuyến mãi {} bị vô hiệu hóa", promotion.getPromotionName());
+                } else if (promotion.getStartDate().isAfter(Instant.now()) || promotion.getEndDate().isBefore(Instant.now())) {
+                    logger.warn("⚠️ [PROMOTION] Khuyến mãi {} chưa đến hạn hoặc đã hết hạn", promotion.getPromotionName());
+                } else {
+                    BigDecimal discountPercentage = BigDecimal.valueOf(promotion.getPromotionPercent()).divide(BigDecimal.valueOf(100));
                     BigDecimal discountAmount = price.multiply(discountPercentage);
-                    price = price.subtract(discountAmount); // Tính giá đã giảm
+                    price = price.subtract(discountAmount);
+                    logger.info("✅ [DISCOUNT] Giá gốc: {}, Giá sau giảm: {}, Giảm giá: {}%",
+                            originalPrice, price, promotion.getPromotionPercent());
                 }
             }
+
 
             totalBill = totalBill.add(price.multiply(BigDecimal.valueOf(orderDetail.getQuantity())));
             totalAmount += orderDetail.getQuantity();
         }
 
         // Kiểm tra và áp dụng Voucher nếu có
-        if (order.getVoucher() != null && order.getVoucher().getStatus()) {
-            totalBill = voucherService.applyVoucher(order.getVoucher(), totalBill);
+        if (order.getVoucher() != null) {
+            Voucher voucher = order.getVoucher();
+            if (!voucher.getStatus()) {
+                logger.warn("⚠️ [VOUCHER] Voucher {} bị vô hiệu hóa", voucher.getVoucherCode());
+            } else if (order.getTotalBill().compareTo(voucher.getMinCondition()) < 0) {
+                logger.warn("⚠️ [VOUCHER] Đơn hàng không đủ điều kiện áp dụng voucher (yêu cầu: {}, hiện tại: {})",
+                        voucher.getMinCondition(), order.getTotalBill());
+            } else {
+                BigDecimal beforeVoucher = totalBill;
+                totalBill = voucherService.applyVoucher(voucher, totalBill);
+                logger.info("✅ [VOUCHER] Tổng tiền trước voucher: {}, Sau khi áp dụng voucher: {}", beforeVoucher, totalBill);
+            }
         }
+
 
         order.setTotalBill(totalBill);
         order.setTotalAmount(totalAmount);
+
+        logger.info("✅ [UPDATE ORDER] Order ID: {}, TotalBill: {}, TotalAmount: {}", order.getId(), totalBill, totalAmount);
     }
 
     /**
@@ -245,6 +265,12 @@ public class SalePOSService {
                     productDetail.getProduct().getProductName(), beforeQuantity, productDetail.getQuantity(), orderDetail.getQuantity());
         }
 
+        // 🔥 Quan trọng: Cập nhật lại tổng tiền trước khi lưu đơn hàng
+        updateOrderTotal(order);
+
+        // 🔥 Quan trọng: Lưu order sau khi cập nhật totalBill
+        order = orderRepository.save(order);
+
         // Cập nhật trạng thái đơn hàng thành "Hoàn thành"
         order.setStatusOrder(5);
         OrderResponse response = OrderMapper.toOrderResponse(orderRepository.save(order));
@@ -253,6 +279,7 @@ public class SalePOSService {
 
         return response;
     }
+
 
     @Transactional
     public Order thanhToan(OrderPOSCreateRequest request) {
@@ -264,53 +291,56 @@ public class SalePOSService {
         Order order = orderRepository.findById(request.getOrderId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn."));
 
-        // Cập nhật thông tin tổng tiền và trạng thái đơn hàng
-        order.setTotalAmount(request.getTotalAmount());
-        order.setStatusOrder(request.getStatusOrder());
+//        // Cập nhật thông tin tổng tiền và trạng thái đơn hàng
+//        order.setTotalAmount(request.getTotalAmount());
+//        order.setStatusOrder(request.getStatusOrder());
+//
+//        BigDecimal originalTotal = BigDecimal.ZERO; // Tổng tiền trước giảm
+//        BigDecimal totalBill = BigDecimal.ZERO;     // Tổng tiền sau giảm
+//
+//        for (OrderDetailCreateRequest detailRequest : request.getOrderDetails()) {
+//            ProductDetail productDetail = productDetailRepository.findById(detailRequest.getProductDetailId())
+//                    .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm."));
+//
+//            if (productDetail.getQuantity() < detailRequest.getQuantity()) {
+//                throw new RuntimeException("Sản phẩm " + productDetail.getProductDetailCode() + " không đủ số lượng tồn kho.");
+//            }
+//
+//            // Cập nhật số lượng sản phẩm trong kho
+//            productDetail.setQuantity(productDetail.getQuantity() - detailRequest.getQuantity());
+//            productDetailRepository.save(productDetail);
+//
+//            // Tìm kiếm hoặc tạo mới chi tiết hóa đơn
+//            OrderDetail orderDetail = orderDetailRepository.findByOrderAndProductDetail(order, productDetail)
+//                    .orElse(new OrderDetail());
+//
+//            orderDetail.setOrder(order);
+//            orderDetail.setProductDetail(productDetail);
+//
+//            // Cập nhật số lượng sản phẩm trong chi tiết hóa đơn
+//            int currentQuantity = (orderDetail.getQuantity() == null) ? 0 : orderDetail.getQuantity();
+//            orderDetail.setQuantity(currentQuantity + detailRequest.getQuantity());
+//
+//            // Lưu thông tin chi tiết hóa đơn
+//            orderDetailRepository.save(orderDetail);
+//
+//            // Tính tổng tiền trước giảm và tổng tiền sau giảm
+//            BigDecimal quantity = BigDecimal.valueOf(detailRequest.getQuantity());
+//            originalTotal = originalTotal.add(productDetail.getSalePrice().multiply(quantity)); // Trước giảm
+//            totalBill = totalBill.add(getDiscountedPrice(productDetail).multiply(quantity)); // Sau giảm
+//        }
+//
+//        // Cập nhật tổng tiền trước và sau giảm vào hóa đơn
+////        order.setOriginalTotal(originalTotal); // Lưu tổng tiền trước giảm
+//        order.setTotalBill(totalBill);     // Lưu tổng tiền sau giảm
+//
+//        // Kiểm tra khách hàng là khách vãng lai
+//        if (order.getCustomer().getId() == -1) {
+//            logger.info("Xử lý đơn hàng cho khách vãng lai.");
+//        }
 
-        BigDecimal originalTotal = BigDecimal.ZERO; // Tổng tiền trước giảm
-        BigDecimal totalBill = BigDecimal.ZERO;     // Tổng tiền sau giảm
-
-        for (OrderDetailCreateRequest detailRequest : request.getOrderDetails()) {
-            ProductDetail productDetail = productDetailRepository.findById(detailRequest.getProductDetailId())
-                    .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm."));
-
-            if (productDetail.getQuantity() < detailRequest.getQuantity()) {
-                throw new RuntimeException("Sản phẩm " + productDetail.getProductDetailCode() + " không đủ số lượng tồn kho.");
-            }
-
-            // Cập nhật số lượng sản phẩm trong kho
-            productDetail.setQuantity(productDetail.getQuantity() - detailRequest.getQuantity());
-            productDetailRepository.save(productDetail);
-
-            // Tìm kiếm hoặc tạo mới chi tiết hóa đơn
-            OrderDetail orderDetail = orderDetailRepository.findByOrderAndProductDetail(order, productDetail)
-                    .orElse(new OrderDetail());
-
-            orderDetail.setOrder(order);
-            orderDetail.setProductDetail(productDetail);
-
-            // Cập nhật số lượng sản phẩm trong chi tiết hóa đơn
-            int currentQuantity = (orderDetail.getQuantity() == null) ? 0 : orderDetail.getQuantity();
-            orderDetail.setQuantity(currentQuantity + detailRequest.getQuantity());
-
-            // Lưu thông tin chi tiết hóa đơn
-            orderDetailRepository.save(orderDetail);
-
-            // Tính tổng tiền trước giảm và tổng tiền sau giảm
-            BigDecimal quantity = BigDecimal.valueOf(detailRequest.getQuantity());
-            originalTotal = originalTotal.add(productDetail.getSalePrice().multiply(quantity)); // Trước giảm
-            totalBill = totalBill.add(getDiscountedPrice(productDetail).multiply(quantity)); // Sau giảm
-        }
-
-        // Cập nhật tổng tiền trước và sau giảm vào hóa đơn
-//        order.setOriginalTotal(originalTotal); // Lưu tổng tiền trước giảm
-        order.setTotalBill(totalBill);     // Lưu tổng tiền sau giảm
-
-        // Kiểm tra khách hàng là khách vãng lai
-        if (order.getCustomer().getId() == -1) {
-            logger.info("Xử lý đơn hàng cho khách vãng lai.");
-        }
+        // ✅ Cập nhật lại tổng tiền trước khi lưu đơn hàng
+        updateOrderTotal(order);
 
         // Lưu lại hóa đơn đã cập nhật vào cơ sở dữ liệu
         return orderRepository.save(order);
