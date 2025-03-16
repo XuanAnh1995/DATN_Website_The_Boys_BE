@@ -15,15 +15,15 @@ public interface StatisticRepository extends JpaRepository<ProductDetail, Intege
 
     // Doanh thu theo ngày
     @Query(value = """
-            SELECT 
-                DAY(o.create_date) AS dayNumber, 
-                MONTH(o.create_date) AS monthNumber, 
-                YEAR(o.create_date) AS yearNumber, 
-                ISNULL(SUM(o.total_bill), 0) AS dailyRevenue
+            SELECT
+                 DAY(o.create_date) AS dayNumber,
+                 MONTH(o.create_date) AS monthNumber,
+                 YEAR(o.create_date) AS yearNumber,
+                 COALESCE(SUM(o.total_bill), 0) AS dailyRevenue
             FROM [order] o
             WHERE o.status_order = 5
-            GROUP BY o.create_date
-            ORDER BY o.create_date;
+            GROUP BY YEAR(o.create_date), MONTH(o.create_date), DAY(o.create_date)
+            ORDER BY yearNumber, monthNumber, dayNumber;
             """, nativeQuery = true)
     List<Object[]> getDailyRevenue();
 
