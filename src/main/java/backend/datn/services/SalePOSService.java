@@ -225,26 +225,34 @@ public class SalePOSService {
      * Kiểm tra tồn kho trước khi trừ số lượng sản phẩm
      */
     @Transactional
-    public OrderResponse updateOrderStatusAfterPayment(Integer orderId) {
-        logger.info("Bắt đầu cập nhật trạng thái đơn hàng sau thanh toán. Order ID: {}", orderId);
+    public OrderResponse updateOrderStatusAfterPayment(Integer orderId, Integer customerId, Integer voucherId) {
+        logger.info("Bắt đầu cập nhật trạng thái đơn hàng sau thanh toán. Order ID: {}, Customer ID: {}, Voucher ID: {}",
+                orderId, customerId, voucherId);
 
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy đơn hàng với ID: " + orderId));
 
         // Kiểm tra nếu đơn hàng đã hoàn thành
         if (order.getStatusOrder() == 5) {
-            logger.error("Đơn hàng đã được thanh toán trước đó. Order ID: {}", order.getId());
             throw new IllegalStateException("Đơn hàng đã được thanh toán trước đó!");
+        }
+
+        // Cập nhật customer và voucher nếu có giá trị mới
+        if (customerId != null && customerId != order.getCustomer().getId()) {
+            Customer customer = customerService.findById(customerId)
+                    .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy khách hàng với ID: " + customerId));
+            order.setCustomer(customer);
+            logger.info("Cập nhật customer_id thành: {}", customerId);
+        }
+        if (voucherId != null && (order.getVoucher() == null || voucherId != order.getVoucher().getId())) {
+            Voucher voucher = voucherService.findById(voucherId)
+                    .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy voucher với ID: " + voucherId));
+            order.setVoucher(voucher);
+            logger.info("Cập nhật voucher_id thành: {}", voucherId);
         }
 
         // Kiểm tra tồn kho trước khi trừ
         for (OrderDetail orderDetail : order.getOrderDetails()) {
-
-            if (orderDetail == null || orderDetail.getProductDetail() == null || orderDetail.getProductDetail().getProduct() == null) {
-                logger.error("Order Detail, Product Detail hoặc Product bị null. Order ID: {}", order.getId());
-                continue;
-            }
-
             ProductDetail productDetail = orderDetail.getProductDetail();
             int quantity = productDetail.getQuantity();
             int orderedQuantity = orderDetail.getQuantity();
@@ -252,24 +260,17 @@ public class SalePOSService {
             if (quantity < orderedQuantity) {
                 throw new IllegalArgumentException("Sản phẩm " + productDetail.getProduct().getProductName() + " không đủ hàng trong kho!");
             }
-        }
 
-        // Trừ tồn kho
-        for (OrderDetail orderDetail : order.getOrderDetails()) {
-            ProductDetail productDetail = orderDetail.getProductDetail();
-            int beforeQuantity = productDetail.getQuantity();
-            productDetail.setQuantity(beforeQuantity - orderDetail.getQuantity());
+            productDetail.setQuantity(quantity - orderedQuantity);
             productDetailService.update(productDetail);
 
             logger.info("Cập nhật tồn kho sản phẩm: {} | Trước: {} | Sau: {} | Đã bán: {}",
-                    productDetail.getProduct().getProductName(), beforeQuantity, productDetail.getQuantity(), orderDetail.getQuantity());
+                    productDetail.getProduct().getProductName(), quantity, productDetail.getQuantity(), orderDetail.getQuantity());
+
         }
 
         // 🔥 Quan trọng: Cập nhật lại tổng tiền trước khi lưu đơn hàng
         updateOrderTotal(order);
-
-        // 🔥 Quan trọng: Lưu order sau khi cập nhật totalBill
-        order = orderRepository.save(order);
 
         // Cập nhật trạng thái đơn hàng thành "Hoàn thành"
         order.setStatusOrder(5);
@@ -291,53 +292,6 @@ public class SalePOSService {
         Order order = orderRepository.findById(request.getOrderId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn."));
 
-//        // Cập nhật thông tin tổng tiền và trạng thái đơn hàng
-//        order.setTotalAmount(request.getTotalAmount());
-//        order.setStatusOrder(request.getStatusOrder());
-//
-//        BigDecimal originalTotal = BigDecimal.ZERO; // Tổng tiền trước giảm
-//        BigDecimal totalBill = BigDecimal.ZERO;     // Tổng tiền sau giảm
-//
-//        for (OrderDetailCreateRequest detailRequest : request.getOrderDetails()) {
-//            ProductDetail productDetail = productDetailRepository.findById(detailRequest.getProductDetailId())
-//                    .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm."));
-//
-//            if (productDetail.getQuantity() < detailRequest.getQuantity()) {
-//                throw new RuntimeException("Sản phẩm " + productDetail.getProductDetailCode() + " không đủ số lượng tồn kho.");
-//            }
-//
-//            // Cập nhật số lượng sản phẩm trong kho
-//            productDetail.setQuantity(productDetail.getQuantity() - detailRequest.getQuantity());
-//            productDetailRepository.save(productDetail);
-//
-//            // Tìm kiếm hoặc tạo mới chi tiết hóa đơn
-//            OrderDetail orderDetail = orderDetailRepository.findByOrderAndProductDetail(order, productDetail)
-//                    .orElse(new OrderDetail());
-//
-//            orderDetail.setOrder(order);
-//            orderDetail.setProductDetail(productDetail);
-//
-//            // Cập nhật số lượng sản phẩm trong chi tiết hóa đơn
-//            int currentQuantity = (orderDetail.getQuantity() == null) ? 0 : orderDetail.getQuantity();
-//            orderDetail.setQuantity(currentQuantity + detailRequest.getQuantity());
-//
-//            // Lưu thông tin chi tiết hóa đơn
-//            orderDetailRepository.save(orderDetail);
-//
-//            // Tính tổng tiền trước giảm và tổng tiền sau giảm
-//            BigDecimal quantity = BigDecimal.valueOf(detailRequest.getQuantity());
-//            originalTotal = originalTotal.add(productDetail.getSalePrice().multiply(quantity)); // Trước giảm
-//            totalBill = totalBill.add(getDiscountedPrice(productDetail).multiply(quantity)); // Sau giảm
-//        }
-//
-//        // Cập nhật tổng tiền trước và sau giảm vào hóa đơn
-////        order.setOriginalTotal(originalTotal); // Lưu tổng tiền trước giảm
-//        order.setTotalBill(totalBill);     // Lưu tổng tiền sau giảm
-//
-//        // Kiểm tra khách hàng là khách vãng lai
-//        if (order.getCustomer().getId() == -1) {
-//            logger.info("Xử lý đơn hàng cho khách vãng lai.");
-//        }
 
         // ✅ Cập nhật lại tổng tiền trước khi lưu đơn hàng
         updateOrderTotal(order);

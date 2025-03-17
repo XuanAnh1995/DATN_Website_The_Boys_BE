@@ -15,6 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/sale-pos")
 public class SalePOSController {
@@ -126,12 +128,16 @@ public class SalePOSController {
      * Cập nhật trạng thái đơn hàng sau khi thanh toán
      */
     @PutMapping("/orders/{orderId}/payment")
-    public ResponseEntity<ApiResponse> updateOrderStatusAfterPayment(@PathVariable Integer orderId) {
+    public ResponseEntity<ApiResponse> updateOrderStatusAfterPayment(
+            @PathVariable Integer orderId,
+            @RequestBody Map<String, Integer> requestBody) {
         try {
             // 🔍 Kiểm tra đơn hàng trước khi thanh toán
-            System.out.println("📌 Xác nhận thanh toán cho đơn hàng #" + orderId);
+            Integer customerId = requestBody.get("customerId");
+            Integer voucherId = requestBody.get("voucherId");
+            OrderResponse response = salePOSService.updateOrderStatusAfterPayment(orderId, customerId, voucherId);
 
-            OrderResponse response = salePOSService.updateOrderStatusAfterPayment(orderId);
+            System.out.println("📌 Xác nhận thanh toán cho đơn hàng #" + orderId);
 
             // 🔍 Log totalBill sau khi cập nhật
             System.out.println("✅ [PAYMENT] Đơn hàng #" + orderId + " đã được thanh toán. Tổng tiền: " + response.getTotalBill());
