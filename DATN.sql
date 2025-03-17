@@ -509,7 +509,7 @@ INSERT INTO employee (employee_code, role_id, fullname, username, [password], em
 ('EMP008', 2, N'Ngô Minh H', 'ngominhh', 'password123', 'ngominhh@example.com', '0912345685', 'photo8.jpg', 1, '2025-02-17', '2025-02-17', N'Nam Định', 0, 0);
 
 INSERT INTO customer (customer_code, fullname, username, [password], email, phone, create_date, update_date, forget_password, [status]) 
-VALUES ('CUST999', N'Khách vãng lai', NULL, NULL, NULL, NULL, GETDATE(), GETDATE(), 0, 1),
+VALUES 
 ('CUST001', N'Nguyễn Hoàng A', 'nguyenhoanga', 'password123', 'nguyenhoanga@example.com', '0912345678', '2025-02-17', '2025-02-17', 0, 1),
 ('CUST002', N'Nguyễn Thị B', 'nguyenthithb', 'password123', 'nguyenthithb@example.com', '0912345679',  '2025-02-17', '2025-02-17', 0, 1),
 ('CUST003', N'Phạm Minh C', 'phamminhc', 'password123', 'phamminhc@example.com', '0912345680',  '2025-02-17', '2025-02-17', 0, 1),
@@ -653,3 +653,9 @@ SELECT * FROM size
 SELECT * FROM voucher
 SELECT * FROM employee
 
+SET IDENTITY_INSERT customer ON;
+
+INSERT INTO customer (id, customer_code, fullname, username, [password], email, phone, create_date, update_date, forget_password, [status]) 
+VALUES (-1, 'GUEST', N'Khách vãng lai', NULL, NULL, NULL, NULL, GETDATE(), GETDATE(), 0, 1);
+
+SET IDENTITY_INSERT customer OFF;
