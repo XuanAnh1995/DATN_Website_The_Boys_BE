@@ -33,7 +33,7 @@ public class OrderResponse implements Serializable {
     private Integer totalAmount;  // Tổng số lượng sản phẩm
     private BigDecimal totalBill; // Tổng tiền trước khi áp voucher
 //    private BigDecimal finalTotal; // Tổng tiền sau khi áp voucher
-//    private BigDecimal originalTotal; // Tổng tiền trước khi áp voucher
+    private BigDecimal originalTotal; // Tổng tiền trước khi áp voucher
 
 
     private Integer paymentMethod;

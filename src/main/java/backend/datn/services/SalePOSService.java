@@ -101,6 +101,7 @@ public class SalePOSService {
         order.setOrderDetails(new ArrayList<>());
         order.setTotalAmount(0);
         order.setTotalBill(BigDecimal.ZERO);
+        order.setOriginalTotal(BigDecimal.ZERO);
         order.setOrderCode("ORD-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase());
         order.setCreateDate(LocalDateTime.now());
 
@@ -164,20 +165,45 @@ public class SalePOSService {
     }
 
     private void updateOrderTotal(Order order) {
-        BigDecimal totalBill = BigDecimal.ZERO;
-        int totalAmount = 0;
-        for (OrderDetail orderDetail : order.getOrderDetails()) {
+        // Kiểm tra xem order có null không
+        logger.info("📝 [DEBUG] Order nhận vào: {}", order);
+        if (order == null) {
+            logger.error("❌ [ERROR] Order bị null!");
+            return;
+        }
 
+        // Kiểm tra xem danh sách orderDetails có null hoặc rỗng không
+        logger.info("📝 [DEBUG] OrderDetails nhận vào: {}", order.getOrderDetails());
+        if (order.getOrderDetails() == null || order.getOrderDetails().isEmpty()) {
+            logger.error("❌ [ERROR] OrderDetails null hoặc rỗng. Order ID: {}", order.getId());
+            return;
+        }
+
+        BigDecimal originalTotal = BigDecimal.ZERO; // Tổng tiền chưa áp dụng giảm giá
+        BigDecimal totalBill = BigDecimal.ZERO; // Tổng tiền sau khi áp khuyến mãi
+        int totalAmount = 0;
+
+        for (OrderDetail orderDetail : order.getOrderDetails()) {
+            // Kiểm tra orderDetail có bị null không
             if (orderDetail == null || orderDetail.getProductDetail() == null) {
-                logger.error("Order Detail hoặc Product Detail bị null. Order ID: {}", order.getId());
+                logger.error("❌ [ERROR] OrderDetail hoặc ProductDetail bị null. Order ID: {}", order.getId());
                 continue;
             }
 
-            BigDecimal price = orderDetail.getProductDetail().getSalePrice(); // Sử dụng sale_price từ product_detail
+            // Log thông tin từng sản phẩm
+            logger.info("🔎 [CHECK] OrderDetail: productId={}, quantity={}, price={}",
+                    orderDetail.getProductDetail().getId(),
+                    orderDetail.getQuantity(),
+                    orderDetail.getProductDetail().getSalePrice());
+
+            BigDecimal price = orderDetail.getProductDetail().getSalePrice(); // Giá gốc
             BigDecimal originalPrice = price; // Lưu giá gốc để debug
             ProductDetail productDetail = orderDetail.getProductDetail();
 
-            // Kiểm tra và áp dụng khuyến mãi (Promotion) nếu có
+            // Tính tổng tiền chưa giảm giá
+            originalTotal = originalTotal.add(originalPrice.multiply(BigDecimal.valueOf(orderDetail.getQuantity())));
+
+            // Kiểm tra và áp dụng khuyến mãi (nếu có)
             if (productDetail.getPromotion() != null) {
                 Promotion promotion = productDetail.getPromotion();
                 if (!promotion.getStatus()) {
@@ -188,11 +214,11 @@ public class SalePOSService {
                     BigDecimal discountPercentage = BigDecimal.valueOf(promotion.getPromotionPercent()).divide(BigDecimal.valueOf(100));
                     BigDecimal discountAmount = price.multiply(discountPercentage);
                     price = price.subtract(discountAmount);
-                    logger.info("✅ [DISCOUNT] Giá gốc: {}, Giá sau giảm: {}, Giảm giá: {}%",
-                            originalPrice, price, promotion.getPromotionPercent());
+
+                    logger.info("✅ [DISCOUNT] Giá gốc: {}, Giá giảm: {}, Giá sau giảm: {}",
+                            originalPrice, discountAmount, price);
                 }
             }
-
 
             totalBill = totalBill.add(price.multiply(BigDecimal.valueOf(orderDetail.getQuantity())));
             totalAmount += orderDetail.getQuantity();
@@ -203,21 +229,26 @@ public class SalePOSService {
             Voucher voucher = order.getVoucher();
             if (!voucher.getStatus()) {
                 logger.warn("⚠️ [VOUCHER] Voucher {} bị vô hiệu hóa", voucher.getVoucherCode());
-            } else if (order.getTotalBill().compareTo(voucher.getMinCondition()) < 0) {
+            } else if (totalBill.compareTo(voucher.getMinCondition()) < 0) {
                 logger.warn("⚠️ [VOUCHER] Đơn hàng không đủ điều kiện áp dụng voucher (yêu cầu: {}, hiện tại: {})",
-                        voucher.getMinCondition(), order.getTotalBill());
+                        voucher.getMinCondition(), totalBill);
             } else {
                 BigDecimal beforeVoucher = totalBill;
                 totalBill = voucherService.applyVoucher(voucher, totalBill);
-                logger.info("✅ [VOUCHER] Tổng tiền trước voucher: {}, Sau khi áp dụng voucher: {}", beforeVoucher, totalBill);
+                BigDecimal voucherDiscount = beforeVoucher.subtract(totalBill);
+
+                logger.info("✅ [VOUCHER] Giá trước: {}, Voucher giảm: {}, Giá sau giảm: {}",
+                        beforeVoucher, voucherDiscount, totalBill);
             }
         }
 
-
+        // Gán lại giá trị cho order
+        order.setOriginalTotal(originalTotal); // Thêm originalTotal vào order
         order.setTotalBill(totalBill);
         order.setTotalAmount(totalAmount);
 
-        logger.info("✅ [UPDATE ORDER] Order ID: {}, TotalBill: {}, TotalAmount: {}", order.getId(), totalBill, totalAmount);
+        logger.info("✅ [UPDATE ORDER] Order ID: {}, Trước giảm giá (originalTotal): {}, Sau khuyến mãi: {}, Sau voucher: {}, Tổng số lượng: {}",
+                order.getId(), originalTotal, totalBill, totalBill, totalAmount);
     }
 
     /**
