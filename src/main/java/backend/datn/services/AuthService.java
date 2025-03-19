@@ -134,4 +134,9 @@ public class AuthService {
         return updated;
     }
 
+    public void printEncodedPassword() {
+        String encodedPassword = passwordEncoder.encode("abc123");
+        System.out.println(encodedPassword);
+    }
+
 }
