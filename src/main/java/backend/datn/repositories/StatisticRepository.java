@@ -125,7 +125,7 @@ public interface StatisticRepository extends JpaRepository<ProductDetail, Intege
     @Query(value = """
             SELECT COUNT(id)
             FROM [employee]
-            WHERE role_id = 3
+            WHERE role_id = 2
             """, nativeQuery = true)
     Integer getNumberOfStaff();
 
