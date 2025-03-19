@@ -36,6 +36,9 @@ public interface CustomerRepository extends JpaRepository<Customer, Integer> {
     @Query("SELECT COUNT(c) > 0 FROM Customer c WHERE c.phone = :phone AND c.id <> :id")
     boolean existsByPhoneAndNotId(@Param("phone") String phone, @Param("id") Integer id);
 
+    @Query("SELECT c FROM Customer c WHERE c.username = :keyword OR c.email = :keyword")
+    Customer findByUsernameOrEmail(String keyword);
+
     Customer findByUsername(String username);
     Customer findByEmail(String email);
     Customer findByPhone(String phone);

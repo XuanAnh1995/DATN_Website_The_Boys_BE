@@ -3,6 +3,7 @@ package backend.datn.repositories;
 import backend.datn.entities.Employee;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -31,6 +32,10 @@ public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
     @Query("SELECT COUNT(c) > 0 FROM Employee c WHERE c.phone = :phone AND c.id <> :id")
     boolean existsByPhoneAndNotId(@Param("phone") String phone, @Param("id") Integer id);
 
+    @Query("SELECT c FROM Employee c WHERE c.username = :keyword OR c.email = :keyword")
+    Employee findByUsernameOrEmail(String keyword);
+
+    @EntityGraph(attributePaths = {"role"})
     Employee findByUsername(String username);
     Employee findByEmail(String email);
     Employee findByPhone(String phone);
