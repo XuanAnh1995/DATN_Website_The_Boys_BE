@@ -184,6 +184,7 @@ CREATE TABLE [order] (
                                       --  4: Giao hàng không thành công
                                       --  5: Hoàn thành
 );
+ALTER TABLE [order] ADD original_total DECIMAL(18,2);
 
 CREATE TABLE order_detail (
     id INT IDENTITY(1,1) NOT NULL ,
