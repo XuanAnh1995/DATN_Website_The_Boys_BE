@@ -37,6 +37,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configure(http))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll() // Cho phép không cần token
+                        .requestMatchers("/api/products/**").permitAll() // Cho phép không cần token
                         .requestMatchers("/api/**").hasAnyRole("ADMIN", "STAFF") // Cho phép cả ADMIN & STAFF
                         .anyRequest().authenticated() // Còn lại cần xác thực
                 )

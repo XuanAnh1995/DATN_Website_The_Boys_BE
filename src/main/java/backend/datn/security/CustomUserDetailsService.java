@@ -1,8 +1,11 @@
 package backend.datn.security;
 
+import backend.datn.entities.Customer;
 import backend.datn.entities.Employee;
+import backend.datn.repositories.CustomerRepository;
 import backend.datn.repositories.EmployeeRepository;
 import org.hibernate.Hibernate;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -12,23 +15,28 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
-    private final EmployeeRepository employeeRepository;
+    @Autowired
+    private  EmployeeRepository employeeRepository;
 
-    public CustomUserDetailsService(EmployeeRepository employeeRepository) {
-        this.employeeRepository = employeeRepository;
-    }
+    @Autowired
+    private  CustomerRepository customerRepository;
 
     @Override
     @Transactional
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        // Kiểm tra Employee trước
         Employee employee = employeeRepository.findByUsername(username);
-        if (employee == null) {
-            throw new UsernameNotFoundException("User not found");
+        if (employee != null) {
+            Hibernate.initialize(employee.getRole());
+            return new CustomUserDetails(employee);
         }
 
-        // Ép Hibernate load role trước khi session đóng
-        Hibernate.initialize(employee.getRole());
+        // Nếu không phải Employee, kiểm tra Customer
+        Customer customer = customerRepository.findByUsername(username);
+        if (customer != null) {
+            return new CustomUserDetails(customer);
+        }
 
-        return new CustomUserDetails(employee);
+        throw new UsernameNotFoundException("User not found");
     }
 }
