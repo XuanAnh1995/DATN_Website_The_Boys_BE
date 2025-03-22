@@ -69,6 +69,86 @@ public class StatisticController {
         }
     }
 
+    @GetMapping("/channel-revenue")
+    public ResponseEntity<ApiResponse> getChannelRevenue() {
+        try {
+            List<ChannelRevenueResponse> data = statisticService.getChannelRevenue();
+            ApiResponse response = new ApiResponse("success", "Truy vấn doanh thu theo kênh thành công", data);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            ApiResponse response = new ApiResponse("error", "Truy vấn doanh thu theo kênh thất bại", null);
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/order-status-distribution")
+    public ResponseEntity<ApiResponse> getOrderStatusDistribution() {
+        try {
+            List<OrderStatusDistributionResponse> data = statisticService.getOrderStatusDistribution();
+            if (data.isEmpty()) {
+                ApiResponse response = new ApiResponse("success", "Không có dữ liệu về tỷ lệ đơn hàng theo trạng thái", data);
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            }
+            ApiResponse response = new ApiResponse("success", "Truy vấn tỷ lệ đơn hàng theo trạng thái thành công", data);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            // Ghi log lỗi
+            System.err.println("Lỗi khi truy vấn tỷ lệ đơn hàng theo trạng thái: " + e.getMessage());
+            e.printStackTrace();
+            ApiResponse response = new ApiResponse("error", "Truy vấn tỷ lệ đơn hàng theo trạng thái thất bại: " + e.getMessage(), null);
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/payment-method-distribution")
+    public ResponseEntity<ApiResponse> getPaymentMethodDistribution() {
+        try {
+            List<PaymentMethodDistributionResponse> data = statisticService.getPaymentMethodDistribution();
+            if (data.isEmpty()) {
+                ApiResponse response = new ApiResponse("success", "Không có dữ liệu về tỷ lệ thanh toán theo phương thức", data);
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            }
+            ApiResponse response = new ApiResponse("success", "Truy vấn tỷ lệ thanh toán theo phương thức thành công", data);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            System.err.println("Lỗi khi truy vấn tỷ lệ thanh toán theo phương thức: " + e.getMessage());
+            e.printStackTrace();
+            ApiResponse response = new ApiResponse("error", "Truy vấn tỷ lệ thanh toán theo phương thức thất bại: " + e.getMessage(), null);
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/top-5-customers")
+    public ResponseEntity<ApiResponse> getTop5Customers() {
+        try {
+            List<TopCustomerResponse> data = statisticService.getTop5Customers();
+            if (data.isEmpty()) {
+                ApiResponse response = new ApiResponse("success", "Không có dữ liệu về top 5 khách hàng mua nhiều nhất", data);
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            }
+            ApiResponse response = new ApiResponse("success", "Truy vấn top 5 khách hàng mua nhiều nhất thành công", data);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            System.err.println("Lỗi khi truy vấn top 5 khách hàng mua nhiều nhất: " + e.getMessage());
+            e.printStackTrace();
+            ApiResponse response = new ApiResponse("error", "Truy vấn top 5 khách hàng mua nhiều nhất thất bại: " + e.getMessage(), null);
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    @GetMapping("/top-5-inventory-products")
+    public ResponseEntity<ApiResponse> getTop5InventoryProducts() {
+        try {
+            List<TopInventoryProductResponse> data = statisticService.getTop5InventoryProducts();
+            ApiResponse response = new ApiResponse("success", "Truy vấn top 5 sản phẩm tồn kho nhiều nhất thành công", data);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            ApiResponse response = new ApiResponse("error", "Truy vấn top 5 sản phẩm tồn kho nhiều nhất thất bại", null);
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @GetMapping("/top-5-products")
     public ResponseEntity<ApiResponse> getTopSellingProducts(@RequestParam String startDate, @RequestParam String endDate) {
         try {
