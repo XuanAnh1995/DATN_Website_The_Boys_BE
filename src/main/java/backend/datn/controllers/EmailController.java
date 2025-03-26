@@ -11,9 +11,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 @RestController
 @RequestMapping("/api")
@@ -48,6 +49,11 @@ public class EmailController {
             String startDateStr = dateFormat.format(startDate);
             String endDateStr = dateFormat.format(endDate);
 
+            // Định dạng tiền tệ VND với dấu chấm
+            NumberFormat currencyFormat = NumberFormat.getNumberInstance(new Locale("vi", "VN"));
+            String minConditionStr = currencyFormat.format(request.getMinCondition()) + " VND";
+            String maxDiscountStr = currencyFormat.format(request.getMaxDiscount()) + " VND";
+
             // Nội dung HTML cho email
             String htmlContent = "<!DOCTYPE html>" +
                     "<html>" +
@@ -74,8 +80,8 @@ public class EmailController {
                     "<div class='voucher-info'>" +
                     "<p><strong>Mã voucher:</strong> " + request.getVoucherCode() + "</p>" +
                     "<p><strong>Tên voucher:</strong> " + request.getVoucherName() + "</p>" +
-                    "<p><strong>Điều kiện tối thiểu:</strong> " + request.getMinCondition() + "</p>" +
-                    "<p><strong>Giảm tối đa:</strong> " + request.getMaxDiscount() + "</p>" +
+                    "<p><strong>Điều kiện tối thiểu:</strong> " + minConditionStr + "</p>" +
+                    "<p><strong>Giảm tối đa:</strong> " + maxDiscountStr + "</p>" +
                     "<p><strong>Phần trăm giảm:</strong> " + request.getReducedPercent() + "%</p>" +
                     "<p><strong>Ngày bắt đầu:</strong> " + startDateStr + "</p>" +
                     "<p><strong>Ngày kết thúc:</strong> " + endDateStr + "</p>" +
