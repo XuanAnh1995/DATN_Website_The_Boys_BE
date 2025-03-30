@@ -1,6 +1,7 @@
 package backend.datn.repositories;
 
 import backend.datn.entities.Address;
+import backend.datn.entities.Customer;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,4 +13,6 @@ import java.util.List;
 public interface AddressRepository extends JpaRepository<Address, Integer> {
     @Query("Select a from Address a where a.customer.id = :customerId")
     List<Address> findByCustomerId(@Param("customerId") String customerId   );
+
+    List<Address> findByCustomer(Customer customer);
 }
