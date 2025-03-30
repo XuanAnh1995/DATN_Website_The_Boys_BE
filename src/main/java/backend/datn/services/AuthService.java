@@ -1,18 +1,29 @@
 package backend.datn.services;
 
 import backend.datn.dto.request.LoginRequest;
+import backend.datn.dto.response.AddressResponse;
 import backend.datn.dto.response.LoginResponse;
+import backend.datn.entities.Address;
 import backend.datn.entities.Customer;
 import backend.datn.entities.Employee;
+import backend.datn.exceptions.EntityNotFoundException;
+import backend.datn.mapper.AddressMapper;
+import backend.datn.mapper.CustomerMapper;
+import backend.datn.mapper.EmployeeMapper;
+import backend.datn.repositories.AddressRepository;
 import backend.datn.repositories.CustomerRepository;
 import backend.datn.repositories.EmployeeRepository;
+import backend.datn.security.CustomUserDetails;
 import backend.datn.security.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -23,6 +34,9 @@ public class AuthService {
 
     @Autowired
     private CustomerRepository customerRepository;
+
+    @Autowired
+    private AddressRepository addressRepository;
 
     @Autowired
     private JwtUtil jwtUtil;
@@ -132,6 +146,57 @@ public class AuthService {
         }
 
         return updated;
+    }
+
+
+    public Object getCurrentUserInfo() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        System.out.println("\n\n\nPrincipal : " + principal);
+
+        if (!(principal instanceof CustomUserDetails)) {
+            throw new BadCredentialsException("Người dùng chưa đăng nhập hoặc thông tin xác thực không hợp lệ");
+        }
+
+        CustomUserDetails userDetails = (CustomUserDetails) principal;
+        String username = userDetails.getUsername();
+
+        Customer customer = customerRepository.findByUsername(username);
+        if (customer != null) {
+            return CustomerMapper.toCustomerResponse(customer);
+        }
+
+        Employee employee = employeeRepository.findByUsername(username);
+        if (employee != null) {
+            return EmployeeMapper.toEmployeeResponse(employee);
+        }
+
+        throw new EntityNotFoundException("Không tìm thấy thông tin tài khoản");
+    }
+
+
+
+    public List<AddressResponse> getCurrentUserAddresses() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        System.out.println("\n\n\nPrincipal : " + principal);
+
+        if (!(principal instanceof CustomUserDetails)) {
+            throw new BadCredentialsException("Người dùng chưa đăng nhập hoặc thông tin xác thực không hợp lệ");
+        }
+
+        CustomUserDetails userDetails = (CustomUserDetails) principal;
+
+        String username = userDetails.getUsername();
+        Customer customer = customerRepository.findByUsername(username);
+
+        List<Address> addresses = addressRepository.findByCustomer(customer);
+
+        if (addresses.isEmpty()) {
+            return null;
+        }
+
+        return addresses.stream()
+                .map(AddressMapper::toAddressResponse)
+                .toList();
     }
 
 }

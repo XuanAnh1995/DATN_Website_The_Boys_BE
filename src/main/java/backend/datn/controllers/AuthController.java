@@ -2,6 +2,7 @@ package backend.datn.controllers;
 
 import backend.datn.dto.ApiResponse;
 import backend.datn.dto.request.LoginRequest;
+import backend.datn.dto.response.AddressResponse;
 import backend.datn.dto.response.LoginResponse;
 import backend.datn.services.AuthService;
 import jakarta.validation.Valid;
@@ -13,6 +14,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -64,6 +66,37 @@ public class AuthController {
         } catch (Exception e) {
             return ResponseEntity.internalServerError()
                     .body(new ApiResponse("error", "Đã xảy ra lỗi hệ thống: " + e.getMessage()));
+        }
+    }
+
+    @GetMapping("/current-user")
+    public ResponseEntity<ApiResponse> getCurrentUserInfo() {
+        try {
+            Object userInfo = authService.getCurrentUserInfo();
+            return ResponseEntity.ok(new ApiResponse("success", "Lấy thông tin người dùng thành công", userInfo));
+        } catch (BadCredentialsException e) {
+            return ResponseEntity.status(401).body(new ApiResponse("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                    .body(new ApiResponse("error", "Đã xảy ra lỗi: " + e.getMessage()));
+        }
+    }
+
+    @GetMapping("/current-user/addresses")
+    public ResponseEntity<ApiResponse> getCurrentUserAddresses() {
+        try {
+            List<AddressResponse> addresses = authService.getCurrentUserAddresses();
+
+            if (addresses == null) {
+                return ResponseEntity.ok(new ApiResponse("success", "Người dùng chưa có địa chỉ nào", null));
+            }
+
+            return ResponseEntity.ok(new ApiResponse("success", "Lấy danh sách địa chỉ thành công", addresses));
+        } catch (BadCredentialsException e) {
+            return ResponseEntity.status(401).body(new ApiResponse("error", "Người dùng chưa đăng nhập"));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                    .body(new ApiResponse("error", "Đã xảy ra lỗi: " + e.getMessage()));
         }
     }
 }

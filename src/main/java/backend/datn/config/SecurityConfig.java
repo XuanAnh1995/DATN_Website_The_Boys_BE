@@ -3,6 +3,7 @@ package backend.datn.config;
 import backend.datn.security.JwtFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -37,9 +38,13 @@ public class SecurityConfig {
                 .cors(cors -> cors.configure(http))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll() // Cho phép không cần token
-                        .requestMatchers("/api/products/**").permitAll() // Cho phép không cần token
+                        .requestMatchers(HttpMethod.GET,"/api/products/**").permitAll() // Cho phép không cần token
+                        .requestMatchers(HttpMethod.GET,"/api/brand/**").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/api/vouchers/**").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/api/products/**").permitAll() // Cho phép không cần token
                         .requestMatchers("/api/**").hasAnyRole("ADMIN", "STAFF") // Cho phép cả ADMIN & STAFF
-                        .anyRequest().authenticated() // Còn lại cần xác thực
+                        .requestMatchers("/cart/**").hasAnyRole("CUSTOMER") // Chỉ cho phép CUSTOMER
+                        .anyRequest().permitAll() // Còn lại cần xác thực
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // Không lưu session

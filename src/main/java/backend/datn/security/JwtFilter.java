@@ -28,13 +28,6 @@ public class JwtFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
 
-        // Bỏ qua kiểm tra JWT với đường dẫn `/auth/**`
-        String requestURI = request.getRequestURI();
-        if (requestURI.startsWith("/auth/")) {
-            chain.doFilter(request, response);
-            return;
-        }
-
         String authorizationHeader = request.getHeader("Authorization");
 
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
