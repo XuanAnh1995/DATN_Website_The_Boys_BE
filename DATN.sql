@@ -168,6 +168,7 @@ CREATE TABLE [order] (
     order_code VARCHAR(50) NOT NULL UNIQUE,
     create_date DATETIME,
     total_amount INT,
+	original_total DECIMAL(18,2),
     total_bill DECIMAL(18, 2),
     payment_method INT ,
 								-- 0: Tiền mặt
@@ -382,6 +383,7 @@ INSERT INTO brand (brand_name, [status]) VALUES
 (N'Reebok', 1),
 (N'Under Armour', 1),
 (N'New Balance', 1);
+GO
 
 INSERT INTO category (category_name, [status]) VALUES 
 (N'Áo thun', 1),
@@ -390,6 +392,7 @@ INSERT INTO category (category_name, [status]) VALUES
 (N'Áo hoodie', 1),
 (N'Áo len', 1),
 (N'Áo polo', 1);
+GO
 
 INSERT INTO material (material_name, [status]) VALUES 
 (N'Cotton', 1),
@@ -398,6 +401,7 @@ INSERT INTO material (material_name, [status]) VALUES
 (N'Jean', 1),
 (N'Nỉ', 1),
 (N'Vải thun lạnh', 1);
+GO
 
 INSERT INTO [product] (brand_id, category_id, material_id, product_code, product_name,[status]) 
 VALUES 
@@ -411,6 +415,7 @@ VALUES
 		(4, 4, 2, 'PR008', N'Áo hoodie thể thao Reebok', 1),
 		(5, 5, 1, 'PR009', N'Áo len cao cổ Under Armour', 1),
 		(6, 6, 2, 'PR0010',N'Áo polo thể thao New Balance', 1);
+GO
 
 INSERT INTO promotion (promotion_name, promotion_percent, start_date, end_date, [description], [status]) VALUES 
 (N'Khuyến mãi Tết Nguyên Đán', 20, '2025-01-15', '2025-02-15', N'Giảm 20% toàn bộ sản phẩm nhân dịp Tết Nguyên Đán.', 1),
@@ -419,6 +424,7 @@ INSERT INTO promotion (promotion_name, promotion_percent, start_date, end_date, 
 (N'Back to School', 10, '2025-08-15', '2025-09-05', N'Giảm 10% cho các sản phẩm áo sơ mi và áo thun chào đón năm học mới.', 1),
 (N'Giảm giá hè sôi động', 30, '2025-06-01', '2025-06-30', N'Ưu đãi lên đến 30% cho các sản phẩm áo khoác và hoodie.', 1),
 (N'Sale cuối năm', 40, '2025-12-20', '2025-12-31', N'Giảm sốc 40% cho các sản phẩm trong dịp lễ Giáng Sinh và năm mới.', 1);
+GO
 
 INSERT INTO color (color_name, [status]) VALUES 
 (N'Đen', 1),
@@ -431,6 +437,7 @@ INSERT INTO color (color_name, [status]) VALUES
 (N'Cam', 1),
 (N'Tím', 1),
 (N'Nâu', 1);
+GO
 
 INSERT INTO size (size_name, [status]) VALUES 
 (N'XS', 1),
@@ -439,6 +446,7 @@ INSERT INTO size (size_name, [status]) VALUES
 (N'L', 1),
 (N'XL', 1),
 (N'XXL', 1);
+GO
 
 INSERT INTO collar (collar_name, [status]) VALUES 
 (N'Cổ tròn', 1),
@@ -449,6 +457,7 @@ INSERT INTO sleeve (sleeve_name, [status]) VALUES
 (N'Tay ngắn', 1),
 (N'Tay dài', 1),
 (N'Sát nách', 1);
+GO
 
 --DELETE FROM [product_detail];
 --DBCC CHECKIDENT ('[product_detail]', RESEED, 0);
@@ -484,6 +493,7 @@ INSERT INTO product_detail (product_id, size_id, color_id, promotion_id, collar_
 (8, 4, 8, 4, 1, 2, 'photo28.jpg', 'PDT028', 140000, 170000, 30, N'Áo sơ mi họa tiết màu vàng, kích thước L, giảm giá 10%', 1),
 (9, 5, 9, 5, 2, 1, 'photo29.jpg', 'PDT029', 200000, 240000, 25, N'Áo khoác jeans màu tím, kích thước XL, giảm giá 20%', 1),
 (10, 6, 10, 6, 3, 2, 'photo30.jpg', 'PDT030', 220000, 270000, 20, N'Áo khoác nỉ màu xanh, kích thước XXL, giảm giá 30%', 1);
+GO
 
 INSERT INTO voucher (voucher_code, voucher_name, [description], min_condition, max_discount, reduced_percent, [start_date], end_date, [status]) VALUES
 ('VOUCHER01', N'Giảm giá mùa xuân', N'Giảm giá 10% cho đơn hàng từ 500.000đ', 500000, 100000, 10.0, '2025-02-20', '2025-03-31', 1),
@@ -492,25 +502,27 @@ INSERT INTO voucher (voucher_code, voucher_name, [description], min_condition, m
 ('VOUCHER04', N'Khuyến mãi sinh nhật', N'Giảm giá 25% cho tất cả các sản phẩm', 0, 300000, 25.0, '2025-03-10', '2025-03-20', 1),
 ('VOUCHER05', N'Giảm giá cho khách hàng VIP', N'Giảm giá 30% cho khách hàng VIP trên 1.500.000đ', 1500000, 450000, 30.0, '2025-04-01', '2025-04-30', 1),
 ('VOUCHER06', N'Giảm giá cuối mùa', N'Giảm giá 50% cho tất cả các sản phẩm còn lại', 0, 500000, 50.0, '2025-04-05', '2025-04-15', 1);
+GO
 
 INSERT INTO [role] ([name]) VALUES
 ('ADMIN'),
-('MANAGER'),
 ('STAFF');
+GO
 
 INSERT INTO employee (employee_code, role_id, fullname, username, [password], email, phone, photo, [status], create_date, update_date, [address], forget_password, gender) VALUES
-('EMP001', 1, N'Nguyễn Văn A', 'nguyenvana', 'password123', 'nguyenvana@example.com', '0912345678', 'photo1.jpg', 1, '2025-02-17', '2025-02-17',N'Hà Nội' , 0, 1),
-('EMP002', 2, N'Nguyễn Thị B', 'nguyenthitha', 'password123', 'nguyenthitha@example.com', '0912345679', 'photo2.jpg', 1, '2025-02-17', '2025-02-17', N'Hà Nam', 0, 0),
-('EMP003', 1, N'Phạm Minh C', 'phamminhc', 'password123', 'phamminhc@example.com', '0912345680', 'photo3.jpg', 1, '2025-02-17', '2025-02-17',N'Hà Nội', 0, 1),
-('EMP004', 3, N'Lê Quang D', 'lequangd', 'password123', 'lequangd@example.com', '0912345681', 'photo4.jpg', 1, '2025-02-17', '2025-02-17',N'Tây Ninh' ,0, 1),
+('ADMIN', 1, N'Nguyễn Văn A', 'admin', 'password123', 'nguyenvana@example.com', '0912345678', 'photo1.jpg', 1, '2025-02-17', '2025-02-17',N'Hà Nội' , 0, 1),
+('STAFF', 2, N'Nguyễn Thị B', 'staff', 'password123', 'nguyenthitha@example.com', '0912345679', 'photo2.jpg', 1, '2025-02-17', '2025-02-17', N'Hà Nam', 0, 0),
+('EMP003', 2, N'Phạm Minh C', 'phamminhc', 'password123', 'phamminhc@example.com', '0912345680', 'photo3.jpg', 1, '2025-02-17', '2025-02-17',N'Hà Nội', 0, 1),
+('EMP004', 2, N'Lê Quang D', 'lequangd', 'password123', 'lequangd@example.com', '0912345681', 'photo4.jpg', 1, '2025-02-17', '2025-02-17',N'Tây Ninh' ,0, 1),
 ('EMP005', 2, N'Vũ Minh E', 'vuminhE', 'password123', 'vuminhE@example.com', '0912345682', 'photo5.jpg', 1, '2025-02-17', '2025-02-17',N'Phú Thọ', 0, 0),
-('EMP006', 3, N'Trần Thi F', 'tranthif', 'password123', 'tranthif@example.com', '0912345683', 'photo6.jpg', 1, '2025-02-17', '2025-02-17',N'Hà Nội', 0, 0),
+('EMP006', 2, N'Trần Thi F', 'tranthif', 'password123', 'tranthif@example.com', '0912345683', 'photo6.jpg', 1, '2025-02-17', '2025-02-17',N'Hà Nội', 0, 0),
 ('EMP007', 1, N'Hồ Hoàng G', 'hohoangg', 'password123', 'hohoangg@example.com', '0912345684', 'photo7.jpg', 1, '2025-02-17', '2025-02-17', N'Hà Nam', 0, 1),
 ('EMP008', 2, N'Ngô Minh H', 'ngominhh', 'password123', 'ngominhh@example.com', '0912345685', 'photo8.jpg', 1, '2025-02-17', '2025-02-17', N'Nam Định', 0, 0);
+GO
 
 INSERT INTO customer (customer_code, fullname, username, [password], email, phone, create_date, update_date, forget_password, [status]) 
 VALUES 
-('CUST001', N'Nguyễn Hoàng A', 'nguyenhoanga', 'password123', 'nguyenhoanga@example.com', '0912345678', '2025-02-17', '2025-02-17', 0, 1),
+('USER', N'Nguyễn Hoàng A', 'user', 'password123', 'nguyenhoanga@example.com', '0912345678', '2025-02-17', '2025-02-17', 0, 1),
 ('CUST002', N'Nguyễn Thị B', 'nguyenthithb', 'password123', 'nguyenthithb@example.com', '0912345679',  '2025-02-17', '2025-02-17', 0, 1),
 ('CUST003', N'Phạm Minh C', 'phamminhc', 'password123', 'phamminhc@example.com', '0912345680',  '2025-02-17', '2025-02-17', 0, 1),
 ('CUST004', N'Lê Quang D', 'lequangd', 'password123', 'lequangd@example.com', '0912345681', '2025-02-17', '2025-02-17', 0, 1),
@@ -518,6 +530,7 @@ VALUES
 ('CUST006', N'Trần Thi F', 'tranthif', 'password123', 'tranthif@example.com', '0912345683', '2025-02-17', '2025-02-17', 0, 1),
 ('CUST007', N'Hồ Hoàng G', 'hohoangg', 'password123', 'hohoangg@example.com', '0912345684', '2025-02-17', '2025-02-17', 0, 1),
 ('CUST008', N'Ngô Minh H', 'ngominhh', 'password123', 'ngominhh@example.com', '0912345685', '2025-02-17', '2025-02-17', 0, 1);
+GO
 --DELETE FROM [address];
 --DBCC CHECKIDENT ('[address]', RESEED, 0);
 
@@ -530,6 +543,7 @@ INSERT INTO [address] (customer_id, province_id, province_name, district_id, dis
 (6, 3, N'Đà Nẵng', 3, N'Quận Sơn Trà', 6, N'Phường Mỹ An', N'303 Đường PQR, Phường Mỹ An, Quận Sơn Trà'),
 (7, 1, N'TP. HCM', 1, N'Quận 3', 7, N'Phường Võ Thị Sáu', N'404 Đường STU, Phường Võ Thị Sáu, Quận 3'),
 (8, 2, N'Hà Nội', 2, N'Quận Cầu Giấy', 8, N'Phường Dịch Vọng', N'505 Đường VWX, Phường Dịch Vọng, Quận Cầu Giấy');
+GO
 
 --DELETE FROM [order];
 --DBCC CHECKIDENT ('[order]', RESEED, 0);
@@ -556,6 +570,7 @@ VALUES
     (3, 6, 2, 'ORD018', '2025-02-05 12:00:00', 4, 500000, 1, 3, 0),
     (4, 1, 3, 'ORD019', '2025-02-05 13:45:00', 5, 600000, 2, 1, 0),
     (4, 2, 4, 'ORD020', '2025-02-05 14:30:00', 6, 720000, 1, 1, 1);
+GO
 
 INSERT INTO [order] (employee_id, voucher_id, customer_id, order_code, create_date, total_amount, total_bill, payment_method, status_order, kind_of_order)
 VALUES
@@ -579,6 +594,7 @@ VALUES
     (3, 6, 2, 'ORD038', '2025-10-05 12:00:00', 4, 500000, 1, 5, 0),
     (4, 1, 3, 'ORD039', '2025-11-05 13:45:00', 5, 600000, 2, 1, 0),
     (4, 2, 4, 'ORD040', '2025-12-05 14:30:00', 6, 720000, 1, 5, 1);
+GO
 
 INSERT INTO order_detail (order_id, product_detail_id, quantity)
 VALUES
@@ -602,6 +618,8 @@ VALUES
 	(18, 18, 2),  -- Order 18, Product 18, Quantity 2
 	(19, 19, 4),  -- Order 19, Product 19, Quantity 4
 	(20, 20, 3);  -- Order 20, Product 20, Quantity 3
+GO
+
 INSERT INTO order_detail (order_id, product_detail_id, quantity)
 VALUES
 	(21, 1, 2),   -- Order 1, Product 1, Quantity 2
@@ -624,6 +642,7 @@ VALUES
 	(38, 18, 2),  -- Order 18, Product 18, Quantity 2
 	(39, 19, 4),  -- Order 19, Product 19, Quantity 4
 	(40, 20, 3);  -- Order 20, Product 20, Quantity 3
+GO
 
 INSERT INTO cart (customer_id, product_detail_id, quantity)
 VALUES
@@ -633,6 +652,7 @@ VALUES
     (4, 4, 4),  -- Customer 4, Product 4, Quantity 4
     (5, 5, 2),  -- Customer 5, Product 5, Quantity 2
     (6, 6, 3);  -- Customer 6, Product 6, Quantity 3
+GO
 
 SELECT * FROM [address]
 SELECT * FROM brand

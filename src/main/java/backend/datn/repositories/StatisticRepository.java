@@ -125,8 +125,84 @@ public interface StatisticRepository extends JpaRepository<ProductDetail, Intege
     @Query(value = """
             SELECT COUNT(id)
             FROM [employee]
-            WHERE role_id = 3
+            WHERE role_id = 2
             """, nativeQuery = true)
     Integer getNumberOfStaff();
+
+    // doanh thu theo kênh:
+    @Query(value = """
+            SELECT 
+                DAY(o.create_date) AS dayNumber,
+                MONTH(o.create_date) AS monthNumber,
+                YEAR(o.create_date) AS yearNumber,
+                SUM(CASE WHEN o.kind_of_order = 0 THEN o.total_bill ELSE 0 END) AS onlineRevenue,
+                SUM(CASE WHEN o.kind_of_order = 1 THEN o.total_bill ELSE 0 END) AS inStoreRevenue
+            FROM [order] o
+            WHERE o.status_order = 5
+            GROUP BY YEAR(o.create_date), MONTH(o.create_date), DAY(o.create_date)
+            ORDER BY yearNumber, monthNumber, dayNumber;
+            """, nativeQuery = true)
+    List<Object[]> getChannelRevenue();
+
+    @Query(value = """
+            SELECT 
+                o.status_order AS statusOrder,
+                CASE 
+                    WHEN o.status_order = -1 THEN N'Đã hủy'
+                    WHEN o.status_order = 0 THEN N'Chờ xác nhận'
+                    WHEN o.status_order = 1 THEN N'Chờ thanh toán'
+                    WHEN o.status_order = 2 THEN N'Đã xác nhận'
+                    WHEN o.status_order = 3 THEN N'Đang giao hàng'
+                    WHEN o.status_order = 4 THEN N'Giao hàng không thành công'
+                    WHEN o.status_order = 5 THEN N'Hoàn thành'
+                    ELSE N'Không xác định'
+                END AS statusName,
+                COUNT(o.id) AS orderCount
+            FROM [order] o
+            GROUP BY o.status_order
+            ORDER BY o.status_order;
+            """, nativeQuery = true)
+    List<Object[]> getOrderStatusDistribution();
+
+    @Query(value = """
+            SELECT 
+                o.payment_method AS paymentMethod,
+                CASE 
+                    WHEN o.payment_method = 0 THEN N'Tiền mặt'
+                    WHEN o.payment_method = 1 THEN N'VNPay'
+                    ELSE N'Không xác định'
+                END AS methodName,
+                COUNT(o.id) AS orderCount
+            FROM [order] o
+            WHERE o.status_order = 5
+            GROUP BY o.payment_method;
+            """, nativeQuery = true)
+    List<Object[]> getPaymentMethodDistribution();
+
+    @Query(value = """
+            SELECT TOP 5
+                ISNULL(c.fullname, N'Khách hàng không xác định') AS customerName,
+                COUNT(o.id) AS totalOrders,
+                ISNULL(SUM(o.total_bill), 0) AS totalSpent
+            FROM [order] o
+            JOIN customer c ON c.id = o.customer_id
+            WHERE o.status_order = 5
+            GROUP BY c.fullname
+            ORDER BY totalSpent DESC;
+            """, nativeQuery = true)
+    List<Object[]> getTop5Customers();
+
+    @Query(value = """
+            SELECT TOP 5
+                CONCAT(p.product_name, ' ', c.color_name, ' ', s.size_name) AS productDetailName,
+                pd.quantity AS quantity
+            FROM product_detail pd
+            JOIN [product] p ON p.id = pd.product_id
+            JOIN color c ON c.id = pd.color_id
+            JOIN size s ON s.id = pd.size_id
+            WHERE pd.status = 1
+            ORDER BY pd.quantity DESC;
+            """, nativeQuery = true)
+    List<Object[]> getTop5InventoryProducts();
 
 }

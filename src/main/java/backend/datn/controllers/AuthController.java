@@ -24,6 +24,12 @@ public class AuthController {
     @Autowired
     private AuthService authService;
 
+    @PostMapping("/test-encode")
+    public ResponseEntity<String> testEncode() {
+        authService.printEncodedPassword();
+        return ResponseEntity.ok("Check console for encoded password");
+    }
+
     @PostMapping("/login")
     public ResponseEntity<ApiResponse> login(@Valid @RequestBody LoginRequest request, BindingResult result) {
         if (result.hasErrors()) {
