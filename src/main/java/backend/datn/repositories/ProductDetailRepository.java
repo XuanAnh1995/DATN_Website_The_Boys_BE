@@ -1,5 +1,6 @@
 package backend.datn.repositories;
 
+import backend.datn.dto.response.ProductDetailResponse;
 import backend.datn.entities.ProductDetail;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -53,5 +54,40 @@ public interface ProductDetailRepository extends JpaRepository<ProductDetail, In
 
     @Query("SELECT pd FROM ProductDetail pd WHERE pd.product.productCode = :productCode")
     List<ProductDetail> findByProductCode(@Param("productCode") String productCode);
-
+    // Phương thức cập nhật: Lấy các biến thể của một sản phẩm dưới dạng ProductDetailResponse
+    @Query("""
+    SELECT new backend.datn.dto.response.ProductDetailResponse(
+        pd.id,
+        new backend.datn.dto.response.ProductResponse(
+            p.id,
+            new backend.datn.dto.response.BrandResponse(p.brand.id, p.brand.brandName, p.brand.status),
+            new backend.datn.dto.response.CategoryResponse(p.category.id, p.category.categoryName, p.category.status),
+            new backend.datn.dto.response.MaterialResponse(p.material.id, p.material.materialName, p.material.status),
+            p.productName,
+            p.productCode,
+            p.status
+        ),
+        new backend.datn.dto.response.SizeResponse(s.id, s.sizeName, s.status),
+        new backend.datn.dto.response.ColorResponse(c.id, c.colorName, c.status),
+        null,
+        new backend.datn.dto.response.CollarResponse(col.id, col.collarName, col.status),
+        new backend.datn.dto.response.SleeveResponse(sl.id, sl.sleeveName, sl.status),
+        pd.photo,
+        pd.productDetailCode,
+        pd.importPrice,
+        pd.salePrice,
+        pd.quantity,
+        pd.description,
+        pd.status
+    )
+    FROM ProductDetail pd
+    LEFT JOIN Product p ON pd.product.id = p.id
+    LEFT JOIN Color c ON pd.color.id = c.id
+    LEFT JOIN Size s ON pd.size.id = s.id
+    LEFT JOIN Collar col ON pd.collar.id = col.id
+    LEFT JOIN Sleeve sl ON pd.sleeve.id = sl.id
+    LEFT JOIN Material m ON p.material.id = m.id
+    WHERE p.productCode = :productCode
+""")
+    List<ProductDetailResponse> getProductVariantsByProductCode(@Param("productCode") String productCode);
 }
