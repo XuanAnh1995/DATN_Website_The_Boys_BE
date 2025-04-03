@@ -80,8 +80,8 @@ public class SalePOSService {
             throw new IllegalArgumentException("Voucher không tồn tại.");
         }
 
-        if (paymentMethod == null || paymentMethod < 0) {
-            throw new IllegalArgumentException("Phương thức thanh toán không hợp lệ.");
+        if (paymentMethod == null || paymentMethod < 0 || paymentMethod > 1) { // Kiểm tra giá trị hợp lệ
+            throw new IllegalArgumentException("Phương thức thanh toán không hợp lệ. Chỉ chấp nhận 0 (Tiền mặt) hoặc 1 (VNPay).");
         }
 
         // Nếu khách hàng là null, gán khách hàng vãng lai (ID = -1)
@@ -323,6 +323,22 @@ public class SalePOSService {
         Order order = orderRepository.findById(request.getOrderId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn."));
 
+
+        // Cập nhật customerId
+        if (request.getCustomerId() != null && request.getCustomerId() != order.getCustomer().getId()) {
+            Customer customer = customerService.findById(request.getCustomerId())
+                    .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy khách hàng với ID: " + request.getCustomerId()));
+            order.setCustomer(customer);
+            logger.info("Cập nhật customer_id thành: {}", request.getCustomerId());
+        }
+
+        // Cập nhật voucherId
+        if (request.getVoucherId() != null && (order.getVoucher() == null || request.getVoucherId() != order.getVoucher().getId())) {
+            Voucher voucher = voucherService.findById(request.getVoucherId())
+                    .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy voucher với ID: " + request.getVoucherId()));
+            order.setVoucher(voucher);
+            logger.info("Cập nhật voucher_id thành: {}", request.getVoucherId());
+        }
 
         // ✅ Cập nhật lại tổng tiền trước khi lưu đơn hàng
         updateOrderTotal(order);

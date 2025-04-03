@@ -3,6 +3,7 @@ package backend.datn.controllers;
 import backend.datn.dto.ApiResponse;
 import backend.datn.dto.request.OrderDetailCreateRequest;
 import backend.datn.dto.request.OrderPOSCreateRequest;
+import backend.datn.dto.response.CheckoutResponse;
 import backend.datn.dto.response.OrderResponse;
 import backend.datn.entities.*;
 import backend.datn.mapper.OrderMapper;
@@ -176,16 +177,26 @@ public class SalePOSController {
     }
 
 
+//    @PostMapping("/checkout")
+//    public ResponseEntity<?> checkout(@Valid @RequestBody OrderPOSCreateRequest request, BindingResult result) {
+//        if (result.hasErrors()) {
+//            return ResponseEntity.badRequest().body(result.getAllErrors());
+//        }
+//        try {
+//            Order order = salePOSService.thanhToan(request);
+//            return ResponseEntity.ok(order);
+//        } catch (RuntimeException e) {
+//            return ResponseEntity.badRequest().body(e.getMessage());
+//        }
+//    }
+
     @PostMapping("/checkout")
-    public ResponseEntity<?> checkout(@Valid @RequestBody OrderPOSCreateRequest request, BindingResult result) {
-        if (result.hasErrors()) {
-            return ResponseEntity.badRequest().body(result.getAllErrors());
-        }
+    public ResponseEntity<?> checkout(@RequestBody OrderPOSCreateRequest request) {
         try {
             Order order = salePOSService.thanhToan(request);
-            return ResponseEntity.ok(order);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.ok(new CheckoutResponse(order.getId()));
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body(e.getMessage());
         }
     }
 

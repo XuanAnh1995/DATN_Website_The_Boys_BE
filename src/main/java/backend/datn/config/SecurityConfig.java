@@ -39,7 +39,13 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll() // Cho phép không cần token
                         .requestMatchers(HttpMethod.GET,"/api/products/**").permitAll() // Cho phép không cần token
+                        .requestMatchers(HttpMethod.GET,"/api/product-details/**").permitAll() // Cho phép không cần token
                         .requestMatchers(HttpMethod.GET,"/api/brand/**").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/api/sizes/**").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/api/sleeve/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/colors/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/collars/**").permitAll()
                         .requestMatchers(HttpMethod.GET,"/api/vouchers/**").permitAll()
                         .requestMatchers(HttpMethod.GET,"/api/products/**").permitAll() // Cho phép không cần token
                         .requestMatchers("/api/**").hasAnyRole("ADMIN", "STAFF") // Cho phép cả ADMIN & STAFF

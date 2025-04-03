@@ -1,8 +1,10 @@
 package backend.datn.services;
 
 import backend.datn.config.VNPayConfig;
+import backend.datn.entities.Order;
 import backend.datn.entities.OrderOnline;
 import backend.datn.exceptions.EntityNotFoundException;
+import backend.datn.repositories.OrderRepository;
 import backend.datn.repositories.OrderOnlineRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,39 +27,54 @@ public class VNPaymentService {
     @Autowired
     private OrderOnlineRepository orderOnlineRepository;
 
+    @Autowired
+    private OrderRepository orderRepository;
+
     /**
      * Tạo URL thanh toán VNPay dựa trên mã đơn hàng.
+     *
+     * @param orderId ID đơn hàng (khóa chính Integer cho cả Order và OrderOnline)
+     * @param isPOS   True nếu là đơn hàng POS, False nếu là đơn hàng Online
      */
 
-    public String generatePaymentUrl(String maOrderOnline) throws UnsupportedEncodingException {
-        // Lấy hóa đơn từ database
-        OrderOnline order = orderOnlineRepository.findByOrderCode(maOrderOnline);
-        if (order == null) {
-            throw new EntityNotFoundException("Hóa đơn không tồn tại");
+    public String generatePaymentUrl(Integer orderId, boolean isPOS) throws UnsupportedEncodingException {
+
+        long totalAmount;
+
+        if (isPOS) {
+            // Tìm đơn hàng POS bằng orderId
+            Order order = orderRepository.findById(orderId)
+                    .orElseThrow(() -> new EntityNotFoundException("Hóa đơn POS không tồn tại với ID: " + orderId));
+            totalAmount = order.getTotalBill().longValue() * 100; // Chuyển sang đơn vị VNPay (VND * 100)
+        } else {
+            // Tìm đơn hàng Online bằng orderId
+            OrderOnline order = orderOnlineRepository.findById(orderId)
+                    .orElseThrow(() -> new EntityNotFoundException("Hóa đơn Online không tồn tại với ID: " + orderId));
+            totalAmount = order.getTotalBill().longValue() * 100;
         }
 
-        // Tổng tiền đơn hàng
-        long totalAmount = order.getTotalBill().longValue();
-        long amount = totalAmount * 100;
+        // Chuyển orderId thành String cho vnp_TxnRef
+        String orderIdStr = String.valueOf(orderId);
+        String vnp_ReturnUrl = VNPayConfig.vnp_ReturnUrl + (isPOS ? "?isPOS=true" : "?isPOS=false");
 
         // Tạo tham số VNPay
         Map<String, String> vnp_Params = new HashMap<>();
         vnp_Params.put("vnp_Version", "2.1.0");
         vnp_Params.put("vnp_Command", "pay");
         vnp_Params.put("vnp_TmnCode", VNPayConfig.vnp_TmnCode);
-        vnp_Params.put("vnp_Amount", String.valueOf(amount));
+        vnp_Params.put("vnp_Amount", String.valueOf(totalAmount));
         vnp_Params.put("vnp_CurrCode", "VND");
         vnp_Params.put("vnp_BankCode", ""); // Ngân hàng mặc định
-        vnp_Params.put("vnp_TxnRef", maOrderOnline);
-        vnp_Params.put("vnp_OrderInfo", "Thanh toan hoa don " + maOrderOnline);
+        vnp_Params.put("vnp_TxnRef", orderIdStr);
+        vnp_Params.put("vnp_OrderInfo", "Thanh toan hoa don " + orderIdStr);
         vnp_Params.put("vnp_Locale", "vn");
-        vnp_Params.put("vnp_ReturnUrl", VNPayConfig.vnp_ReturnUrl);
+        vnp_Params.put("vnp_ReturnUrl", vnp_ReturnUrl);
         vnp_Params.put("vnp_IpAddr", "127.0.0.1");
         vnp_Params.put("vnp_OrderType", "other");
 
         // Lấy thời gian tạo hóa đơn và hạn thanh toán
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
-        String vnp_CreateDate = order.getCreateDate().atZone(java.time.ZoneId.systemDefault()).format(formatter);
+        String vnp_CreateDate = LocalDateTime.now().format(formatter);
         vnp_Params.put("vnp_CreateDate", vnp_CreateDate);
 
         LocalDateTime expireTime = LocalDateTime.now().plusMinutes(15);
@@ -91,7 +108,16 @@ public class VNPaymentService {
         return VNPayConfig.vnp_PayUrl + "?" + query.toString();
     }
 
-    public String handleVnpayCallback(Map<String, String> payload) throws Exception {
+    /**
+     * Xử lý callback từ VNPay
+     *
+     * @param payload Dữ liệu trả về từ VNPay
+     * @param isPOS   True nếu là đơn hàng POS
+     */
+    public String handleVnpayCallback(
+            Map<String, String> payload,
+            boolean isPOS
+    ) throws Exception {
         String vnpTxnRef = payload.get("vnp_TxnRef"); // Mã hóa đơn
         String vnpResponseCode = payload.get("vnp_ResponseCode"); // Trạng thái giao dịch
         String vnpAmount = payload.get("vnp_Amount"); // Tổng tiền
@@ -100,33 +126,54 @@ public class VNPaymentService {
             throw new IllegalArgumentException("Thiếu thông tin 'vnp_TxnRef' hoặc 'vnp_ResponseCode'.");
         }
 
-        // Lấy thông tin hóa đơn từ DB
-        OrderOnline order = orderOnlineRepository.findByOrderCode(vnpTxnRef);
-        if (order == null) {
-            throw new EntityNotFoundException("Hóa đơn không tồn tại");
-        }
-        BigDecimal tongTienSanPham = order.getTotalAmount();
+        // Chuyển vnp_TxnRef thành Integer để tìm kiếm
+        Integer orderId = Integer.valueOf(vnpTxnRef);
 
-        // Chuyển đổi số tiền từ VNPay về VNĐ
-        BigDecimal amountFromVNPay = new BigDecimal(vnpAmount).divide(BigDecimal.valueOf(100));
+        if (isPOS) {
+            // Xử lý đơn hàng POS
+            Order order = orderRepository.findById(orderId)
+                    .orElseThrow(() -> new EntityNotFoundException("Hóa đơn POS không tồn tại với ID: " + orderId));
+            BigDecimal totalBill = order.getTotalBill();
+            BigDecimal amountFromVNPay = new BigDecimal(vnpAmount).divide(BigDecimal.valueOf(100));
 
-        // Kiểm tra số tiền có khớp không
-        if (tongTienSanPham.compareTo(amountFromVNPay) != 0) {
-            throw new IllegalArgumentException("Số tiền thanh toán không khớp với hóa đơn.");
-        }
+            if (totalBill.compareTo(amountFromVNPay) != 0) {
+                throw new IllegalArgumentException("Số tiền thanh toán không khớp với hóa đơn POS.");
+            }
 
-        // Nếu giao dịch thành công
-        if ("00".equals(vnpResponseCode)) {
-            processSuccessfulTransaction(vnpTxnRef);
-            order.setStatusOrder(2); // Đã xác nhận
-            orderOnlineRepository.save(order);
-            return "Giao dịch thành công";
+            if ("00".equals(vnpResponseCode)) {
+                order.setStatusOrder(5); // Hoàn thành
+                orderRepository.save(order);
+                return "Giao dịch thành công";
+            } else {
+                order.setStatusOrder(-1); // Thất bại
+                orderRepository.save(order);
+                return "Giao dịch thất bại, mã lỗi: " + vnpResponseCode;
+            }
         } else {
-            order.setStatusOrder(-1);
-            orderOnlineRepository.save(order);
-            return "Giao dịch thất bại, mã lỗi: " + vnpResponseCode;
+            // Xử lý đơn hàng Online
+            OrderOnline order = orderOnlineRepository.findById(orderId)
+                    .orElseThrow(() -> new EntityNotFoundException("Hóa đơn Online không tồn tại với ID: " + orderId));
+            BigDecimal totalBill = order.getTotalBill();
+            BigDecimal amountFromVNPay = new BigDecimal(vnpAmount).divide(BigDecimal.valueOf(100));
+
+            if (totalBill.compareTo(amountFromVNPay) != 0) {
+                throw new IllegalArgumentException("Số tiền thanh toán không khớp với hóa đơn Online.");
+            }
+
+            if ("00".equals(vnpResponseCode)) {
+                processSuccessfulTransaction(orderId.toString());
+                order.setStatusOrder(5); // Hoàn thành
+                orderOnlineRepository.save(order);
+                return "Giao dịch thành công";
+            } else {
+                order.setStatusOrder(-1); // Thất bại
+                orderOnlineRepository.save(order);
+                return "Giao dịch thất bại, mã lỗi: " + vnpResponseCode;
+            }
         }
     }
+
+
     public String generateHtml(String title, String message, String content) {
         return "<!DOCTYPE html>" +
                 "<html lang=\"vi\">" +

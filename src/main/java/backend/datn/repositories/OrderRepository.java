@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Integer> {
@@ -22,7 +23,8 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
 
 
     // Tìm đơn hàng theo mã
-    Order findByOrderCode(String orderCode);
+    Optional<Order> findByOrderCode(String orderCode); // Đảm bảo trả về Optional
+
 
     // Tìm đơn hàng theo trạng thái
     List<Order> findByStatusOrder(int statusOrder);
