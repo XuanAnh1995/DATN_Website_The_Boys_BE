@@ -3,7 +3,6 @@ package backend.datn.controllers;
 import backend.datn.dto.ApiResponse;
 import backend.datn.dto.request.ProductDetailCreateRequest;
 import backend.datn.dto.request.ProductDetailUpdateRequest;
-import backend.datn.dto.response.ProductDetailGenerateResponse;
 import backend.datn.dto.response.ProductDetailGroupReponse;
 import backend.datn.dto.response.ProductDetailResponse;
 import backend.datn.exceptions.EntityAlreadyExistsException;
@@ -121,4 +120,6 @@ public class ProductDetailController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse("error", "Có lỗi xảy ra: " + e.getMessage(), null));
         }
     }
+
+
 }

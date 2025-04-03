@@ -2,9 +2,7 @@ package backend.datn.services;
 
 import backend.datn.dto.request.ProductDetailCreateRequest;
 import backend.datn.dto.request.ProductDetailUpdateRequest;
-import backend.datn.dto.response.ProductDetailGenerateResponse;
-import backend.datn.dto.response.ProductDetailGroupReponse;
-import backend.datn.dto.response.ProductDetailResponse;
+import backend.datn.dto.response.*;
 import backend.datn.entities.ProductDetail;
 import backend.datn.exceptions.EntityAlreadyExistsException;
 import backend.datn.exceptions.EntityNotFoundException;
@@ -286,6 +284,5 @@ public class ProductDetailService {
                 .productDetails(entry.getValue())
                 .build();
     }
-
 
 }
