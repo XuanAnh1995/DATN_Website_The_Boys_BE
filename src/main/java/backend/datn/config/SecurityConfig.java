@@ -47,6 +47,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/colors/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/collars/**").permitAll()
                         .requestMatchers(HttpMethod.GET,"/api/vouchers/**").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/api/v1/**").permitAll()
                         .requestMatchers(HttpMethod.GET,"/api/products/**").permitAll() // Cho phép không cần token
                         .requestMatchers("/api/**").hasAnyRole("ADMIN", "STAFF") // Cho phép cả ADMIN & STAFF
                         .requestMatchers("/cart/**").hasAnyRole("CUSTOMER") // Chỉ cho phép CUSTOMER

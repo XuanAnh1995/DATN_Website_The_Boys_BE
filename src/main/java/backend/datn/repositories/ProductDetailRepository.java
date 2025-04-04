@@ -69,7 +69,7 @@ public interface ProductDetailRepository extends JpaRepository<ProductDetail, In
         ),
         new backend.datn.dto.response.SizeResponse(s.id, s.sizeName, s.status),
         new backend.datn.dto.response.ColorResponse(c.id, c.colorName, c.status),
-        null,
+        new backend.datn.dto.response.PromotionResponse(pr.id, pr.promotionName, pr.promotionPercent, pr.startDate, pr.endDate, pr.description, pr.status),
         new backend.datn.dto.response.CollarResponse(col.id, col.collarName, col.status),
         new backend.datn.dto.response.SleeveResponse(sl.id, sl.sleeveName, sl.status),
         pd.photo,
@@ -87,6 +87,7 @@ public interface ProductDetailRepository extends JpaRepository<ProductDetail, In
     LEFT JOIN Collar col ON pd.collar.id = col.id
     LEFT JOIN Sleeve sl ON pd.sleeve.id = sl.id
     LEFT JOIN Material m ON p.material.id = m.id
+    LEFT JOIN Promotion pr ON pd.promotion.id = pr.id
     WHERE p.productCode = :productCode
 """)
     List<ProductDetailResponse> getProductVariantsByProductCode(@Param("productCode") String productCode);
