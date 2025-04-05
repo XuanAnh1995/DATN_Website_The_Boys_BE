@@ -18,8 +18,9 @@ public class VNPaymentController {
 
     /**
      * Tạo URL thanh toán VNPay
+     *
      * @param orderId ID đơn hàng (khóa chính Integer)
-     * @param isPOS True nếu là đơn hàng POS
+     * @param isPOS   True nếu là đơn hàng POS
      */
     @PostMapping("/create-payment-url/{orderId}")
     public ResponseEntity<?> createPaymentUrl(
@@ -28,6 +29,7 @@ public class VNPaymentController {
     ) {
         try {
             String paymentUrl = vnPayService.generatePaymentUrl(orderId, isPOS);
+//            String paymentUrl = vnPayService.generateQRCodeData(orderId, isPOS);
             return ResponseEntity.ok(paymentUrl);
         } catch (UnsupportedEncodingException e) {
             return ResponseEntity.status(500).body("Lỗi mã hóa URL: " + e.getMessage());
@@ -45,8 +47,9 @@ public class VNPaymentController {
 
     /**
      * Xử lý callback từ VNPay
+     *
      * @param payload Dữ liệu trả về từ VNPay
-     * @param isPOS True nếu là đơn hàng POS
+     * @param isPOS   True nếu là đơn hàng POS
      */
     @RequestMapping("/vnpay-callback")
     public ResponseEntity<String> handleVNPayCallback(

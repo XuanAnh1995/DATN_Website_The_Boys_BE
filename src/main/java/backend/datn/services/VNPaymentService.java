@@ -7,8 +7,13 @@ import backend.datn.exceptions.EntityNotFoundException;
 import backend.datn.repositories.OrderRepository;
 import backend.datn.repositories.OrderOnlineRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
@@ -29,6 +34,12 @@ public class VNPaymentService {
 
     @Autowired
     private OrderRepository orderRepository;
+
+//    private final RestTemplate restTemplate;
+//
+//    public VNPaymentService() {
+//        this.restTemplate = new RestTemplate();
+//    }
 
     /**
      * Tạo URL thanh toán VNPay dựa trên mã đơn hàng.
@@ -64,7 +75,7 @@ public class VNPaymentService {
         vnp_Params.put("vnp_TmnCode", VNPayConfig.vnp_TmnCode);
         vnp_Params.put("vnp_Amount", String.valueOf(totalAmount));
         vnp_Params.put("vnp_CurrCode", "VND");
-        vnp_Params.put("vnp_BankCode", ""); // Ngân hàng mặc định
+        vnp_Params.put("vnp_BankCode", "NCB"); // Ngân hàng mặc định
         vnp_Params.put("vnp_TxnRef", orderIdStr);
         vnp_Params.put("vnp_OrderInfo", "Thanh toan hoa don " + orderIdStr);
         vnp_Params.put("vnp_Locale", "vn");
@@ -107,6 +118,81 @@ public class VNPaymentService {
         // Trả về URL thanh toán
         return VNPayConfig.vnp_PayUrl + "?" + query.toString();
     }
+
+    /**
+     * Tạo dữ liệu QR động để thanh toán VNPay.
+     *
+     * @param orderId ID đơn hàng (khóa chính Integer cho cả Order và OrderOnline)
+     * @param isPOS   True nếu là đơn hàng POS, False nếu là đơn hàng Online
+     * @return Chuỗi dữ liệu QR (theo chuẩn VietQR)
+     */
+//    public String generateQRCodeData(Integer orderId, boolean isPOS) throws UnsupportedEncodingException {
+//        long totalAmount;
+//
+//        if (isPOS) {
+//            Order order = orderRepository.findById(orderId)
+//                    .orElseThrow(() -> new EntityNotFoundException("Hóa đơn POS không tồn tại với ID: " + orderId));
+//            totalAmount = order.getTotalBill().longValue() * 100;
+//        } else {
+//            OrderOnline order = orderOnlineRepository.findById(orderId)
+//                    .orElseThrow(() -> new EntityNotFoundException("Hóa đơn Online không tồn tại với ID: " + orderId));
+//            totalAmount = order.getTotalBill().longValue() * 100;
+//        }
+//
+//        String orderIdStr = String.valueOf(orderId);
+//        String vnp_ReturnUrl = VNPayConfig.vnp_ReturnUrl + (isPOS ? "?isPOS=true" : "?isPOS=false");
+//
+//        Map<String, String> vnp_Params = new HashMap<>();
+//        vnp_Params.put("vnp_Version", "2.1.0");
+//        vnp_Params.put("vnp_TmnCode", VNPayConfig.vnp_TmnCode);
+//        vnp_Params.put("vnp_Amount", String.valueOf(totalAmount));
+//        vnp_Params.put("vnp_CurrCode", "VND");
+//        vnp_Params.put("vnp_TxnRef", orderIdStr);
+//        vnp_Params.put("vnp_OrderInfo", "Thanh toan hoa don " + orderIdStr);
+//        vnp_Params.put("vnp_Locale", "vn");
+//        vnp_Params.put("vnp_ReturnUrl", vnp_ReturnUrl);
+//        vnp_Params.put("vnp_IpAddr", "127.0.0.1");
+//
+//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+//        String vnp_CreateDate = LocalDateTime.now().format(formatter);
+//        vnp_Params.put("vnp_CreateDate", vnp_CreateDate);
+//
+//        LocalDateTime expireTime = LocalDateTime.now().plusMinutes(15);
+//        String vnp_ExpireDate = expireTime.format(formatter);
+//        vnp_Params.put("vnp_ExpireDate", vnp_ExpireDate);
+//
+//        StringBuilder hashData = new StringBuilder();
+//        List<String> fieldNames = new ArrayList<>(vnp_Params.keySet());
+//        Collections.sort(fieldNames);
+//
+//        for (String fieldName : fieldNames) {
+//            String fieldValue = vnp_Params.get(fieldName);
+//            if (fieldValue != null && !fieldValue.isEmpty()) {
+//                hashData.append(fieldName).append('=').append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII));
+//                if (!fieldName.equals(fieldNames.get(fieldNames.size() - 1))) {
+//                    hashData.append('&');
+//                }
+//            }
+//        }
+//
+//        String vnp_SecureHash = VNPayConfig.hmacSHA512(VNPayConfig.secretKey, hashData.toString());
+//        vnp_Params.put("vnp_SecureHash", vnp_SecureHash);
+//
+//        // Gửi yêu cầu đến API tạo mã QR của VNPay
+//        String qrApiUrl = "https://sandbox.vnpayment.vn/qrpay/create";
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
+//        HttpEntity<Map<String, String>> request = new HttpEntity<>(vnp_Params, headers);
+//
+//        ResponseEntity<Map> response = restTemplate.exchange(qrApiUrl, HttpMethod.POST, request, Map.class);
+//        Map<String, Object> responseBody = response.getBody();
+//
+//        if (responseBody != null && responseBody.containsKey("qrData")) {
+//            return (String) responseBody.get("qrData"); // Trả về chuỗi dữ liệu QR
+//        } else {
+//            throw new RuntimeException("Không thể tạo mã QR: " + responseBody.get("message"));
+//        }
+//    }
 
     /**
      * Xử lý callback từ VNPay
