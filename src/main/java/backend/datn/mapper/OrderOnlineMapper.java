@@ -22,7 +22,7 @@ public class OrderOnlineMapper {
                 .totalBill(order.getTotalBill())
                 .paymentMethod(order.getPaymentMethod() != null ? order.getPaymentMethod() : 0)
                 .statusOrder(order.getStatusOrder() != null ? order.getStatusOrder() : 0)
-                .kindOfOrder(true)
+                .kindOfOrder(order.getKindOfOrder())
                 .phone(order.getPhone() != null ? order.getPhone() : "")
                 .address(order.getAddress() != null ? order.getAddress() : "")
                 .shipfee(order.getShipfee() != null ? order.getShipfee() : BigDecimal.ZERO)

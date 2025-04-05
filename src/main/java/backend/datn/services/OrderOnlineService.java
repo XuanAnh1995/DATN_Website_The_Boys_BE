@@ -12,6 +12,10 @@ import backend.datn.mapper.OrderOnlineMapper;
 import backend.datn.repositories.*;
 import backend.datn.security.CustomUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -222,5 +226,35 @@ public class OrderOnlineService {
             throw new EntityNotFoundException("Không tìm thấy khách hàng");
         }
         return customer;
+    }
+
+    /**
+     * Lấy danh sách đơn hàng online (kindOfOrder = 0) với tìm kiếm và phân trang
+     * @param search Từ khóa tìm kiếm (có thể null hoặc rỗng)
+     * @param page Số trang (bắt đầu từ 0)
+     * @param size Kích thước trang
+     * @param sortBy Trường để sắp xếp (ví dụ: "createDate", "totalAmount")
+     * @param sortDir Hướng sắp xếp ("asc" hoặc "desc")
+     * @return Page<OrderOnlineResponse> Kết quả phân trang
+     */
+    public Page<OrderOnlineResponse> getAllOnlineOrders(
+            String search, int page, int size, String sortBy, String sortDir) {
+        // Xác định hướng sắp xếp (ascending hoặc descending)
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ?
+                Sort.by(sortBy).ascending() :
+                Sort.by(sortBy).descending();
+
+        // Tạo đối tượng Pageable từ page, size và sort
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        // Nếu search không rỗng, thêm ký tự '%' vào đầu và cuối
+        String formattedSearch = (search == null || search.isEmpty()) ? null : "%" + search.toLowerCase() + "%";
+
+        // Gọi repository để lấy danh sách đơn hàng với tìm kiếm và phân trang
+        Page<OrderOnline> onlineOrdersPage = orderRepository.findAllByKindOfOrderWithSearchAndJoin(
+                false, formattedSearch, pageable);
+
+        // Ánh xạ kết quả thành Page<OrderOnlineResponse>
+        return onlineOrdersPage.map(OrderOnlineMapper::toOrderOnlineResponse);
     }
 }
