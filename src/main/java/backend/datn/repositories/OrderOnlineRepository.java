@@ -35,5 +35,11 @@ public interface OrderOnlineRepository extends JpaRepository<OrderOnline, Intege
             @Param("kindOfOrder") Boolean kindOfOrder,
             @Param("search") String search,
             Pageable pageable);
+
+    // Thêm phương thức tìm theo ID
+    @Query("SELECT o FROM OrderOnline o WHERE o.id = :id AND o.kindOfOrder = :kindOfOrder")
+    Optional<OrderOnline> findOrderOnlineByIdWithKindOfOrder(
+            @Param("id") Integer id,
+            @Param("kindOfOrder") Boolean kindOfOrder);
 }
 
