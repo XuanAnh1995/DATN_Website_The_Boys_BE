@@ -28,6 +28,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
 @Service
 public class OrderOnlineService {
 
@@ -230,19 +231,20 @@ public class OrderOnlineService {
 
     /**
      * Lấy danh sách đơn hàng online (kindOfOrder = 0) với tìm kiếm và phân trang
-     * @param search Từ khóa tìm kiếm (có thể null hoặc rỗng)
-     * @param page Số trang (bắt đầu từ 0)
-     * @param size Kích thước trang
-     * @param sortBy Trường để sắp xếp (ví dụ: "createDate", "totalAmount")
-     * @param sortDir Hướng sắp xếp ("asc" hoặc "desc")
+     *
+     * @param search        Từ khóa tìm kiếm (có thể null hoặc rỗng)
+     * @param page          Số trang (bắt đầu từ 0)
+     * @param size          Kích thước trang
+     * @param sortKey       Trường để sắp xếp (ví dụ: "createDate", "totalAmount")
+     * @param sortDirection Hướng sắp xếp ("asc" hoặc "desc")
      * @return Page<OrderOnlineResponse> Kết quả phân trang
      */
     public Page<OrderOnlineResponse> getAllOnlineOrders(
-            String search, int page, int size, String sortBy, String sortDir) {
+            String search, int page, int size, String sortKey, String sortDirection) {
         // Xác định hướng sắp xếp (ascending hoặc descending)
-        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ?
-                Sort.by(sortBy).ascending() :
-                Sort.by(sortBy).descending();
+        Sort sort = sortDirection.equalsIgnoreCase(Sort.Direction.ASC.name()) ?
+                Sort.by(sortKey).ascending() :
+                Sort.by(sortKey).descending();
 
         // Tạo đối tượng Pageable từ page, size và sort
         Pageable pageable = PageRequest.of(page, size, sort);
@@ -256,5 +258,21 @@ public class OrderOnlineService {
 
         // Ánh xạ kết quả thành Page<OrderOnlineResponse>
         return onlineOrdersPage.map(OrderOnlineMapper::toOrderOnlineResponse);
+    }
+
+    /**
+     * Tìm đơn hàng online theo ID
+     *
+     * @param id ID của đơn hàng
+     * @return OrderOnlineResponse Thông tin đơn hàng online
+     * @throws EntityNotFoundException Nếu không tìm thấy đơn hàng hoặc không phải đơn hàng online
+     */
+    public OrderOnlineResponse findOrderOnlineByIdWithKindOfOrder(Integer id) {
+        // Gọi repository để tìm đơn hàng theo ID và kindOfOrder = false (online)
+        OrderOnline order = orderRepository.findOrderOnlineByIdWithKindOfOrder(id, false)
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy đơn hàng online với ID: " + id));
+
+        // Ánh xạ sang OrderOnlineResponse và trả về
+        return OrderOnlineMapper.toOrderOnlineResponse(order);
     }
 }
