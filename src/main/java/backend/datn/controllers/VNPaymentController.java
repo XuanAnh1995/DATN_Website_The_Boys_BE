@@ -1,6 +1,7 @@
 package backend.datn.controllers;
 
 import backend.datn.services.VNPayOnlineService;
+import backend.datn.services.VNPaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,9 @@ public class VNPaymentController {
 
     @Autowired
     private VNPayOnlineService vnPayService;
+
+    @Autowired
+    private VNPaymentService vnPaymentService;
 
     @PostMapping("/create-payment-url/{orderId}")
     public ResponseEntity<?> createPaymentUrl(@PathVariable String orderId) {
@@ -64,6 +68,28 @@ public class VNPaymentController {
                     e.getMessage(),
                     "Vui lòng liên hệ với chúng tôi để biết thêm chi tiết.");
             return new ResponseEntity<>(htmlResponse, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    // Hàm mới, thêm để xử lý yêu cầu tạo URL thanh toán cho POS
+    @PostMapping("/create-payment-url-pos/{orderId}")
+    public ResponseEntity<?> createPaymentUrlForPOS(
+            @PathVariable String orderId,
+            @RequestParam(value = "isPOS", defaultValue = "false") boolean isPOS) {
+        try {
+            // Chuyển đổi orderId từ String sang Integer
+            Integer orderIdInt = Integer.parseInt(orderId);
+            String paymentUrl = vnPaymentService.generatePaymentUrl(orderIdInt, isPOS);
+            return ResponseEntity.ok(paymentUrl);
+        } catch (NumberFormatException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("ID đơn hàng không hợp lệ: " + orderId);
+        } catch (UnsupportedEncodingException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Lỗi mã hóa URL: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
         }
     }
 }
