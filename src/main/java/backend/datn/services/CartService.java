@@ -5,6 +5,7 @@ import backend.datn.dto.response.CartItemResponse;
 import backend.datn.entities.Cart;
 import backend.datn.entities.Customer;
 import backend.datn.entities.ProductDetail;
+import backend.datn.exceptions.BadRequestException;
 import backend.datn.exceptions.EntityNotFoundException;
 import backend.datn.mapper.CartMapper;
 import backend.datn.repositories.CartRepository;
@@ -57,7 +58,7 @@ public class CartService {
         }
 
         if (newQuantity > stockQuantity) {
-            throw new IllegalArgumentException("Số lượng sản phẩm trong kho không đủ!");
+            throw new BadRequestException("Số lượng sản phẩm trong kho không đủ!");
         }
 
         if (cart != null) {
@@ -89,7 +90,7 @@ public class CartService {
     @Transactional
     public CartItemResponse updateCartItemQuantity(Integer cartItemId, Integer quantity) {
         if (quantity <= 0) {
-            throw new IllegalArgumentException("Số lượng phải lớn hơn 0");
+            throw new BadRequestException("Số lượng phải lớn hơn 0");
         }
 
         Cart cart = cartRepository.findById(cartItemId)
@@ -99,7 +100,7 @@ public class CartService {
         int stockQuantity = productDetail.getQuantity();
 
         if (quantity > stockQuantity) {
-            throw new IllegalArgumentException("Số lượng sản phẩm trong kho không đủ!");
+            throw new BadRequestException("Số lượng sản phẩm trong kho không đủ!");
         }
 
         cart.setQuantity(quantity);
