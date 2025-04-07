@@ -34,7 +34,6 @@ public class ProductDetail {
     @JoinColumn(name = "color_id", nullable = false)
     private Color color;
 
-    @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "promotion_id", nullable = false)
     private Promotion promotion;
