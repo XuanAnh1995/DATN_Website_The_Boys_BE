@@ -2,6 +2,7 @@ package backend.datn.repositories;
 
 
 import backend.datn.entities.OrderOnline;
+import backend.datn.entities.OrderOnlineDetail;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -9,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -19,6 +21,10 @@ public interface OrderOnlineRepository extends JpaRepository<OrderOnline, Intege
 
     // Phương thức mới để đảm bảo chỉ lấy đơn hàng online
     Optional<OrderOnline> findByOrderCodeAndKindOfOrder(String orderCode, Boolean kindOfOrder);
+
+    // Tìm danh sách hóa đơn chi tiết theo mã đơn hàng
+    @Query("SELECT od FROM OrderOnlineDetail od WHERE od.order.orderCode = :orderCode")
+    List<OrderOnlineDetail> findOrderDetailsByOrderCode(@Param("orderCode") String orderCode);
 
     // Phương thức mới: Lấy tất cả đơn hàng online với tìm kiếm, phân trang và JOIN với Customer
     @Query("SELECT o FROM OrderOnline o " +

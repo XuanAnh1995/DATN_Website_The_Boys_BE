@@ -1,6 +1,6 @@
 package backend.datn.controllers;
 
-import backend.datn.services.VNPaymentService;
+import backend.datn.services.VNPayOnlineService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,22 +14,12 @@ import java.util.Map;
 public class VNPaymentController {
 
     @Autowired
-    private VNPaymentService vnPayService;
+    private VNPayOnlineService vnPayService;
 
-    /**
-     * Tạo URL thanh toán VNPay
-     *
-     * @param orderId ID đơn hàng (khóa chính Integer)
-     * @param isPOS   True nếu là đơn hàng POS
-     */
     @PostMapping("/create-payment-url/{orderId}")
-    public ResponseEntity<?> createPaymentUrl(
-            @PathVariable Integer orderId,
-            @RequestParam(defaultValue = "false") boolean isPOS
-    ) {
+    public ResponseEntity<?> createPaymentUrl(@PathVariable String orderId) {
         try {
-            String paymentUrl = vnPayService.generatePaymentUrl(orderId, isPOS);
-//            String paymentUrl = vnPayService.generateQRCodeData(orderId, isPOS);
+            String paymentUrl = vnPayService.generatePaymentUrl(orderId);
             return ResponseEntity.ok(paymentUrl);
         } catch (UnsupportedEncodingException e) {
             return ResponseEntity.status(500).body("Lỗi mã hóa URL: " + e.getMessage());
@@ -44,18 +34,8 @@ public class VNPaymentController {
         return ResponseEntity.ok(result);
     }
 
-
-    /**
-     * Xử lý callback từ VNPay
-     *
-     * @param payload Dữ liệu trả về từ VNPay
-     * @param isPOS   True nếu là đơn hàng POS
-     */
     @RequestMapping("/vnpay-callback")
-    public ResponseEntity<String> handleVNPayCallback(
-            @RequestParam Map<String, String> payload,
-            @RequestParam(defaultValue = "false") boolean isPOS
-    ) {
+    public ResponseEntity<String> handleVNPayCallback(@RequestParam Map<String, String> payload) {
         try {
             if (!payload.containsKey("vnp_TxnRef") || !payload.containsKey("vnp_ResponseCode")) {
                 String htmlResponse = vnPayService.generateHtml("Dữ liệu không hợp lệ",
@@ -64,7 +44,7 @@ public class VNPaymentController {
                 return new ResponseEntity<>(htmlResponse, HttpStatus.BAD_REQUEST);
             }
 
-            String response = vnPayService.handleVnpayCallback(payload, isPOS);
+            String response = vnPayService.handleVnpayCallback(payload);
 
             if ("Giao dịch thành công".equals(response)) {
                 String htmlResponse = vnPayService.generateHtml("Thanh toán thành công",

@@ -128,6 +128,9 @@ public class OrderOnlineService {
             detail.setPrice(salePrice);
             detail.setOrder(order);
 
+            productDetail.setQuantity(productDetail.getQuantity() - detailRequest.getQuantity());
+            productDetailRepository.save(productDetail);
+
             return detail;
         }).collect(Collectors.toList());
 
