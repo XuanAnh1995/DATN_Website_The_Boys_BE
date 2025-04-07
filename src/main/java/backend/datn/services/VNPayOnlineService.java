@@ -114,13 +114,16 @@ public class VNPayOnlineService {
         if (order == null) {
             throw new EntityNotFoundException("Hóa đơn không tồn tại");
         }
-        BigDecimal tongTienSanPham = order.getTotalAmount();
+        BigDecimal tongTien = order.getTotalBill();
 
         // Chuyển đổi số tiền từ VNPay về VNĐ
         BigDecimal amountFromVNPay = new BigDecimal(vnpAmount).divide(BigDecimal.valueOf(100));
 
         // Kiểm tra số tiền có khớp không
-        if (tongTienSanPham.compareTo(amountFromVNPay) != 0) {
+        if (tongTien.compareTo(amountFromVNPay) != 0) {
+            order.setStatusOrder(-1);
+            restoreProductQuantity(order.getOrderCode());
+            orderOnlineRepository.save(order);
             throw new IllegalArgumentException("Số tiền thanh toán không khớp với hóa đơn.");
         }
 
