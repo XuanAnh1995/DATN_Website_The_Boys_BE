@@ -1,4 +1,5 @@
 package backend.datn.dto.response;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Builder;
 import lombok.Data;
 
@@ -24,4 +25,7 @@ public class OrderOnlineResponse  {
     String address;
     BigDecimal shipfee;
     BigDecimal discount;
+
+    @JsonIgnoreProperties("order")
+    private List<OrderDetailResponse> orderDetails;
 }

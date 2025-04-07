@@ -48,8 +48,12 @@ public class OrderPOS {
     private LocalDateTime createDate;
 
     @NotNull
+    @Column(name = "original_total", nullable = false)
+    private BigDecimal originalTotal;
+
+    @NotNull
     @Column(name = "total_amount")
-    private Integer totalAmount;
+    private BigDecimal totalAmount;
 
     @NotNull
     @Column(name = "total_bill")

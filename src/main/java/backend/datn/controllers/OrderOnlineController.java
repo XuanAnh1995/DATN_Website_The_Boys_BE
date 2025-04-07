@@ -4,6 +4,7 @@ import backend.datn.dto.ApiResponse;
 import backend.datn.dto.request.OrderOnlineRequest;
 import backend.datn.dto.response.OrderOnlineResponse;
 import backend.datn.dto.response.PagedResponse;
+import backend.datn.exceptions.EntityNotFoundException;
 import backend.datn.services.OrderOnlineService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -94,6 +95,24 @@ public class OrderOnlineController {
             // Tạo phản hồi lỗi
             ApiResponse response = new ApiResponse("error", e.getMessage(), null);
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
+    }
+
+    /**
+     * API lấy chi tiết đơn hàng online kèm danh sách sản phẩm
+     */
+    @GetMapping("/online/{id}/details")
+    public ResponseEntity<ApiResponse> getOrderOnlineDetails(@PathVariable Integer id) {
+        try {
+            OrderOnlineResponse orderResponse = orderOnlineService.getOrderOnlineDetails(id);
+            ApiResponse response = new ApiResponse("success", "Lấy chi tiết đơn hàng online thành công", orderResponse);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (EntityNotFoundException e) {
+            ApiResponse response = new ApiResponse("error", e.getMessage(), null);
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            ApiResponse response = new ApiResponse("error", "Đã xảy ra lỗi khi lấy chi tiết đơn hàng online", null);
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

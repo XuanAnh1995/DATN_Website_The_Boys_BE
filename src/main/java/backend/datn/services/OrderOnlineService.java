@@ -2,12 +2,14 @@ package backend.datn.services;
 
 import backend.datn.dto.request.OrderOnlineDetailRequest;
 import backend.datn.dto.request.OrderOnlineRequest;
+import backend.datn.dto.response.OrderDetailResponse;
 import backend.datn.dto.response.OrderOnlineResponse;
 import backend.datn.entities.*;
 import backend.datn.exceptions.BadRequestException;
 import backend.datn.exceptions.EntityNotFoundException;
 import backend.datn.helpers.CodeGeneratorHelper;
 import backend.datn.helpers.RandomHelper;
+import backend.datn.mapper.OrderDetailMapper;
 import backend.datn.mapper.OrderOnlineMapper;
 import backend.datn.repositories.*;
 import backend.datn.security.CustomUserDetails;
@@ -46,6 +48,9 @@ public class OrderOnlineService {
 
     @Autowired
     private CustomerRepository customerRepository;
+
+    @Autowired
+    private OrderDetailRepository repository;
 
     /**
      * Tạo đơn hàng online
@@ -275,4 +280,27 @@ public class OrderOnlineService {
         // Ánh xạ sang OrderOnlineResponse và trả về
         return OrderOnlineMapper.toOrderOnlineResponse(order);
     }
+
+    /**
+     * Lấy chi tiết đơn hàng online kèm danh sách sản phẩm
+     */
+    @Transactional
+    public OrderOnlineResponse getOrderOnlineDetails(Integer orderId) {
+        // Tìm đơn hàng Online theo ID với kindOfOrder = false
+        OrderOnline order = orderRepository.findOrderOnlineByIdWithKindOfOrder(orderId, false)
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy đơn hàng online với ID: " + orderId));
+
+        // Lấy danh sách chi tiết đơn hàng
+        List<OrderDetail> orderDetails = repository.findByOrderId(orderId);
+        List<OrderDetailResponse> orderDetailResponses = orderDetails.stream()
+                .map(OrderDetailMapper::toOrderDetailResponse)
+                .collect(Collectors.toList());
+
+        // Ánh xạ sang OrderOnlineResponse và thêm danh sách chi tiết
+        OrderOnlineResponse response = OrderOnlineMapper.toOrderOnlineResponse(order);
+        response.setOrderDetails(orderDetailResponses);
+
+        return response;
+    }
+
 }

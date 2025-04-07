@@ -16,6 +16,7 @@ public class OrderPOSMapper {
                 .customer(orderPOS.getCustomer() != null ? CustomerMapper.toCustomerResponse(orderPOS.getCustomer()) : null)
                 .orderCode(orderPOS.getOrderCode() != null ? orderPOS.getOrderCode() : "")
                 .createDate(orderPOS.getCreateDate())
+                .originalTotal(orderPOS.getOriginalTotal())
                 .totalAmount(orderPOS.getTotalAmount())
                 .totalBill(orderPOS.getTotalBill())
                 .paymentMethod(orderPOS.getPaymentMethod() != null ? orderPOS.getPaymentMethod() : 0)
