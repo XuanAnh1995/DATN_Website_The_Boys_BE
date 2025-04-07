@@ -115,5 +115,20 @@ public class OrderOnlineController {
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    /**
+     * API cập nhật trạng thái đơn hàng online
+     */
+    @PutMapping("/online/{id}/status")
+    public ResponseEntity<ApiResponse> updateOrderStatus(
+            @PathVariable Integer id,
+            @RequestParam Integer newStatus) {
+        try {
+            OrderOnlineResponse updatedOrder = orderOnlineService.updateOrderStatus(id, newStatus);
+            return ResponseEntity.ok(new ApiResponse("success", "Cập nhật trạng thái đơn hàng thành công", updatedOrder));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ApiResponse("error", e.getMessage()));
+        }
+    }
 }
 

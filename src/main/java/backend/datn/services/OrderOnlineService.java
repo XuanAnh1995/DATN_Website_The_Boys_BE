@@ -27,6 +27,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -304,6 +305,25 @@ public class OrderOnlineService {
         response.setOrderDetails(orderDetailResponses);
 
         return response;
+    }
+
+    /**
+     * Cập nhật trạng thái đơn hàng online
+     */
+    @Transactional
+    public OrderOnlineResponse updateOrderStatus(Integer id, Integer newStatus) {
+        OrderOnline order = orderRepository.findOrderOnlineByIdWithKindOfOrder(id, false)
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy đơn hàng online với ID: " + id));
+
+        List<Integer> validStatuses = Arrays.asList(-1, 0, 1, 2, 3, 4, 5);
+        if (!validStatuses.contains(newStatus)) {
+            throw new BadRequestException("Trạng thái không hợp lệ");
+        }
+
+        order.setStatusOrder(newStatus);
+        order = orderRepository.save(order);
+
+        return OrderOnlineMapper.toOrderOnlineResponse(order);
     }
 
 }
