@@ -462,37 +462,28 @@ GO
 --DELETE FROM [product_detail];
 --DBCC CHECKIDENT ('[product_detail]', RESEED, 0);
 
-INSERT INTO product_detail (product_id, size_id, color_id, promotion_id, collar_id, sleeve_id, photo, product_detail_code, import_price, sale_price, quantity, [description], [status]) VALUES
-(1, 1, 1, 1, 1, 1, 'photo1.jpg', 'PDT001', 100000, 120000, 50, N'Áo thun cổ tròn màu đen, kích thước XS, giảm giá 20%', 1),
-(2, 2, 2, 2, 2, 2, 'photo2.jpg', 'PDT002', 150000, 180000, 30, N'Áo thun thể thao màu trắng, kích thước S, giảm giá 50%', 1),
-(3, 3, 3, 3, 3, 1, 'photo3.jpg', 'PDT003', 120000, 140000, 40, N'Áo sơ mi tay dài màu xám, kích thước M, giảm giá 15%', 1),
-(4, 4, 4, 4, 1, 2, 'photo4.jpg', 'PDT004', 130000, 160000, 35, N'Áo sơ mi họa tiết màu xanh, kích thước L, giảm giá 10%', 1),
-(5, 5, 5, 5, 2, 1, 'photo5.jpg', 'PDT005', 200000, 250000, 25, N'Áo khoác jeans màu đỏ, kích thước XL, giảm giá 20%', 1),
-(6, 6, 6, 6, 3, 2, 'photo6.jpg', 'PDT006', 250000, 300000, 20, N'Áo khoác nỉ màu cam, kích thước XXL, giảm giá 30%', 1),
-(7, 1, 7, 1, 1, 1, 'photo7.jpg', 'PDT007', 120000, 150000, 45, N'Áo hoodie cổ tròn màu tím, kích thước XS, giảm giá 20%', 1),
-(8, 2, 8, 2, 2, 2, 'photo8.jpg', 'PDT008', 170000, 200000, 30, N'Áo hoodie thể thao màu xanh lá, kích thước S, giảm giá 50%', 1),
-(9, 3, 9, 3, 3, 1, 'photo9.jpg', 'PDT009', 140000, 160000, 40, N'Áo len cao cổ màu nâu, kích thước M, giảm giá 15%', 1),
-(10, 4, 10, 4, 1, 2, 'photo10.jpg', 'PDT010', 180000, 210000, 30, N'Áo len họa tiết màu vàng, kích thước L, giảm giá 10%', 1),
-(1, 5, 1, 5, 2, 1, 'photo11.jpg', 'PDT011', 190000, 240000, 35, N'Áo polo thể thao màu đen, kích thước XL, giảm giá 20%', 1),
-(2, 6, 2, 6, 3, 2, 'photo12.jpg', 'PDT012', 220000, 270000, 20, N'Áo polo thể thao màu trắng, kích thước XXL, giảm giá 30%', 1),
-(3, 1, 3, 1, 1, 1, 'photo13.jpg', 'PDT013', 110000, 130000, 50, N'Áo thun cổ tròn màu đỏ, kích thước XS, giảm giá 20%', 1),
-(4, 2, 4, 2, 2, 2, 'photo14.jpg', 'PDT014', 160000, 190000, 40, N'Áo thun thể thao màu cam, kích thước S, giảm giá 50%', 1),
-(5, 3, 5, 3, 3, 1, 'photo15.jpg', 'PDT015', 130000, 150000, 45, N'Áo sơ mi tay dài màu xám, kích thước M, giảm giá 15%', 1),
-(6, 4, 6, 4, 1, 2, 'photo16.jpg', 'PDT016', 140000, 170000, 30, N'Áo sơ mi họa tiết màu xanh, kích thước L, giảm giá 10%', 1),
-(7, 5, 7, 5, 2, 1, 'photo17.jpg', 'PDT017', 200000, 240000, 25, N'Áo khoác jeans màu vàng, kích thước XL, giảm giá 20%', 1),
-(8, 6, 8, 6, 3, 2, 'photo18.jpg', 'PDT018', 210000, 250000, 20, N'Áo khoác nỉ màu tím, kích thước XXL, giảm giá 30%', 1),
-(9, 1, 9, 1, 1, 1, 'photo19.jpg', 'PDT019', 110000, 130000, 50, N'Áo thun cổ tròn màu xanh, kích thước XS, giảm giá 20%', 1),
-(10, 2, 10, 2, 2, 2, 'photo20.jpg', 'PDT020', 150000, 180000, 30, N'Áo thun thể thao màu đỏ, kích thước S, giảm giá 50%', 1),
-(1, 3, 1, 3, 3, 1, 'photo21.jpg', 'PDT021', 120000, 140000, 40, N'Áo sơ mi tay dài màu tím, kích thước M, giảm giá 15%', 1),
-(2, 4, 2, 4, 1, 2, 'photo22.jpg', 'PDT022', 130000, 160000, 35, N'Áo sơ mi họa tiết màu xám, kích thước L, giảm giá 10%', 1),
-(3, 5, 3, 5, 2, 1, 'photo23.jpg', 'PDT023', 190000, 230000, 25, N'Áo polo thể thao màu cam, kích thước XL, giảm giá 20%', 1),
-(4, 6, 4, 6, 3, 2, 'photo24.jpg', 'PDT024', 220000, 260000, 20, N'Áo polo thể thao màu xanh, kích thước XXL, giảm giá 30%', 1),
-(5, 1, 5, 1, 1, 1, 'photo25.jpg', 'PDT025', 100000, 120000, 50, N'Áo thun cổ tròn màu cam, kích thước XS, giảm giá 20%', 1),
-(6, 2, 6, 2, 2, 2, 'photo26.jpg', 'PDT026', 160000, 190000, 30, N'Áo thun thể thao màu xám, kích thước S, giảm giá 50%', 1),
-(7, 3, 7, 3, 3, 1, 'photo27.jpg', 'PDT027', 130000, 150000, 45, N'Áo sơ mi tay dài màu đỏ, kích thước M, giảm giá 15%', 1),
-(8, 4, 8, 4, 1, 2, 'photo28.jpg', 'PDT028', 140000, 170000, 30, N'Áo sơ mi họa tiết màu vàng, kích thước L, giảm giá 10%', 1),
-(9, 5, 9, 5, 2, 1, 'photo29.jpg', 'PDT029', 200000, 240000, 25, N'Áo khoác jeans màu tím, kích thước XL, giảm giá 20%', 1),
-(10, 6, 10, 6, 3, 2, 'photo30.jpg', 'PDT030', 220000, 270000, 20, N'Áo khoác nỉ màu xanh, kích thước XXL, giảm giá 30%', 1);
+INSERT INTO product_detail (product_id, size_id, color_id, collar_id, sleeve_id, photo, product_detail_code, import_price, sale_price, quantity, [description], [status]) VALUES
+(1, 1, 1, 1, 1, 'photo1.jpg', 'PDT001', 100000, 120000, 50, N'Áo thun cổ tròn màu đen, kích thước XS, giảm giá 20%', 1),
+(2, 2, 2, 2, 2, 'photo2.jpg', 'PDT002', 150000, 180000, 30, N'Áo thun thể thao màu trắng, kích thước S, giảm giá 50%', 1),
+(3, 3, 3, 3, 1, 'photo3.jpg', 'PDT003', 120000, 140000, 40, N'Áo sơ mi tay dài màu xám, kích thước M, giảm giá 15%', 1),
+(4, 4, 4, 1, 2, 'photo4.jpg', 'PDT004', 130000, 160000, 35, N'Áo sơ mi họa tiết màu xanh, kích thước L, giảm giá 10%', 1),
+(5, 5, 5, 2, 1, 'photo5.jpg', 'PDT005', 200000, 250000, 25, N'Áo khoác jeans màu đỏ, kích thước XL, giảm giá 20%', 1),
+(6, 6, 6, 3, 2, 'photo6.jpg', 'PDT006', 250000, 300000, 20, N'Áo khoác nỉ màu cam, kích thước XXL, giảm giá 30%', 1),
+(7, 1, 7, 1, 1, 'photo7.jpg', 'PDT007', 120000, 150000, 45, N'Áo hoodie cổ tròn màu tím, kích thước XS, giảm giá 20%', 1),
+(8, 2, 8, 2, 2, 'photo8.jpg', 'PDT008', 170000, 200000, 30, N'Áo hoodie thể thao màu xanh lá, kích thước S, giảm giá 50%', 1),
+(9, 3, 9, 3, 1, 'photo9.jpg', 'PDT009', 140000, 160000, 40, N'Áo len cao cổ màu nâu, kích thước M, giảm giá 15%', 1),
+(10, 4, 10, 1, 2, 'photo10.jpg', 'PDT010', 180000, 210000, 30, N'Áo len họa tiết màu vàng, kích thước L, giảm giá 10%', 1),
+(1, 5, 1, 2, 1, 'photo11.jpg', 'PDT011', 190000, 240000, 35, N'Áo polo thể thao màu đen, kích thước XL, giảm giá 20%', 1),
+(2, 6, 2, 3, 2, 'photo12.jpg', 'PDT012', 220000, 270000, 20, N'Áo polo thể thao màu trắng, kích thước XXL, giảm giá 30%', 1),
+(3, 1, 3, 1, 1, 'photo13.jpg', 'PDT013', 110000, 130000, 50, N'Áo thun cổ tròn màu đỏ, kích thước XS, giảm giá 20%', 1),
+(4, 2, 4, 2, 2, 'photo14.jpg', 'PDT014', 160000, 190000, 40, N'Áo thun thể thao màu cam, kích thước S, giảm giá 50%', 1),
+(5, 3, 5, 3, 1, 'photo15.jpg', 'PDT015', 130000, 150000, 45, N'Áo sơ mi tay dài màu xám, kích thước M, giảm giá 15%', 1),
+(6, 4, 6, 1, 2, 'photo16.jpg', 'PDT016', 140000, 170000, 30, N'Áo sơ mi họa tiết màu xanh, kích thước L, giảm giá 10%', 1),
+(7, 5, 7, 2, 1, 'photo17.jpg', 'PDT017', 200000, 240000, 25, N'Áo khoác jeans màu vàng, kích thước XL, giảm giá 20%', 1),
+(8, 6, 8, 3, 2, 'photo18.jpg', 'PDT018', 210000, 250000, 20, N'Áo khoác nỉ màu tím, kích thước XXL, giảm giá 30%', 1),
+(9, 1, 9, 1, 1, 'photo19.jpg', 'PDT019', 110000, 130000, 50, N'Áo thun cổ tròn màu xanh, kích thước XS, giảm giá 20%', 1),
+(10, 2, 10, 2, 2, 'photo20.jpg', 'PDT020', 150000, 180000, 30, N'Áo thun thể thao màu đỏ, kích thước S, giảm giá 50%', 1);
+
 GO
 
 INSERT INTO voucher (voucher_code, voucher_name, [description], min_condition, max_discount, reduced_percent, [start_date], end_date, [status]) VALUES
@@ -548,110 +539,23 @@ GO
 --DELETE FROM [order];
 --DBCC CHECKIDENT ('[order]', RESEED, 0);
 
-INSERT INTO [order] (employee_id, voucher_id, customer_id, order_code, create_date, total_amount, total_bill, payment_method, status_order, kind_of_order)
-VALUES
-    (1, 1, 1, 'ORD001', '2025-02-01 10:30:00', 5, 600000, 1, 1, 0),
-    (2, 2, 2, 'ORD002', '2025-02-01 11:00:00', 3, 450000, 2, 2, 0),
-    (3, 3, 3, 'ORD003', '2025-02-01 12:15:00', 4, 550000, 1, 2, 1),
-    (3, 4, 4, 'ORD004', '2025-02-02 14:45:00', 2, 300000, 2, 3, 0),
-    (5, 5, 5, 'ORD005', '2025-02-02 16:00:00', 6, 720000, 1, 1, 1),
-    (4, 6, 6, 'ORD006', '2025-02-02 18:00:00', 5, 650000, 2, 2, 0),
-    (7, 1, 7, 'ORD007', '2025-02-03 09:00:00', 7, 840000, 1, 1, 1),
-    (5, 2, 8, 'ORD008', '2025-02-03 10:30:00', 8, 960000, 1, 3, 0),
-    (1, 3, 1, 'ORD009', '2025-02-03 12:00:00', 4, 500000, 1, 2, 1),
-    (6, 4, 2, 'ORD010', '2025-02-03 14:30:00', 3, 400000, 2, 1, 0),
-    (7, 5, 3, 'ORD011', '2025-02-03 15:00:00', 6, 720000, 1, 3, 0),
-    (4, 6, 4, 'ORD012', '2025-02-04 09:15:00', 5, 600000, 1, 2, 1),
-    (8, 1, 5, 'ORD013', '2025-02-04 11:00:00', 4, 480000, 2, 1, 0),
-    (1, 2, 6, 'ORD014', '2025-02-04 13:30:00', 3, 360000, 1, 2, 0),
-    (2, 3, 7, 'ORD015', '2025-02-04 15:00:00', 6, 720000, 1, 1, 0),
-    (8, 4, 8, 'ORD016', '2025-02-05 10:00:00', 7, 840000, 1, 2, 1),
-    (1, 5, 1, 'ORD017', '2025-02-05 11:30:00', 3, 450000, 2, 1, 1),
-    (3, 6, 2, 'ORD018', '2025-02-05 12:00:00', 4, 500000, 1, 3, 0),
-    (4, 1, 3, 'ORD019', '2025-02-05 13:45:00', 5, 600000, 2, 1, 0),
-    (4, 2, 4, 'ORD020', '2025-02-05 14:30:00', 6, 720000, 1, 1, 1);
+
+SET IDENTITY_INSERT customer ON;
+
+INSERT INTO customer (id, customer_code, fullname, username, [password], email, phone, create_date, update_date, forget_password, [status]) 
+VALUES (-1, 'GUEST', N'Khách vãng lai', NULL, NULL, NULL, NULL, GETDATE(), GETDATE(), 0, 1);
+
+SET IDENTITY_INSERT customer OFF;
+
+ALTER TABLE [order]
+ADD phone VARCHAR(15),
+    [address] NVARCHAR(255),
+    shipfee DECIMAL(18, 2),
+    discount DECIMAL(18, 2);
 GO
 
-INSERT INTO [order] (employee_id, voucher_id, customer_id, order_code, create_date, total_amount, total_bill, payment_method, status_order, kind_of_order)
-VALUES
-    (1, 1, 1, 'ORD021', '2025-02-01 10:30:00', 5, 600000, 1, 1, 0),
-    (2, 2, 2, 'ORD022', '2025-10-01 11:00:00', 3, 450000, 2, 2, 0),
-    (3, 3, 3, 'ORD023', '2025-10-01 12:15:00', 4, 550000, 1, 3, 1),
-    (3, 4, 4, 'ORD024', '2025-12-02 14:45:00', 2, 300000, 2, 4, 0),
-    (5, 5, 5, 'ORD025', '2025-09-02 16:00:00', 6, 720000, 1, 5, 1),
-    (4, 6, 6, 'ORD026', '2025-08-02 18:00:00', 5, 650000, 2, 5, 0),
-    (7, 1, 7, 'ORD027', '2025-04-03 09:00:00', 7, 840000, 1, 5, 1),
-    (5, 2, 8, 'ORD028', '2025-03-03 10:30:00', 8, 960000, 1, 3, 0),
-    (1, 3, 1, 'ORD029', '2025-05-03 12:00:00', 4, 500000, 1, 5, 1),
-    (6, 4, 2, 'ORD030', '2025-06-03 14:30:00', 3, 400000, 2, 1, 0),
-    (7, 5, 3, 'ORD031', '2025-07-03 15:00:00', 6, 720000, 1, 3, 0),
-    (4, 6, 4, 'ORD032', '2025-08-04 09:15:00', 5, 600000, 1, 5, 1),
-    (8, 1, 5, 'ORD033', '2025-09-04 11:00:00', 4, 480000, 2, 1, 0),
-    (1, 2, 6, 'ORD034', '2025-01-04 13:30:00', 3, 360000, 1, 2, 0),
-    (2, 3, 7, 'ORD035', '2025-03-04 15:00:00', 6, 720000, 1, 5, 0),
-    (8, 4, 8, 'ORD036', '2025-08-05 10:00:00', 7, 840000, 1, 2, 1),
-    (1, 5, 1, 'ORD037', '2025-09-05 11:30:00', 3, 450000, 2, 1, 1),
-    (3, 6, 2, 'ORD038', '2025-10-05 12:00:00', 4, 500000, 1, 5, 0),
-    (4, 1, 3, 'ORD039', '2025-11-05 13:45:00', 5, 600000, 2, 1, 0),
-    (4, 2, 4, 'ORD040', '2025-12-05 14:30:00', 6, 720000, 1, 5, 1);
-GO
-
-INSERT INTO order_detail (order_id, product_detail_id, quantity)
-VALUES
-	(1, 1, 2),   -- Order 1, Product 1, Quantity 2
-	(2, 2, 3),   -- Order 2, Product 2, Quantity 3
-	(3, 3, 4),   -- Order 3, Product 3, Quantity 4
-	(4, 4, 2),   -- Order 4, Product 4, Quantity 2
-	(5, 5, 6),   -- Order 5, Product 5, Quantity 6
-	(6, 6, 5),   -- Order 6, Product 6, Quantity 5
-	(7, 7, 7),   -- Order 7, Product 7, Quantity 7
-	(8, 8, 8),   -- Order 8, Product 8, Quantity 8
-	(9, 9, 4),   -- Order 9, Product 9, Quantity 4
-	(10, 10, 3),  -- Order 10, Product 10, Quantity 3
-	(11, 11, 2),  -- Order 11, Product 11, Quantity 2
-	(12, 12, 5),  -- Order 12, Product 12, Quantity 5
-	(13, 13, 3),  -- Order 13, Product 13, Quantity 3
-	(14, 14, 4),  -- Order 14, Product 14, Quantity 4
-	(15, 15, 2),  -- Order 15, Product 15, Quantity 2
-	(16, 16, 6),  -- Order 16, Product 16, Quantity 6
-	(17, 17, 3),  -- Order 17, Product 17, Quantity 3
-	(18, 18, 2),  -- Order 18, Product 18, Quantity 2
-	(19, 19, 4),  -- Order 19, Product 19, Quantity 4
-	(20, 20, 3);  -- Order 20, Product 20, Quantity 3
-GO
-
-INSERT INTO order_detail (order_id, product_detail_id, quantity)
-VALUES
-	(21, 1, 2),   -- Order 1, Product 1, Quantity 2
-	(22, 2, 3),   -- Order 2, Product 2, Quantity 3
-	(23, 3, 4),   -- Order 3, Product 3, Quantity 4
-	(24, 4, 2),   -- Order 4, Product 4, Quantity 2
-	(25, 5, 6),   -- Order 5, Product 5, Quantity 6
-	(26, 6, 5),   -- Order 6, Product 6, Quantity 5
-	(27, 7, 7),   -- Order 7, Product 7, Quantity 7
-	(28, 8, 8),   -- Order 8, Product 8, Quantity 8
-	(29, 9, 4),   -- Order 9, Product 9, Quantity 4
-	(30, 10, 3),  -- Order 10, Product 10, Quantity 3
-	(31, 11, 2),  -- Order 11, Product 11, Quantity 2
-	(32, 12, 5),  -- Order 12, Product 12, Quantity 5
-	(33, 13, 3),  -- Order 13, Product 13, Quantity 3
-	(34, 14, 4),  -- Order 14, Product 14, Quantity 4
-	(35, 15, 2),  -- Order 15, Product 15, Quantity 2
-	(36, 16, 6),  -- Order 16, Product 16, Quantity 6
-	(37, 17, 3),  -- Order 17, Product 17, Quantity 3
-	(38, 18, 2),  -- Order 18, Product 18, Quantity 2
-	(39, 19, 4),  -- Order 19, Product 19, Quantity 4
-	(40, 20, 3);  -- Order 20, Product 20, Quantity 3
-GO
-
-INSERT INTO cart (customer_id, product_detail_id, quantity)
-VALUES
-    (1, 1, 2),  -- Customer 1, Product 1, Quantity 2
-    (2, 2, 3),  -- Customer 2, Product 2, Quantity 3
-    (3, 3, 1),  -- Customer 3, Product 3, Quantity 1
-    (4, 4, 4),  -- Customer 4, Product 4, Quantity 4
-    (5, 5, 2),  -- Customer 5, Product 5, Quantity 2
-    (6, 6, 3);  -- Customer 6, Product 6, Quantity 3
+ALTER TABLE [order_detail]
+ADD price DECIMAL(18, 2);
 GO
 
 SELECT * FROM [address]
@@ -672,10 +576,3 @@ SELECT * FROM [role]
 SELECT * FROM size
 SELECT * FROM voucher
 SELECT * FROM employee
-
-SET IDENTITY_INSERT customer ON;
-
-INSERT INTO customer (id, customer_code, fullname, username, [password], email, phone, create_date, update_date, forget_password, [status]) 
-VALUES (-1, 'GUEST', N'Khách vãng lai', NULL, NULL, NULL, NULL, GETDATE(), GETDATE(), 0, 1);
-
-SET IDENTITY_INSERT customer OFF;
