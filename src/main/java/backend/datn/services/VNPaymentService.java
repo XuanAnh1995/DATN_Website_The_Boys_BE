@@ -4,6 +4,7 @@ import backend.datn.config.VNPayConfig;
 import backend.datn.entities.Order;
 import backend.datn.entities.OrderOnline;
 import backend.datn.exceptions.EntityNotFoundException;
+import backend.datn.repositories.OrderPOSRepository;
 import backend.datn.repositories.OrderRepository;
 import backend.datn.repositories.OrderOnlineRepository;
 import backend.datn.utils.VNPayUtil;
@@ -28,6 +29,14 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+import org.json.JSONObject;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.util.HashMap;
+import java.util.Map;
+
 @Service
 public class VNPaymentService {
 
@@ -36,6 +45,9 @@ public class VNPaymentService {
 
     @Autowired
     private OrderOnlineRepository orderOnlineRepository;
+
+    @Autowired
+    private OrderPOSRepository orderPOSRepository;
 
     @Autowired
     private OrderRepository orderRepository;
@@ -308,6 +320,44 @@ public class VNPaymentService {
             return (String) responseBody.get("data");
         } else {
             throw new RuntimeException("Không thể tạo mã QR VNPay: " + responseBody.get("message"));
+        }
+    }
+
+    public String generateQRPayPayload(Order order) throws Exception {
+        String vnp_TmnCode = VNPayConfig.vnp_TmnCode;
+        String vnp_HashSecret = VNPayConfig.secretKey;
+        String vnp_Url = "https://sandbox.vnpayment.vn/qrpay/create";
+
+        Map<String, String> vnp_Params = new HashMap<>();
+        vnp_Params.put("vnp_Version", "2.1.0");
+        vnp_Params.put("vnp_TmnCode", vnp_TmnCode);
+        vnp_Params.put("vnp_Amount", String.valueOf(order.getTotalBill().longValue() * 100));
+        vnp_Params.put("vnp_TxnRef", String.valueOf(order.getId()));
+        vnp_Params.put("vnp_OrderInfo", "Thanh toan hoa don " + order.getId());
+        vnp_Params.put("vnp_CreateDate", VNPayConfig.getCurrentDateTime());
+        vnp_Params.put("vnp_ExpireDate", VNPayConfig.getCurrentDateTimePlusMinutes(15));
+        vnp_Params.put("vnp_IpAddr", "127.0.0.1");
+
+        // Tạo Secure Hash
+        String hashData = VNPayConfig.getHashData(vnp_Params);
+        String vnp_SecureHash = VNPayConfig.hmacSHA512(vnp_HashSecret, hashData);
+        vnp_Params.put("vnp_SecureHash", vnp_SecureHash);
+
+        // Gọi API
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(vnp_Url))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(new JSONObject(vnp_Params).toString()))
+                .build();
+
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        JSONObject jsonResponse = new JSONObject(response.body());
+
+        if ("00".equals(jsonResponse.getString("code"))) {
+            return jsonResponse.getString("data"); // Trả về QR Payload
+        } else {
+            throw new Exception("Failed to create QR Pay: " + jsonResponse.getString("message"));
         }
     }
 }

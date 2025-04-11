@@ -8,6 +8,8 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class VNPayConfig {
@@ -16,6 +18,9 @@ public class VNPayConfig {
     public static String vnp_TmnCode = "L49JC43R";
     public static String secretKey = "TPHHQGVOHB4GDEYF41B9X1HCGSMUTHQV";
     public static String vnp_ApiUrl = "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction";
+
+    // Định dạng thời gian
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
 
     public static String md5(String message) {
         String digest = null;
@@ -118,5 +123,32 @@ public class VNPayConfig {
             sb.append(chars.charAt(rnd.nextInt(chars.length())));
         }
         return sb.toString();
+    }
+
+    // Lấy thời gian hiện tại theo định dạng yyyyMMddHHmmss
+    public static String getCurrentDateTime() {
+        return LocalDateTime.now().format(formatter);
+    }
+
+    // Lấy thời gian hiện tại cộng thêm số phút
+    public static String getCurrentDateTimePlusMinutes(int minutes) {
+        return LocalDateTime.now().plusMinutes(minutes).format(formatter);
+    }
+
+    // Tạo chuỗi dữ liệu để hash từ Map các tham số
+    public static String getHashData(Map<String, String> params) {
+        // Sắp xếp các tham số theo thứ tự key
+        Map<String, String> sortedParams = new TreeMap<>(params);
+        StringBuilder hashData = new StringBuilder();
+        for (Map.Entry<String, String> entry : sortedParams.entrySet()) {
+            if (entry.getValue() != null && !entry.getValue().isEmpty()) {
+                hashData.append(entry.getKey()).append("=").append(entry.getValue()).append("&");
+            }
+        }
+        // Xóa ký tự "&" cuối cùng
+        if (hashData.length() > 0) {
+            hashData.setLength(hashData.length() - 1);
+        }
+        return hashData.toString();
     }
 }
