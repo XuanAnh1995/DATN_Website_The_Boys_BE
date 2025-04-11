@@ -1,5 +1,7 @@
 package backend.datn.controllers;
 
+import backend.datn.entities.Order;
+import backend.datn.services.OrderService;
 import backend.datn.services.VNPayOnlineService;
 import backend.datn.services.VNPaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,9 @@ public class VNPaymentController {
 
     @Autowired
     private VNPaymentService vnPaymentService;
+
+    @Autowired
+    private OrderService orderService;
 
     @PostMapping("/create-payment-url/{orderId}")
     public ResponseEntity<?> createPaymentUrl(@PathVariable String orderId) {
@@ -90,6 +95,17 @@ public class VNPaymentController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/create-qr-pay-pos/{orderId}")
+    public ResponseEntity<String> createQRPay(@PathVariable Integer orderId) {
+        try {
+            Order order = orderService.findById(orderId);
+            String qrPayload = vnPaymentService.generateQRPayPayload(order);
+            return ResponseEntity.ok(qrPayload);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
         }
     }
 }

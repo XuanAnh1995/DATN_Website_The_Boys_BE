@@ -272,5 +272,9 @@ public class OrderService {
     }
 
 
+    public Order findById(Integer orderId) {
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy đơn hàng với ID: " + orderId));
+        return order;
+    }
 }
 
