@@ -151,7 +151,6 @@ public class AuthService {
 
     public Object getCurrentUserInfo() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        System.out.println("\n\n\nPrincipal : " + principal);
 
         if (!(principal instanceof CustomUserDetails)) {
             throw new BadCredentialsException("Người dùng chưa đăng nhập hoặc thông tin xác thực không hợp lệ");

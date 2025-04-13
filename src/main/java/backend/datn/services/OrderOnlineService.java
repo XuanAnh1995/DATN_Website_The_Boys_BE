@@ -53,6 +53,9 @@ public class OrderOnlineService {
     @Autowired
     private OrderDetailRepository repository;
 
+    @Autowired
+    CartRepository cartRepository;
+
     /**
      * Tạo đơn hàng online
      */
@@ -99,6 +102,11 @@ public class OrderOnlineService {
         // *** Cập nhật order sau khi đã có đầy đủ thông tin ***
         order = orderRepository.save(order);
 
+        List<Integer> productDetailIds = orderDetails.stream()
+                .map(detail -> detail.getProductDetail().getId())
+                .collect(Collectors.toList());
+        cartRepository.deleteByCustomerAndProductDetailIds(order.getCustomer().getId(), productDetailIds);
+
         return OrderOnlineMapper.toOrderOnlineResponse(order);
     }
 
@@ -141,6 +149,8 @@ public class OrderOnlineService {
             productDetail.setQuantity(productDetail.getQuantity() - detail.getQuantity());
             productDetailRepository.save(productDetail);
         });
+
+
 
         return orderDetails;
     }
