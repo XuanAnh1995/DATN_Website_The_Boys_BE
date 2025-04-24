@@ -1,7 +1,9 @@
 package backend.datn.controllers;
 
 import backend.datn.dto.ApiResponse;
+import backend.datn.dto.request.ForgetPasswordRequest;
 import backend.datn.dto.request.LoginRequest;
+import backend.datn.dto.request.RegisterRequest;
 import backend.datn.dto.response.AddressResponse;
 import backend.datn.dto.response.LoginResponse;
 import backend.datn.services.AuthService;
@@ -9,26 +11,22 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@RestController
+@Controller
 @RequestMapping("/auth")
 public class AuthController {
 
     @Autowired
     private AuthService authService;
-
-//    @PostMapping("/test-encode")
-//    public ResponseEntity<String> testEncode() {
-//        authService.printEncodedPassword();
-//        return ResponseEntity.ok("Check console for encoded password");
-//    }
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse> login(@Valid @RequestBody LoginRequest request, BindingResult result) {
@@ -105,4 +103,64 @@ public class AuthController {
                     .body(new ApiResponse("error", "Đã xảy ra lỗi: " + e.getMessage()));
         }
     }
+
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request, BindingResult result) {
+        if (result.hasErrors()) {
+            Map<String, String> errors = new HashMap<>();
+            for (FieldError error : result.getFieldErrors()) {
+                errors.put(error.getField(), error.getDefaultMessage());
+            }
+            return ResponseEntity.badRequest().body(new ApiResponse("error", "Lỗi validate", errors));
+        }
+
+        try {
+            String message = authService.register(request);
+            return ResponseEntity.ok(new ApiResponse("success", message, null));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(new ApiResponse("error", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/confirm")
+    public ModelAndView confirmRegister(@RequestParam("token") String token) {
+        String message = authService.confirmRegister(token);
+
+        ModelAndView mav = new ModelAndView();
+        if (message.contains("thành công")) {
+            mav.setViewName("confirm-success");
+        } else {
+            mav.setViewName("confirm-error");
+        }
+        mav.addObject("message", message);
+        return mav;
+    }
+
+
+
+    @PostMapping("/forget-password")
+    public ResponseEntity<ApiResponse> handleForgetPassword(@RequestBody ForgetPasswordRequest request) {
+        try {
+            authService.handleForgotPassword(request.getUsernameOrEmail());
+            return ResponseEntity.ok(new ApiResponse("success", "Yêu cầu quên mật khẩu đã được gửi. Vui lòng kiểm tra email của bạn."));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ApiResponse("error", "Lỗi: " + e.getMessage()));
+        }
+    }
+
+    @RequestMapping("/confirm-forgot-password")
+    public ModelAndView confirmForgotPassword(@RequestParam String token) {
+        ModelAndView mav = new ModelAndView();
+        try {
+            authService.confirmForgotPassword(token);
+            mav.setViewName("forgot-password-success");
+            mav.addObject("message", "Mật khẩu tạm thời đã được gửi qua email.");
+        } catch (Exception e) {
+            mav.setViewName("forgot-password-error");
+            mav.addObject("message", "Lỗi: " + e.getMessage());
+        }
+        return mav;
+    }
+
+
 }
