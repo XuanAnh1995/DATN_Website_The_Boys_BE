@@ -4,6 +4,7 @@ import backend.datn.dto.ApiResponse;
 import backend.datn.dto.request.ForgetPasswordRequest;
 import backend.datn.dto.request.LoginRequest;
 import backend.datn.dto.request.RegisterRequest;
+import backend.datn.dto.request.UpdateCurrentUserRequest;
 import backend.datn.dto.response.AddressResponse;
 import backend.datn.dto.response.LoginResponse;
 import backend.datn.services.AuthService;
@@ -101,6 +102,26 @@ public class AuthController {
         } catch (Exception e) {
             return ResponseEntity.internalServerError()
                     .body(new ApiResponse("error", "Đã xảy ra lỗi: " + e.getMessage()));
+        }
+    }
+
+    @PutMapping("/update-current-user")
+    public ResponseEntity<ApiResponse> updateCurrentUser(@Valid @RequestBody UpdateCurrentUserRequest request, BindingResult result) {
+        if (result.hasErrors()) {
+            Map<String, String> errors = new HashMap<>();
+            for (FieldError error : result.getFieldErrors()) {
+                errors.put(error.getField(), error.getDefaultMessage());
+            }
+            return ResponseEntity.badRequest().body(new ApiResponse("error", "Dữ liệu đầu vào không hợp lệ", errors));
+        }
+
+        try {
+            Object updatedUser = authService.updateCurrentUser(request);
+            return ResponseEntity.ok(new ApiResponse("success", "Cập nhật thông tin thành công", updatedUser));
+        } catch (BadCredentialsException e) {
+            return ResponseEntity.status(401).body(new ApiResponse("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ApiResponse("error", e.getMessage()));
         }
     }
 

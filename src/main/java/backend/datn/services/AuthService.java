@@ -2,6 +2,7 @@ package backend.datn.services;
 
 import backend.datn.dto.request.LoginRequest;
 import backend.datn.dto.request.RegisterRequest;
+import backend.datn.dto.request.UpdateCurrentUserRequest;
 import backend.datn.dto.response.AddressResponse;
 import backend.datn.dto.response.LoginResponse;
 import backend.datn.entities.Address;
@@ -19,6 +20,7 @@ import backend.datn.security.CustomUserDetails;
 import backend.datn.security.JwtUtil;
 import io.jsonwebtoken.Claims;
 import jakarta.mail.MessagingException;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
@@ -342,4 +344,38 @@ public class AuthService {
                 .toList();
     }
 
+    public Object updateCurrentUser(@Valid UpdateCurrentUserRequest request) {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (!(principal instanceof CustomUserDetails)) {
+            throw new BadCredentialsException("Người dùng chưa đăng nhập hoặc thông tin xác thực không hợp lệ");
+        }
+
+        CustomUserDetails userDetails = (CustomUserDetails) principal;
+        String username = userDetails.getUsername();
+
+        Customer customer = customerRepository.findByUsername(username);
+        if (customer == null) {
+            throw new EntityNotFoundException("Không tìm thấy thông tin khách hàng");
+        }
+
+        // Kiểm tra email và phone không trùng với người dùng khác
+        if (customerRepository.existsByEmailAndNotId(request.getEmail(), customer.getId())) {
+            throw new RuntimeException("Email đã tồn tại.");
+        }
+        if (customerRepository.existsByPhoneAndNotId(request.getPhone(), customer.getId())) {
+            throw new RuntimeException("Số điện thoại đã tồn tại.");
+        }
+
+        // Cập nhật thông tin
+        customer.setFullname(request.getFullname());
+        customer.setEmail(request.getEmail());
+        customer.setPhone(request.getPhone());
+        if (request.getPassword() != null && !request.getPassword().isEmpty()) {
+            customer.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
+        customer.setUpdateDate(java.time.Instant.now());
+
+        customerRepository.save(customer);
+        return CustomerMapper.toCustomerResponse(customer);
+    }
 }
