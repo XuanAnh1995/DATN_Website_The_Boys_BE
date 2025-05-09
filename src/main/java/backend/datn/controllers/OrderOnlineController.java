@@ -45,12 +45,6 @@ public class OrderOnlineController {
 
     /**
      * API lấy danh sách đơn hàng online với tìm kiếm và phân trang
-     * @param search Từ khóa tìm kiếm (tùy chọn)
-     * @param page Số trang (mặc định 0)
-     * @param size Kích thước trang (mặc định 10)
-     * @param sortKey Trường để sắp xếp (mặc định "createDate")
-     * @param sortDirection Hướng sắp xếp (mặc định "desc")
-     * @return ResponseEntity<ApiResponse> Kết quả phân trang
      */
     @GetMapping("/online")
     public ResponseEntity<ApiResponse> getAllOnlineOrders(
@@ -60,18 +54,12 @@ public class OrderOnlineController {
             @RequestParam(defaultValue = "id") String sortKey,
             @RequestParam(defaultValue = "desc") String sortDirection) {
         try {
-            // Gọi service để lấy danh sách đơn hàng online với tìm kiếm và phân trang
             Page<OrderOnlineResponse> onlineOrdersPage = orderOnlineService.getAllOnlineOrders(
                     search, page, size, sortKey, sortDirection);
-
-            // Bọc dữ liệu vào PagedResponse
             PagedResponse<OrderOnlineResponse> responseData = new PagedResponse<>(onlineOrdersPage);
-
-            // Tạo phản hồi thành công
             ApiResponse response = new ApiResponse("success", "Lấy danh sách đơn hàng online thành công", responseData);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
-            // Tạo phản hồi lỗi
             ApiResponse response = new ApiResponse("error", "Đã xảy ra lỗi khi truy xuất danh sách đơn hàng online", null);
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -79,20 +67,14 @@ public class OrderOnlineController {
 
     /**
      * API lấy thông tin đơn hàng online theo ID
-     * @param id ID của đơn hàng
-     * @return ResponseEntity<ApiResponse> Thông tin đơn hàng online
      */
     @GetMapping("/online/{id}")
     public ResponseEntity<ApiResponse> findOrderOnlineById(@PathVariable Integer id) {
         try {
-            // Gọi service để lấy thông tin đơn hàng online theo ID
             OrderOnlineResponse orderResponse = orderOnlineService.findOrderOnlineByIdWithKindOfOrder(id);
-
-            // Tạo phản hồi thành công
             ApiResponse response = new ApiResponse("success", "Lấy thông tin đơn hàng online thành công", orderResponse);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
-            // Tạo phản hồi lỗi
             ApiResponse response = new ApiResponse("error", e.getMessage(), null);
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
@@ -122,13 +104,13 @@ public class OrderOnlineController {
     @PutMapping("/online/{id}/status")
     public ResponseEntity<ApiResponse> updateOrderStatus(
             @PathVariable Integer id,
-            @RequestParam Integer newStatus) {
+            @RequestParam Integer newStatus,
+            @RequestParam(required = false) String note) {
         try {
-            OrderOnlineResponse updatedOrder = orderOnlineService.updateOrderStatus(id, newStatus);
+            OrderOnlineResponse updatedOrder = orderOnlineService.updateOrderStatus(id, newStatus, note);
             return ResponseEntity.ok(new ApiResponse("success", "Cập nhật trạng thái đơn hàng thành công", updatedOrder));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ApiResponse("error", e.getMessage()));
         }
     }
 }
-

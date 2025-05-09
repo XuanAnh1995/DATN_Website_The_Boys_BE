@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @Setter
 @Entity
 @Table(name = "\"order\"")
-public class OrderOnline {
+public class  OrderOnline {
     @Id
     @Column(name = "id", nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -80,4 +80,8 @@ public class OrderOnline {
 
     @Column(name = "discount", precision = 18, scale = 2)
     private BigDecimal discount;
+
+    @Size(max = 500)
+    @Column(name = "note", length = 500)
+    private String note;
 }

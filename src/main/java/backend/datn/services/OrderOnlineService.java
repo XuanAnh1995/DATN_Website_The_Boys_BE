@@ -8,7 +8,6 @@ import backend.datn.entities.*;
 import backend.datn.exceptions.BadRequestException;
 import backend.datn.exceptions.EntityNotFoundException;
 import backend.datn.helpers.CodeGeneratorHelper;
-import backend.datn.helpers.RandomHelper;
 import backend.datn.mapper.OrderDetailMapper;
 import backend.datn.mapper.OrderOnlineMapper;
 import backend.datn.repositories.*;
@@ -29,7 +28,6 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -70,13 +68,13 @@ public class OrderOnlineService {
         order.setAddress(orderOnlineRequest.getAddress());
         order.setPaymentMethod(orderOnlineRequest.getPaymentMethod());
         order.setShipfee(orderOnlineRequest.getShipfee() != null ? orderOnlineRequest.getShipfee() : BigDecimal.ZERO);
-        order.setStatusOrder(orderOnlineRequest.getPaymentMethod() == 0 ? 0 : 1);
+        order.setStatusOrder(0); // Chờ xác nhận
         order.setCreateDate(LocalDateTime.now());
 
-        // *** Lưu order trước để có ID ***
+        // Lưu order trước để có ID
         order = orderRepository.save(order);
 
-        // Xử lý danh sách chi tiết đơn hàng sau khi order đã được lưu
+        // Xử lý danh sách chi tiết đơn hàng
         List<OrderOnlineDetail> orderDetails = processOrderOnlineDetails(orderOnlineRequest.getOrderOnlineDetails(), order);
 
         // Tính tổng tiền hàng
@@ -99,7 +97,7 @@ public class OrderOnlineService {
         BigDecimal totalBill = calculateTotal(totalAmount, voucher, order.getShipfee());
         order.setTotalBill(totalBill);
 
-        // *** Cập nhật order sau khi đã có đầy đủ thông tin ***
+        // Cập nhật order
         order = orderRepository.save(order);
 
         List<Integer> productDetailIds = orderDetails.stream()
@@ -109,7 +107,6 @@ public class OrderOnlineService {
 
         return OrderOnlineMapper.toOrderOnlineResponse(order);
     }
-
 
     /**
      * Xử lý danh sách chi tiết đơn hàng
@@ -143,14 +140,7 @@ public class OrderOnlineService {
         // Lưu tất cả chi tiết đơn hàng
         orderDetailRepository.saveAll(orderDetails);
 
-        // Cập nhật số lượng tồn kho
-        orderDetails.forEach(detail -> {
-            ProductDetail productDetail = detail.getProductDetail();
-            productDetail.setQuantity(productDetail.getQuantity() - detail.getQuantity());
-            productDetailRepository.save(productDetail);
-        });
-
-
+        // KHÔNG cập nhật số lượng tồn kho tại đây (sẽ xử lý khi chuyển sang trạng thái "Đã xác nhận")
 
         return orderDetails;
     }
@@ -198,7 +188,7 @@ public class OrderOnlineService {
     }
 
     /**
-     * Tính giá sản phẩm sau khi áp dụng khuyến mãi (nếu có)
+     * Tính giá sản phẩm sau khi áp dụng khuyến mãi
      */
     public BigDecimal applyPromotionDiscount(BigDecimal price, int discountPercent) {
         return price.multiply(BigDecimal.valueOf(100 - discountPercent))
@@ -223,9 +213,8 @@ public class OrderOnlineService {
         if (order == null) {
             throw new EntityNotFoundException("Không tìm thấy đơn hàng");
         }
-        if (order.getStatusOrder() == 1) {
-            order.setStatusOrder(2); // Đã xác nhận
-            orderRepository.save(order);
+        if (order.getStatusOrder() == 0) { // Từ "Chờ xác nhận" sang "Đã xác nhận"
+            updateOrderStatus(order.getId(), 2, null); // Gọi phương thức updateOrderStatus để xử lý trừ số lượng
         }
     }
 
@@ -246,49 +235,30 @@ public class OrderOnlineService {
     }
 
     /**
-     * Lấy danh sách đơn hàng online (kindOfOrder = 0) với tìm kiếm và phân trang
-     *
-     * @param search        Từ khóa tìm kiếm (có thể null hoặc rỗng)
-     * @param page          Số trang (bắt đầu từ 0)
-     * @param size          Kích thước trang
-     * @param sortKey       Trường để sắp xếp (ví dụ: "createDate", "totalAmount")
-     * @param sortDirection Hướng sắp xếp ("asc" hoặc "desc")
-     * @return Page<OrderOnlineResponse> Kết quả phân trang
+     * Lấy danh sách đơn hàng online với tìm kiếm và phân trang
      */
     public Page<OrderOnlineResponse> getAllOnlineOrders(
             String search, int page, int size, String sortKey, String sortDirection) {
-        // Xác định hướng sắp xếp (ascending hoặc descending)
         Sort sort = sortDirection.equalsIgnoreCase(Sort.Direction.ASC.name()) ?
                 Sort.by(sortKey).ascending() :
                 Sort.by(sortKey).descending();
 
-        // Tạo đối tượng Pageable từ page, size và sort
         Pageable pageable = PageRequest.of(page, size, sort);
-
-        // Nếu search không rỗng, thêm ký tự '%' vào đầu và cuối
         String formattedSearch = (search == null || search.isEmpty()) ? null : "%" + search.toLowerCase() + "%";
 
-        // Gọi repository để lấy danh sách đơn hàng với tìm kiếm và phân trang
         Page<OrderOnline> onlineOrdersPage = orderRepository.findAllByKindOfOrderWithSearchAndJoin(
                 false, formattedSearch, pageable);
 
-        // Ánh xạ kết quả thành Page<OrderOnlineResponse>
         return onlineOrdersPage.map(OrderOnlineMapper::toOrderOnlineResponse);
     }
 
     /**
      * Tìm đơn hàng online theo ID
-     *
-     * @param id ID của đơn hàng
-     * @return OrderOnlineResponse Thông tin đơn hàng online
-     * @throws EntityNotFoundException Nếu không tìm thấy đơn hàng hoặc không phải đơn hàng online
      */
     public OrderOnlineResponse findOrderOnlineByIdWithKindOfOrder(Integer id) {
-        // Gọi repository để tìm đơn hàng theo ID và kindOfOrder = false (online)
         OrderOnline order = orderRepository.findOrderOnlineByIdWithKindOfOrder(id, false)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy đơn hàng online với ID: " + id));
 
-        // Ánh xạ sang OrderOnlineResponse và trả về
         return OrderOnlineMapper.toOrderOnlineResponse(order);
     }
 
@@ -297,17 +267,14 @@ public class OrderOnlineService {
      */
     @Transactional
     public OrderOnlineResponse getOrderOnlineDetails(Integer orderId) {
-        // Tìm đơn hàng Online theo ID với kindOfOrder = false
         OrderOnline order = orderRepository.findOrderOnlineByIdWithKindOfOrder(orderId, false)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy đơn hàng online với ID: " + orderId));
 
-        // Lấy danh sách chi tiết đơn hàng
         List<OrderDetail> orderDetails = repository.findByOrderId(orderId);
         List<OrderDetailResponse> orderDetailResponses = orderDetails.stream()
                 .map(OrderDetailMapper::toOrderDetailResponse)
                 .collect(Collectors.toList());
 
-        // Ánh xạ sang OrderOnlineResponse và thêm danh sách chi tiết
         OrderOnlineResponse response = OrderOnlineMapper.toOrderOnlineResponse(order);
         response.setOrderDetails(orderDetailResponses);
 
@@ -318,19 +285,54 @@ public class OrderOnlineService {
      * Cập nhật trạng thái đơn hàng online
      */
     @Transactional
-    public OrderOnlineResponse updateOrderStatus(Integer id, Integer newStatus) {
+    public OrderOnlineResponse updateOrderStatus(Integer id, Integer newStatus, String note) {
         OrderOnline order = orderRepository.findOrderOnlineByIdWithKindOfOrder(id, false)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy đơn hàng online với ID: " + id));
 
-        List<Integer> validStatuses = Arrays.asList(-1, 0, 1, 2, 3, 4, 5);
+        List<Integer> validStatuses = Arrays.asList(-1, 0, 2, 3, 4, 5);
         if (!validStatuses.contains(newStatus)) {
             throw new BadRequestException("Trạng thái không hợp lệ");
         }
 
+        if (newStatus == -1 && (note == null || note.trim().isEmpty())) {
+            throw new BadRequestException("Lý do hủy đơn hàng là bắt buộc");
+        }
+
+        // Trừ số lượng sản phẩm khi chuyển sang trạng thái "Đã xác nhận" (status 2)
+        if (newStatus == 2 && order.getStatusOrder() != 2) {
+            List<OrderOnlineDetail> orderDetails = orderDetailRepository.findByOrder(order);
+            for (OrderOnlineDetail detail : orderDetails) {
+                ProductDetail productDetail = detail.getProductDetail();
+                if (productDetail.getQuantity() < detail.getQuantity()) {
+                    throw new BadRequestException("Số lượng sản phẩm " + productDetail.getProduct().getProductName() + " không đủ");
+                }
+                productDetail.setQuantity(productDetail.getQuantity() - detail.getQuantity());
+                productDetailRepository.save(productDetail);
+                // Ghi log
+                System.out.println("Trừ kho: Sản phẩm " + productDetail.getProduct().getProductName() + ", Số lượng: " + detail.getQuantity());
+            }
+        }
+
+        // Nếu hủy đơn hàng (newStatus = -1), hoàn trả số lượng sản phẩm nếu đã trừ trước đó (từ trạng thái 2 trở đi)
+        if (newStatus == -1 && order.getStatusOrder() != -1 && order.getStatusOrder() >= 2) {
+            List<OrderOnlineDetail> orderDetails = orderDetailRepository.findByOrder(order);
+            for (OrderOnlineDetail detail : orderDetails) {
+                ProductDetail productDetail = detail.getProductDetail();
+                int newQuantity = productDetail.getQuantity() + detail.getQuantity();
+                if (newQuantity < 0) {
+                    throw new BadRequestException("Số lượng hoàn trả không hợp lệ cho sản phẩm " + productDetail.getProduct().getProductName());
+                }
+                productDetail.setQuantity(newQuantity);
+                productDetailRepository.save(productDetail);
+                // Ghi log
+                System.out.println("Hoàn trả kho: Sản phẩm " + productDetail.getProduct().getProductName() + ", Số lượng: " + detail.getQuantity());
+            }
+        }
+
         order.setStatusOrder(newStatus);
+        order.setNote(note);
         order = orderRepository.save(order);
 
         return OrderOnlineMapper.toOrderOnlineResponse(order);
     }
-
 }

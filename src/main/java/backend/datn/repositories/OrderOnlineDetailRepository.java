@@ -1,9 +1,6 @@
 package backend.datn.repositories;
 
-import backend.datn.entities.Order;
-import backend.datn.entities.OrderDetail;
-import backend.datn.entities.OrderOnlineDetail;
-import backend.datn.entities.ProductDetail;
+import backend.datn.entities.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -14,5 +11,8 @@ import java.util.Optional;
 
 @Repository
 public interface OrderOnlineDetailRepository extends JpaRepository<OrderOnlineDetail, Integer> {
+    List<OrderOnlineDetail> findByOrder(OrderOnline order);
+
+
 
 }
