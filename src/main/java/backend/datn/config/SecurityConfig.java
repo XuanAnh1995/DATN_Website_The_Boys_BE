@@ -49,7 +49,11 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET,"/api/vouchers/**").permitAll()
                         .requestMatchers(HttpMethod.GET,"/api/addresses/**").permitAll()
                         .requestMatchers(HttpMethod.POST,"/api/addresses/**").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/api/customers/**").permitAll()
+                        .requestMatchers(HttpMethod.POST,"/api/customers/**").permitAll()
+                        .requestMatchers(HttpMethod.PUT,"/api/addresses/**").permitAll()
                         .requestMatchers(HttpMethod.GET,"/api/order/**").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/api//orders/online/**").permitAll()
                         .requestMatchers(HttpMethod.GET,"/api/v1/**").permitAll()
                         .requestMatchers(HttpMethod.GET,"/api/products/**").permitAll() // Cho phép không cần token
                         .requestMatchers("/api/**").hasAnyRole("ADMIN", "STAFF") // Cho phép cả ADMIN & STAFF
