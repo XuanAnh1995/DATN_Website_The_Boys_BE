@@ -39,6 +39,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll() // Cho phép không cần token
                         .requestMatchers(HttpMethod.GET,"/api/products/**").permitAll() // Cho phép không cần token
+                        .requestMatchers("/api/account/**").authenticated() // Cho phép không cần token
                         .requestMatchers(HttpMethod.GET,"/api/product-details/**").permitAll() // Cho phép không cần token
                         .requestMatchers(HttpMethod.GET,"/api/brand/**").permitAll()
                         .requestMatchers(HttpMethod.GET,"/api/sizes/**").permitAll()
