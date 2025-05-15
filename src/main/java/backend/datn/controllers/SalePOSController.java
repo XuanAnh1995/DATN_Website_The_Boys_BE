@@ -200,5 +200,34 @@ public class SalePOSController {
         }
     }
 
+    /**
+     * Lấy chi tiết đơn hàng theo ID
+     */
+    @GetMapping("/orders/{orderId}")
+    public ResponseEntity<ApiResponse> getOrderById(@PathVariable Integer orderId) {
+        try {
+            System.out.println("📌 [GET ORDER] Lấy chi tiết đơn hàng #" + orderId);
+
+            // Tìm đơn hàng theo ID
+            Order order = salePOSService.findOrderById(orderId);
+            if (order == null) {
+                System.err.println("❌ [GET ORDER] Không tìm thấy đơn hàng #" + orderId);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new ApiResponse("error", "Không tìm thấy đơn hàng", null));
+            }
+
+            // Chuyển đổi Order thành OrderResponse
+            OrderResponse response = OrderMapper.toOrderResponse(order);
+            System.out.println("✅ [GET ORDER] Lấy chi tiết đơn hàng thành công: " + order.getId());
+            return ResponseEntity.ok(new ApiResponse("success", "Lấy chi tiết đơn hàng thành công", response));
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ApiResponse("error", e.getMessage(), null));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse("error", "Lỗi khi lấy chi tiết đơn hàng: " + e.getMessage(), null));
+        }
+    }
+
 }
 
