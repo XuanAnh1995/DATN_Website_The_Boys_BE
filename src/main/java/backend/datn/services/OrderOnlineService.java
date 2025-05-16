@@ -123,9 +123,18 @@ public class OrderOnlineService {
 
             // Tính giá khuyến mãi (nếu có)
             BigDecimal salePrice = productDetail.getSalePrice();
-            if (productDetail.getPromotion() != null && productDetail.getPromotion().getStatus()) {
-                salePrice = applyPromotionDiscount(salePrice, productDetail.getPromotion().getPromotionPercent());
+            Promotion promotion = productDetail.getPromotion();
+
+            if (promotion != null
+                    && promotion.getStatus()
+                    && promotion.getStartDate() != null
+                    && promotion.getEndDate() != null
+                    && Instant.now().isAfter(promotion.getStartDate())
+                    && Instant.now().isBefore(promotion.getEndDate())) {
+
+                salePrice = applyPromotionDiscount(salePrice, promotion.getPromotionPercent());
             }
+
 
             // Tạo chi tiết đơn hàng
             OrderOnlineDetail detail = new OrderOnlineDetail();
