@@ -69,8 +69,6 @@ CREATE TABLE sleeve(
     [status] BIT 
 )
 
--- DROP TABLE product_detail
-
 CREATE TABLE product_detail (
     id INT IDENTITY(1,1) NOT NULL,
     product_id INT,
@@ -87,9 +85,6 @@ CREATE TABLE product_detail (
     [description] NVARCHAR(500),
     [status] BIT  	
 );
-
---ALTER TABLE product_detail
---ADD photo VARCHAR(250) NOT NULL;
 
 CREATE TABLE voucher (
     id INT IDENTITY(1,1) NOT NULL,
@@ -109,8 +104,6 @@ CREATE TABLE [role] (
     [name] VARCHAR(100) NOT NULL
 );
 
---DROP TABLE employee
-
 CREATE TABLE employee (
     id INT IDENTITY(1,1) NOT NULL,
     employee_code VARCHAR(50) NOT NULL,
@@ -128,11 +121,6 @@ CREATE TABLE employee (
 	forget_password BIT,
     gender BIT 
 );
-
---ALTER TABLE employee
---ALTER COLUMN gender BIT NOT NULL;
-
---DROP TABLE customer
 
 CREATE TABLE customer (
     id INT IDENTITY(1,1) NOT NULL ,
@@ -162,21 +150,33 @@ CREATE TABLE [address] (
 
 CREATE TABLE [order] (
     id INT IDENTITY(1,1) NOT NULL,
-    employee_id INT,
-    voucher_id INT,
-    customer_id INT,
-    order_code VARCHAR(50) NOT NULL UNIQUE,
-    create_date DATETIME,
-    total_amount INT,
-	original_total DECIMAL(18,2),
-    total_bill DECIMAL(18, 2),
-    payment_method INT ,
-								-- 0: Tiền mặt
-								-- 1: VNPay
+
+    employee_id INT,							-- Nhân viên tạo đơn (POS)
+    voucher_id INT,								-- Mã giảm giá áp dụng
+    customer_id INT,							-- Khách hàng (đối với đơn online)
+
+    order_code VARCHAR(50) NOT NULL UNIQUE,		-- Mã đơn hàng
+    create_date DATETIME,						-- Ngày tạo đơn
+
+    total_amount DECIMAL(18,2),					-- Tổng tiền trước giảm giá
+	discount DECIMAL(18,2) DEFAULT 0,			-- Tổng giảm giá (voucher, khuyến mãi)
+	original_total DECIMAL(18,2),				-- Tổng tiền trước giảm giá
+	shipfee DECIMAL(18,2) DEFAULT 0,			-- Phí giao hàng
+    total_bill DECIMAL(18, 2),					-- Tổng cần thanh toán
+
+    payment_method INT ,						-- 0: Tiền mặt
+												-- 1: VNPay
+
+	payment_status INT CHECK (payment_status IN (0, 1, 2)),
+												-- 0: Chưa thanh toán
+												-- 1: Đã thanh toán
+												-- 2: Đã hoàn tiền
+
     kind_of_order BIT CHECK (kind_of_order IN (0, 1)),  
-                                     -- 0: Online
-                                     -- 1: POS
-    status_order INT CHECK (status_order IN (-1, 0, 1, 2, 3, 4, 5))
+												-- 0: Online
+												-- 1: POS
+
+    status_order INT CHECK (status_order IN (-1, 0, 1, 2, 3, 4, 5)),
                                       -- -1: Đã hủy
                                       --  0: Chờ xác nhận
                                       --  1: Chờ thanh toán
@@ -184,6 +184,11 @@ CREATE TABLE [order] (
                                       --  3: Đang giao hàng
                                       --  4: Giao hàng không thành công
                                       --  5: Hoàn thành
+
+	phone VARCHAR(20),                  -- Số điện thoại nhận hàng
+    [address] NVARCHAR(255),              -- Địa chỉ nhận hàng
+
+	note NVARCHAR(255)  -- Lý do thay đổi trạng thái đơn
 );
 
 CREATE TABLE order_detail (
@@ -191,6 +196,7 @@ CREATE TABLE order_detail (
     order_id INT,
     product_detail_id INT,
     quantity INT,
+	price DECIMAL(18, 2)
 );
 
 
@@ -201,6 +207,10 @@ CREATE TABLE cart (
     quantity INT
 );
 
+-- Thêm index
+CREATE INDEX idx_promotion_name ON promotion (promotion_name);
+CREATE INDEX idx_promotion_dates ON promotion ([start_date], end_date);
+CREATE INDEX idx_promotion_percent ON promotion (promotion_percent);
 
 -- ** PHẦN PK, FK CHO CÁC TABLE CỦA DATABASE
 
@@ -417,15 +427,6 @@ VALUES
 		(6, 6, 2, 'PR0010',N'Áo polo thể thao New Balance', 1);
 GO
 
-INSERT INTO promotion (promotion_name, promotion_percent, start_date, end_date, [description], [status]) VALUES 
-(N'Khuyến mãi Tết Nguyên Đán', 20, '2025-01-15', '2025-02-15', N'Giảm 20% toàn bộ sản phẩm nhân dịp Tết Nguyên Đán.', 1),
-(N'Black Friday Sale', 50, '2025-11-25', '2025-11-30', N'Giảm giá cực sốc 50% cho tất cả sản phẩm trong tuần lễ Black Friday.', 1),
-(N'Khuyến mãi 8/3', 15, '2025-03-01', '2025-03-08', N'Giảm 15% dành cho khách hàng nữ nhân dịp Quốc tế Phụ nữ.', 1),
-(N'Back to School', 10, '2025-08-15', '2025-09-05', N'Giảm 10% cho các sản phẩm áo sơ mi và áo thun chào đón năm học mới.', 1),
-(N'Giảm giá hè sôi động', 30, '2025-06-01', '2025-06-30', N'Ưu đãi lên đến 30% cho các sản phẩm áo khoác và hoodie.', 1),
-(N'Sale cuối năm', 40, '2025-12-20', '2025-12-31', N'Giảm sốc 40% cho các sản phẩm trong dịp lễ Giáng Sinh và năm mới.', 1);
-GO
-
 INSERT INTO color (color_name, [status]) VALUES 
 (N'Đen', 1),
 (N'Trắng', 1),
@@ -486,14 +487,6 @@ INSERT INTO product_detail (product_id, size_id, color_id, collar_id, sleeve_id,
 
 GO
 
-INSERT INTO voucher (voucher_code, voucher_name, [description], min_condition, max_discount, reduced_percent, [start_date], end_date, [status]) VALUES
-('VOUCHER01', N'Giảm giá mùa xuân', N'Giảm giá 10% cho đơn hàng từ 500.000đ', 500000, 100000, 10.0, '2025-02-20', '2025-03-31', 1),
-('VOUCHER02', N'Giảm giá cho khách mới', N'Giảm giá 15% cho khách hàng lần đầu mua sắm', 300000, 50000, 15.0, '2025-02-15', '2025-02-28', 1),
-('VOUCHER03', N'Giảm giá nhân dịp lễ', N'Giảm giá 20% cho đơn hàng từ 1.000.000đ', 1000000, 200000, 20.0, '2025-03-01', '2025-03-15', 1),
-('VOUCHER04', N'Khuyến mãi sinh nhật', N'Giảm giá 25% cho tất cả các sản phẩm', 0, 300000, 25.0, '2025-03-10', '2025-03-20', 1),
-('VOUCHER05', N'Giảm giá cho khách hàng VIP', N'Giảm giá 30% cho khách hàng VIP trên 1.500.000đ', 1500000, 450000, 30.0, '2025-04-01', '2025-04-30', 1),
-('VOUCHER06', N'Giảm giá cuối mùa', N'Giảm giá 50% cho tất cả các sản phẩm còn lại', 0, 500000, 50.0, '2025-04-05', '2025-04-15', 1);
-GO
 
 INSERT INTO [role] ([name]) VALUES
 ('ADMIN'),
@@ -547,32 +540,35 @@ VALUES (-1, 'GUEST', N'Khách vãng lai', NULL, NULL, NULL, NULL, GETDATE(), GET
 
 SET IDENTITY_INSERT customer OFF;
 
-ALTER TABLE [order]
-ADD phone VARCHAR(15),
-    [address] NVARCHAR(255),
-    shipfee DECIMAL(18, 2),
-    discount DECIMAL(18, 2);
-GO
+Update employee
+set password = '$2a$10$7.Q1TnBDminn441ESszN0ugdJP4xgqo1vWM8rkIEghpD1f4J04Xii'
+where username = 'admin'
 
-ALTER TABLE [order_detail]
-ADD price DECIMAL(18, 2);
-GO
+Update employee
+set password = '$2a$10$7.Q1TnBDminn441ESszN0ugdJP4xgqo1vWM8rkIEghpD1f4J04Xii'
+where username = 'staff'
 
-SELECT * FROM [address]
 SELECT * FROM brand
-SELECT * FROM cart
 SELECT * FROM category
-SELECT * FROM color
-SELECT * FROM customer
 SELECT * FROM material
+SELECT * FROM [product]
+
+SELECT * FROM color
 SELECT * FROM collar
 SELECT * FROM sleeve
+SELECT * FROM size
+SELECT * FROM promotion
+SELECT * FROM [product_detail]
+
+SELECT * FROM [role]
+SELECT * FROM employee
+
+SELECT * FROM customer
+SELECT * FROM [address]
+
+SELECT * FROM voucher
 SELECT * FROM [order]
 SELECT * FROM [order_detail]
-SELECT * FROM [product]
-SELECT * FROM [product_detail]
-SELECT * FROM promotion
-SELECT * FROM [role]
-SELECT * FROM size
-SELECT * FROM voucher
-SELECT * FROM employee
+
+SELECT * FROM cart
+
