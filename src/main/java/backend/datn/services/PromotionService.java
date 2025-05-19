@@ -16,14 +16,24 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
+import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Service
 public class PromotionService {
+
     @Autowired
     private PromotionRepository promotionRepository;
-    public Page<PromotionResponse> getAllPromotion(String search, LocalDate startDate, LocalDate endDate,
-                                                   int page, int size, String sortBy, String sortDir) {
+
+    public Page<PromotionResponse> getAllPromotion(
+            String search,
+            LocalDateTime startDate,
+            LocalDateTime endDate,
+            int page,
+            int size,
+            String sortBy,
+            String sortDir
+    ) {
         Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name())
                 ? Sort.by(sortBy).ascending()
                 : Sort.by(sortBy).descending();
@@ -41,6 +51,7 @@ public class PromotionService {
                 .orElseThrow(() -> new RuntimeException("Promotion không tồn tại với ID: " + id));
         return PromotionMapper.toPromotionResponse(promotion);
     }
+
     public PromotionResponse createPromotion(PromotionCreateRequest promotionCreateRequest) {
         if (promotionCreateRequest.getStartDate().isAfter(promotionCreateRequest.getEndDate())) {
             throw new IllegalArgumentException("Ngày bắt đầu không được lớn hơn ngày kết thúc!");
@@ -92,6 +103,7 @@ public class PromotionService {
                 -> new RuntimeException("Promotion không tồn tại với ID: " + id));
         promotionRepository.delete(promotion);
     }
+
     @Transactional
     public PromotionResponse toggleStatusPromotionResponse(Integer id) {
         Promotion promotion = promotionRepository.findById(id)

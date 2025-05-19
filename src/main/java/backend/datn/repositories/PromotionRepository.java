@@ -8,7 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
+import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Repository
 public interface PromotionRepository extends JpaRepository<Promotion, Integer> {
@@ -17,8 +18,8 @@ public interface PromotionRepository extends JpaRepository<Promotion, Integer> {
             "AND (:startDate IS NULL OR p.startDate >= :startDate) " +
             "AND (:endDate IS NULL OR p.endDate <= :endDate)")
     Page<Promotion> searchPromotions(@Param("search") String search,
-                                     @Param("startDate") LocalDate startDate,
-                                     @Param("endDate") LocalDate endDate,
+                                     @Param("startDate") LocalDateTime startDate,
+                                     @Param("endDate") LocalDateTime endDate,
                                      Pageable pageable);
 
 
