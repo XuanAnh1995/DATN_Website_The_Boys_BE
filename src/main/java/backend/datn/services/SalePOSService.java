@@ -208,7 +208,7 @@ public class SalePOSService {
                 Promotion promotion = productDetail.getPromotion();
                 if (!promotion.getStatus()) {
                     logger.warn("⚠️ [PROMOTION] Khuyến mãi {} bị vô hiệu hóa", promotion.getPromotionName());
-                } else if (promotion.getStartDate().isAfter(Instant.now()) || promotion.getEndDate().isBefore(Instant.now())) {
+                } else if (promotion.getStartDate().isAfter(LocalDateTime.now()) || promotion.getEndDate().isBefore(LocalDateTime.now())) {
                     logger.warn("⚠️ [PROMOTION] Khuyến mãi {} chưa đến hạn hoặc đã hết hạn", promotion.getPromotionName());
                 } else {
                     BigDecimal discountPercentage = BigDecimal.valueOf(promotion.getPromotionPercent()).divide(BigDecimal.valueOf(100));

@@ -7,6 +7,7 @@ import backend.datn.entities.Promotion;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDateTime;
 
 public class CartMapper {
     public static CartItemResponse toCartItemResponse(Cart cart) {
@@ -32,7 +33,7 @@ public class CartMapper {
         BigDecimal discountPrice = salePrice;
 
         if (promotion != null && promotion.getStatus() && promotion.getPromotionPercent() != null) {
-            Instant now = Instant.now();
+            LocalDateTime now = LocalDateTime.now();
             if (!now.isBefore(promotion.getStartDate()) && !now.isAfter(promotion.getEndDate())) {
                 BigDecimal discountAmount = salePrice.multiply(BigDecimal.valueOf(promotion.getPromotionPercent())).divide(BigDecimal.valueOf(100));
                 discountPrice = salePrice.subtract(discountAmount);
