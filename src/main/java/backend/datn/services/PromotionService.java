@@ -29,6 +29,9 @@ public class PromotionService {
             String search,
             LocalDateTime startDate,
             LocalDateTime endDate,
+            Integer minPercent,
+            Integer maxPercent,
+            Boolean status,
             int page,
             int size,
             String sortBy,
@@ -40,8 +43,8 @@ public class PromotionService {
 
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        Page<Promotion> promotions = promotionRepository.searchPromotions(search, startDate, endDate, pageable);
-
+        Page<Promotion> promotions = promotionRepository.searchPromotions(
+                search, startDate, endDate, minPercent, maxPercent, status, pageable);
 
         return promotions.map(PromotionMapper::toPromotionResponse);
     }

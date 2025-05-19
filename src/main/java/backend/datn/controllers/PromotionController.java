@@ -29,13 +29,17 @@ public class PromotionController {
             @RequestParam(required = false) String search,
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime start,
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
+            @RequestParam(required = false) Integer minPercent,
+            @RequestParam(required = false) Integer maxPercent,
+            @RequestParam(required = false) Boolean status,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDir
     ) {
         try {
-            Page<PromotionResponse> promotionResponses = promotionService.getAllPromotion(search, start, end, page, size, sortBy, sortDir);
+            Page<PromotionResponse> promotionResponses = promotionService.getAllPromotion(
+                    search, start, end, minPercent, maxPercent, status, page, size, sortBy, sortDir);
             ApiResponse response = new ApiResponse("success", "Lấy danh sách promotion thành công", promotionResponses);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
