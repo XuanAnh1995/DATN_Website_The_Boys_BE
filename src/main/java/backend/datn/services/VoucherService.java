@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -55,8 +56,8 @@ public class VoucherService {
         voucher.setReducedPercent(voucherRequest.getReducedPercent());
 
         // 🛠 Chuyển đổi `startDate` & `endDate`
-        voucher.setStartDate(parseInstant(voucherRequest.getStartDate()));
-        voucher.setEndDate(parseInstant(voucherRequest.getEndDate()));
+        voucher.setStartDate(voucherRequest.getStartDate());
+        voucher.setEndDate(voucherRequest.getEndDate());
 
         voucher.setStatus(voucherRequest.getStatus());
 
@@ -76,8 +77,8 @@ public class VoucherService {
         voucher.setReducedPercent(voucherUpdateRequest.getReducedPercent());
 
         // 🛠 Chuyển đổi `startDate` & `endDate`
-        voucher.setStartDate(parseInstant(voucherUpdateRequest.getStartDate()));
-        voucher.setEndDate(parseInstant(voucherUpdateRequest.getEndDate()));
+        voucher.setStartDate(voucherUpdateRequest.getStartDate());
+        voucher.setEndDate(voucherUpdateRequest.getEndDate());
 
         Voucher updatedVoucher = voucherRepository.save(voucher);
         return VoucherMapper.toVoucherResponse(updatedVoucher);
@@ -141,7 +142,7 @@ public class VoucherService {
         }
 
         // Kiểm tra thời gian voucher
-        if (voucher.getStartDate().isAfter(Instant.now()) || voucher.getEndDate().isBefore(Instant.now())){
+        if (voucher.getStartDate().isAfter(LocalDateTime.now()) || voucher.getEndDate().isBefore(LocalDateTime.now())){
             return totalBill; // không áp dụng khi voucher không còn hiệu lực
         }
 

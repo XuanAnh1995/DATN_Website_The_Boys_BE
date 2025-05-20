@@ -173,7 +173,7 @@ public class OrderOnlineService {
     public boolean checkVoucher(Integer voucherId, BigDecimal totalAmount) {
         return voucherRepository.findById(voucherId)
                 .map(voucher -> {
-                    Instant now = Instant.now();
+                    LocalDateTime now = LocalDateTime.now();
                     return voucher.getStatus() &&
                             totalAmount.compareTo(voucher.getMinCondition()) >= 0 &&
                             now.isAfter(voucher.getStartDate()) &&
