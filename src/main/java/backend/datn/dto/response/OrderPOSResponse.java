@@ -17,6 +17,7 @@ public class OrderPOSResponse {
     Integer id;
     VoucherResponse voucher;
     CustomerResponse customer;
+    EmployeeResponse employee;
     String orderCode;
     LocalDateTime createDate;
     BigDecimal originalTotal;

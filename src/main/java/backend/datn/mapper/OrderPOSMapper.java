@@ -14,6 +14,7 @@ public class OrderPOSMapper {
                 .id(orderPOS.getId())
                 .voucher(orderPOS.getVoucher() != null ? VoucherMapper.toVoucherResponse(orderPOS.getVoucher()) : null)
                 .customer(orderPOS.getCustomer() != null ? CustomerMapper.toCustomerResponse(orderPOS.getCustomer()) : null)
+                .employee(orderPOS.getEmployee() != null ? EmployeeMapper.toEmployeeResponse(orderPOS.getEmployee()) : null)
                 .orderCode(orderPOS.getOrderCode() != null ? orderPOS.getOrderCode() : "")
                 .createDate(orderPOS.getCreateDate())
                 .originalTotal(orderPOS.getOriginalTotal())
