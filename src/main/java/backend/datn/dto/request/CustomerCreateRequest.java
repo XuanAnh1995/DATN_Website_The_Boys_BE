@@ -8,13 +8,13 @@ import lombok.Data;
 import java.io.Serializable;
 
 @Data
-public class CustomerCreateRequest implements Serializable {
+public class CustomerCreateRequest  {
 
-//    @NotNull(message = "Họ và tên không được để trống")
+    @NotNull(message = "Họ và tên không được để trống")
     @Size(max = 255, message = "Họ và tên không được vượt quá 255 ký tự")
     private String fullname;
 
-//    @NotNull(message = "Tên đăng nhập không được để trống")
+    @NotNull(message = "Tên đăng nhập không được để trống")
     @Size(max = 100, message = "Tên đăng nhập không được vượt quá 100 ký tự")
     private String username;
 

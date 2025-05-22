@@ -2,7 +2,9 @@ package backend.datn.controllers;
 
 import backend.datn.dto.ApiResponse;
 import backend.datn.dto.request.EmployeeCreateRequest;
+import backend.datn.dto.request.EmployeePasswordUpdateRequest;
 import backend.datn.dto.request.EmployeeUpdateRequest;
+import backend.datn.dto.response.EmployeeResponse;
 import backend.datn.services.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -69,7 +71,9 @@ public class EmployeeController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse> updateEmployee(@PathVariable int id, @Valid @RequestBody EmployeeUpdateRequest request, BindingResult result) {
+    public ResponseEntity<ApiResponse> updateEmployee(@PathVariable int id,
+                                                      @Valid @RequestBody EmployeeUpdateRequest request,
+                                                      BindingResult result) {
         if (result.hasErrors()) {
             List<String> errorMessages = result.getFieldErrors().stream()
                     .map(error -> error.getField() + ": " + error.getDefaultMessage())
@@ -77,14 +81,43 @@ public class EmployeeController {
 
             return ResponseEntity.badRequest().body(new ApiResponse("error", "Lỗi xác thực", errorMessages));
         }
+
         try {
             return ResponseEntity.ok(new ApiResponse("success", "Cập nhật nhân viên thành công",
                     employeeService.updateEmployee(id, request)));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new ApiResponse("error", e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ApiResponse("error", e.getMessage()));
+                    .body(new ApiResponse("error", "Đã xảy ra lỗi: " + e.getMessage()));
         }
     }
+
+    @PutMapping("/{id}/change-password")
+    public ResponseEntity<ApiResponse> changePassword(@PathVariable int id,
+                                                      @Valid @RequestBody EmployeePasswordUpdateRequest request,
+                                                      BindingResult result) {
+
+        if (result.hasErrors()) {
+            List<String> errorMessages = result.getFieldErrors().stream()
+                    .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                    .collect(Collectors.toList());
+
+            return ResponseEntity.badRequest().body(new ApiResponse("error", "Lỗi xác thực", errorMessages));
+        }
+
+        try {
+            EmployeeResponse response = employeeService.updatePassword(id, request);
+            return ResponseEntity.ok(new ApiResponse("success", "Cập nhật mật khẩu thành công", response));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new ApiResponse("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse("error", "Lỗi máy chủ: " + e.getMessage()));
+        }
+    }
+
+
 
     @PatchMapping("/{id}/toggle-status")
     public ResponseEntity<ApiResponse> toggleStatusEmployee(@PathVariable int id) {
