@@ -17,7 +17,7 @@ import jakarta.validation.constraints.Email;
 import lombok.Data;
 
 @Data
-public class EmployeeCreateRequest implements Serializable {
+public class EmployeeCreateRequest {
 
     @NotNull(message = "ID vai trò không được để trống")
     String roleId;
