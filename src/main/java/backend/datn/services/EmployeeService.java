@@ -5,11 +5,13 @@ import backend.datn.dto.request.EmployeePasswordUpdateRequest;
 import backend.datn.dto.request.EmployeeUpdateRequest;
 import backend.datn.dto.response.EmployeeResponse;
 import backend.datn.entities.Employee;
+import backend.datn.entities.Role;
 import backend.datn.exceptions.EntityAlreadyExistsException;
 import backend.datn.exceptions.EntityNotFoundException;
 import backend.datn.helpers.CodeGeneratorHelper;
 import backend.datn.helpers.RandomHelper;
 import backend.datn.mapper.EmployeeMapper;
+import backend.datn.repositories.CustomerRepository;
 import backend.datn.repositories.EmployeeRepository;
 import backend.datn.repositories.RoleRepository;
 import jakarta.validation.constraints.NotNull;
@@ -29,6 +31,9 @@ import java.util.Optional;
 public class EmployeeService {
     @Autowired
     private EmployeeRepository employeeRepository;
+
+    @Autowired
+    private CustomerRepository customerRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -68,6 +73,18 @@ public class EmployeeService {
             throw new EntityAlreadyExistsException("Tên đăng nhập đã tồn tại.");
         }
 
+        if(customerRepository.existsByUsername(request.getUsername())){
+            throw new EntityAlreadyExistsException("Tên đăng nhập đã tồn tại.");
+        }
+
+        if(employeeRepository.existsByEmail(request.getEmail())){
+            throw new EntityAlreadyExistsException("Email đã tồn tại.");
+        }
+
+        if(employeeRepository.existsByPhone(request.getPhone())){
+            throw new EntityAlreadyExistsException("Số điện thoại đã tồn tại.");
+        }
+
         Employee employee = new Employee();
         employee.setEmployeeCode(CodeGeneratorHelper.generateCode("EMP"));
         employee.setUsername(request.getUsername());
@@ -80,6 +97,14 @@ public class EmployeeService {
         employee.setCreateDate(Instant.now());
         employee.setForgetPassword(false);
         employee.setStatus(1);
+        Role role = roleRepository.findById(Integer.valueOf(request.getRoleId()))
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Không tìm thấy vai trò với id: " + request.getRoleId()));
+        employee.setRole(role);
+        Instant now = Instant.now();
+        employee.setCreateDate(now);
+        employee.setUpdateDate(now);
+
 
         String rawPassword = RandomHelper.generateRandomString(8);
         String hashedPassword = passwordEncoder.encode(rawPassword);
@@ -101,7 +126,14 @@ public class EmployeeService {
             throw new EntityAlreadyExistsException("Số điện thoại đã tồn tại.");
         }
 
-        // ❌ Nếu là tài khoản admin và request roleId khác role hiện tại thì báo lỗi
+        if(customerRepository.existsByEmailAndNotId(request.getEmail(), id)){
+            throw new EntityAlreadyExistsException("Email đã tồn tại.");
+        }
+
+        if(customerRepository.existsByPhoneAndNotId(request.getPhone(), id)){
+            throw new EntityAlreadyExistsException("Số điện thoại đã tồn tại.");
+        }
+
         if (employee.getUsername().equalsIgnoreCase("admin")) {
             Integer currentRoleId = employee.getRole().getId();
             Integer requestedRoleId = Integer.valueOf(request.getRoleId());
@@ -146,18 +178,6 @@ public class EmployeeService {
 
         // Lưu vào DB
         employee = employeeRepository.save(employee);
-
-        // Kiểm tra lại: So sánh mật khẩu gốc với mật khẩu đã mã hóa
-        System.out.println("Raw password (nhập): " + rawPassword);
-        System.out.println("Encoded password (lưu): " + encodedPassword);
-        System.out.println("Password trong employee sau lưu: " + employee.getPassword());
-
-        // So sánh đúng cách: raw vs encoded
-        if (passwordEncoder.matches("abc123", employee.getPassword())) {
-            System.out.println("✅ MẬT KHẨU KHỚP (abc123) - FALSE");
-        } else {
-            System.out.println("❌ MẬT KHẨU KHÔNG KHỚP (abc123) - TRUE");
-        }
 
         return EmployeeMapper.toEmployeeResponse(employee);
     }

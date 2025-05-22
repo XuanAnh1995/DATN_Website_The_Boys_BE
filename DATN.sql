@@ -1,6 +1,7 @@
 ﻿--DROP DATABASE DATNV01
 
 CREATE DATABASE DATNV01
+Go
 
 USE DATNV01
 GO
@@ -10,18 +11,21 @@ CREATE TABLE brand (
     brand_name NVARCHAR(100) ,
     [status] BIT  
 );
+GO
 
 CREATE TABLE category (
     id INT IDENTITY(1,1) NOT NULL,
     category_name NVARCHAR(100) ,
     [status] BIT  
 );
+GO
 
 CREATE TABLE material (
     id INT IDENTITY(1,1) NOT NULL,
     material_name NVARCHAR(100) ,
     [status] BIT  
 );
+GO
 
 -- DROP TABLE product
 
@@ -34,6 +38,7 @@ CREATE TABLE [product] (
     product_name NVARCHAR(255) ,
     [status] BIT 
 );
+GO
 
 CREATE TABLE promotion (
     id INT IDENTITY(1,1) NOT NULL,
@@ -44,18 +49,21 @@ CREATE TABLE promotion (
     [description] NVARCHAR(500),
     [status] BIT 
 );
+GO
 
 CREATE TABLE color (
     id INT IDENTITY(1,1) NOT NULL,
     color_name NVARCHAR(100),
     [status] BIT  
 );
+GO
 
 CREATE TABLE size (
     id INT IDENTITY(1,1) NOT NULL,
     size_name NVARCHAR(100),
     [status] BIT  
 );
+GO
 
 CREATE TABLE collar(
 	id INT IDENTITY(1,1) NOT NULL,
@@ -68,6 +76,7 @@ CREATE TABLE sleeve(
 	sleeve_name NVARCHAR(100),
     [status] BIT 
 )
+GO
 
 -- DROP TABLE product_detail
 
@@ -87,6 +96,7 @@ CREATE TABLE product_detail (
     [description] NVARCHAR(500),
     [status] BIT  	
 );
+GO
 
 --ALTER TABLE product_detail
 --ADD photo VARCHAR(250) NOT NULL;
@@ -103,11 +113,13 @@ CREATE TABLE voucher (
     end_date DATETIME,
     [status] BIT
 );
+GO
 
 CREATE TABLE [role] (
     id INT IDENTITY(1,1) NOT NULL,
     [name] VARCHAR(100) NOT NULL
 );
+GO
 
 --DROP TABLE employee
 
@@ -128,7 +140,7 @@ CREATE TABLE employee (
 	forget_password BIT,
     gender BIT 
 );
-
+GO
 --ALTER TABLE employee
 --ALTER COLUMN gender BIT NOT NULL;
 
@@ -147,6 +159,7 @@ CREATE TABLE customer (
 	forget_password BIT,
     [status] BIT
 );
+GO
 
 CREATE TABLE [address] (
     id INT IDENTITY(1,1) NOT NULL,
@@ -159,6 +172,7 @@ CREATE TABLE [address] (
 	ward_name NVARCHAR(50) ,
     address_detail NVARCHAR(255) ,
 );
+GO
 
 CREATE TABLE [order] (
     id INT IDENTITY(1,1) NOT NULL,
@@ -185,6 +199,7 @@ CREATE TABLE [order] (
                                       --  4: Giao hàng không thành công
                                       --  5: Hoàn thành
 );
+GO
 
 CREATE TABLE order_detail (
     id INT IDENTITY(1,1) NOT NULL ,
@@ -192,6 +207,7 @@ CREATE TABLE order_detail (
     product_detail_id INT,
     quantity INT,
 );
+GO
 
 
 CREATE TABLE cart (
@@ -200,6 +216,7 @@ CREATE TABLE cart (
     product_detail_id INT ,
     quantity INT
 );
+GO
 
 
 -- ** PHẦN PK, FK CHO CÁC TABLE CỦA DATABASE
@@ -501,8 +518,8 @@ INSERT INTO [role] ([name]) VALUES
 GO
 
 INSERT INTO employee (employee_code, role_id, fullname, username, [password], email, phone, photo, [status], create_date, update_date, [address], forget_password, gender) VALUES
-('ADMIN', 1, N'Nguyễn Văn A', 'admin', 'password123', 'nguyenvana@example.com', '0912345678', 'photo1.jpg', 1, '2025-02-17', '2025-02-17',N'Hà Nội' , 0, 1),
-('STAFF', 2, N'Nguyễn Thị B', 'staff', 'password123', 'nguyenthitha@example.com', '0912345679', 'photo2.jpg', 1, '2025-02-17', '2025-02-17', N'Hà Nam', 0, 0),
+('ADMIN', 1, N'Nguyễn Văn A', 'admin', '$2a$10$6.jaq4UVcich29opquLaFOZYHy1OGz7PK.poVK/.AQIAXtDknkvI2', 'nguyenvana@example.com', '0912345678', 'photo1.jpg', 1, '2025-02-17', '2025-02-17',N'Hà Nội' , 0, 1),
+('STAFF', 2, N'Nguyễn Thị B', 'staff', '$2a$10$6.jaq4UVcich29opquLaFOZYHy1OGz7PK.poVK/.AQIAXtDknkvI2', 'nguyenthitha@example.com', '0912345679', 'photo2.jpg', 1, '2025-02-17', '2025-02-17', N'Hà Nam', 0, 0),
 ('EMP003', 2, N'Phạm Minh C', 'phamminhc', 'password123', 'phamminhc@example.com', '0912345680', 'photo3.jpg', 1, '2025-02-17', '2025-02-17',N'Hà Nội', 0, 1),
 ('EMP004', 2, N'Lê Quang D', 'lequangd', 'password123', 'lequangd@example.com', '0912345681', 'photo4.jpg', 1, '2025-02-17', '2025-02-17',N'Tây Ninh' ,0, 1),
 ('EMP005', 2, N'Vũ Minh E', 'vuminhE', 'password123', 'vuminhE@example.com', '0912345682', 'photo5.jpg', 1, '2025-02-17', '2025-02-17',N'Phú Thọ', 0, 0),
@@ -513,31 +530,16 @@ GO
 
 INSERT INTO customer (customer_code, fullname, username, [password], email, phone, create_date, update_date, forget_password, [status]) 
 VALUES 
-('USER', N'Nguyễn Hoàng A', 'user', 'password123', 'nguyenhoanga@example.com', '0912345678', '2025-02-17', '2025-02-17', 0, 1),
+('USER', N'Nguyễn Hoàng A', 'user', '$2a$10$6.jaq4UVcich29opquLaFOZYHy1OGz7PK.poVK/.AQIAXtDknkvI2', 'nguyenhoanga@example.com', '0912345678', '2025-02-17', '2025-02-17', 0, 1),
 ('CUST002', N'Nguyễn Thị B', 'nguyenthithb', 'password123', 'nguyenthithb@example.com', '0912345679',  '2025-02-17', '2025-02-17', 0, 1),
-('CUST003', N'Phạm Minh C', 'phamminhc', 'password123', 'phamminhc@example.com', '0912345680',  '2025-02-17', '2025-02-17', 0, 1),
-('CUST004', N'Lê Quang D', 'lequangd', 'password123', 'lequangd@example.com', '0912345681', '2025-02-17', '2025-02-17', 0, 1),
-('CUST005', N'Vũ Minh E', 'vuminhe', 'password123', 'vuminhe@example.com', '0912345682', '2025-02-17', '2025-02-17', 0, 1),
-('CUST006', N'Trần Thi F', 'tranthif', 'password123', 'tranthif@example.com', '0912345683', '2025-02-17', '2025-02-17', 0, 1),
-('CUST007', N'Hồ Hoàng G', 'hohoangg', 'password123', 'hohoangg@example.com', '0912345684', '2025-02-17', '2025-02-17', 0, 1),
-('CUST008', N'Ngô Minh H', 'ngominhh', 'password123', 'ngominhh@example.com', '0912345685', '2025-02-17', '2025-02-17', 0, 1);
-GO
---DELETE FROM [address];
---DBCC CHECKIDENT ('[address]', RESEED, 0);
-
-INSERT INTO [address] (customer_id, province_id, province_name, district_id, district_name, ward_id, ward_name, address_detail) VALUES
-(1, 1, N'TP. HCM', 1, N'Quận 1', 1, N'Phường Bến Nghé', N'123 Đường ABC, Phường Bến Nghé, Quận 1'),
-(2, 2, N'Hà Nội', 2, N'Quận Hoàn Kiếm', 2, N'Phường Tràng Tiền', N'456 Đường DEF, Phường Tràng Tiền, Quận Hoàn Kiếm'),
-(3, 3, N'Đà Nẵng', 3, N'Quận Hải Châu', 3, N'Phường Thuận Phước', N'789 Đường GHI, Phường Thuận Phước, Quận Hải Châu'),
-(4, 1, N'TP. HCM', 1, N'Quận 5', 4, N'Phường 1', N'101 Đường JKL, Phường 1, Quận 5'),
-(5, 2, N'Hà Nội', 2, N'Quận Ba Đình', 5, N'Phường Liễu Giai', N'202 Đường MNO, Phường Liễu Giai, Quận Ba Đình'),
-(6, 3, N'Đà Nẵng', 3, N'Quận Sơn Trà', 6, N'Phường Mỹ An', N'303 Đường PQR, Phường Mỹ An, Quận Sơn Trà'),
-(7, 1, N'TP. HCM', 1, N'Quận 3', 7, N'Phường Võ Thị Sáu', N'404 Đường STU, Phường Võ Thị Sáu, Quận 3'),
-(8, 2, N'Hà Nội', 2, N'Quận Cầu Giấy', 8, N'Phường Dịch Vọng', N'505 Đường VWX, Phường Dịch Vọng, Quận Cầu Giấy');
+('CUST003', N'Phạm Minh C', 'phamminhc_c', 'password123', 'phamminhc@example.com', '0912345680',  '2025-02-17', '2025-02-17', 0, 1),
+('CUST004', N'Lê Quang D', 'lequangd_c', 'password123', 'lequangd@example.com', '0912345681', '2025-02-17', '2025-02-17', 0, 1),
+('CUST005', N'Vũ Minh E', 'vuminhe_c', 'password123', 'vuminhe@example.com', '0912345682', '2025-02-17', '2025-02-17', 0, 1),
+('CUST006', N'Trần Thi F', 'tranthif_c', 'password123', 'tranthif@example.com', '0912345683', '2025-02-17', '2025-02-17', 0, 1),
+('CUST007', N'Hồ Hoàng G', 'hohoangg_c', 'password123', 'hohoangg@example.com', '0912345684', '2025-02-17', '2025-02-17', 0, 1),
+('CUST008', N'Ngô Minh H', 'ngominhh_c', 'password123', 'ngominhh@example.com', '0912345685', '2025-02-17', '2025-02-17', 0, 1);
 GO
 
---DELETE FROM [order];
---DBCC CHECKIDENT ('[order]', RESEED, 0);
 
 
 SET IDENTITY_INSERT customer ON;
@@ -551,12 +553,14 @@ ALTER TABLE [order]
 ADD phone VARCHAR(15),
     [address] NVARCHAR(255),
     shipfee DECIMAL(18, 2),
-    discount DECIMAL(18, 2);
+    discount DECIMAL(18, 2),
+	note NVARCHAR(255) NULL;
 GO
 
 ALTER TABLE [order_detail]
 ADD price DECIMAL(18, 2);
 GO
+
 
 SELECT * FROM [address]
 SELECT * FROM brand
