@@ -24,6 +24,9 @@ import java.util.UUID;
 public class SalePOSService {
 
     private static final Logger logger = LoggerFactory.getLogger(SalePOSService.class);
+    private static final String VIETQR_API_URL = "https://img.vietqr.io/image/";
+    private static final String BANK_BIN = "970436"; // BIN của Vietcombank
+    private static final String ACCOUNT_NUMBER = "1040023014"; // Số tài khoản của bạn
 
     @Autowired
     private OrderRepository orderRepository;
@@ -109,6 +112,27 @@ public class SalePOSService {
         logger.info("Đã tạo đơn hàng. Order ID: {}, Order Code: {}", savedOrder.getId(), savedOrder.getOrderCode());
         return savedOrder;
 
+    }
+
+    public String createVietQRPaymentUrl(Integer orderId) {
+        logger.info("Đang tạo URL VietQR cho đơn hàng ID: {}", orderId);
+
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy đơn hàng với ID: " + orderId));
+
+        // Tính tổng tiền cần thanh toán (sau khi giảm giá)
+        updateOrderTotal(order);
+        BigDecimal amount = order.getTotalBill();
+        String transactionId = "HD1-" + order.getOrderCode(); // Mã giao dịch duy nhất
+
+        // Tạo URL VietQR
+        String vietQrUrl = String.format(
+                "%s%s-%s-qr_only.png?amount=%s&addInfo=%s",
+                VIETQR_API_URL, BANK_BIN, ACCOUNT_NUMBER, amount.toString(), transactionId
+        );
+
+        logger.info("URL VietQR đã tạo: {}", vietQrUrl);
+        return vietQrUrl;
     }
 
 
@@ -208,7 +232,7 @@ public class SalePOSService {
                 Promotion promotion = productDetail.getPromotion();
                 if (!promotion.getStatus()) {
                     logger.warn("⚠️ [PROMOTION] Khuyến mãi {} bị vô hiệu hóa", promotion.getPromotionName());
-                } else if (promotion.getStartDate().isAfter(Instant.now()) || promotion.getEndDate().isBefore(Instant.now())) {
+                } else if (promotion.getStartDate().isAfter(LocalDateTime.now()) || promotion.getEndDate().isBefore(LocalDateTime.now())) {
                     logger.warn("⚠️ [PROMOTION] Khuyến mãi {} chưa đến hạn hoặc đã hết hạn", promotion.getPromotionName());
                 } else {
                     BigDecimal discountPercentage = BigDecimal.valueOf(promotion.getPromotionPercent()).divide(BigDecimal.valueOf(100));

@@ -80,6 +80,18 @@ public class SalePOSController {
         }
     }
 
+// QR Thanh toán
+    @PostMapping("/payment/create-vietqr-url/{orderId}")
+    public ResponseEntity<String> createVietQRPaymentUrl(@PathVariable Integer orderId) {
+        try {
+            String vietQrUrl = salePOSService.createVietQRPaymentUrl(orderId);
+            return ResponseEntity.ok(vietQrUrl);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Lỗi khi tạo URL VietQR: " + e.getMessage());
+        }
+    }
+
 
     /**
      * Thêm sản phẩm vào giỏ hàng

@@ -129,8 +129,8 @@ public class OrderOnlineService {
                     && promotion.getStatus()
                     && promotion.getStartDate() != null
                     && promotion.getEndDate() != null
-                    && Instant.now().isAfter(promotion.getStartDate())
-                    && Instant.now().isBefore(promotion.getEndDate())) {
+                    && LocalDateTime.now().isAfter(promotion.getStartDate())
+                    && LocalDateTime.now().isBefore(promotion.getEndDate())) {
 
                 salePrice = applyPromotionDiscount(salePrice, promotion.getPromotionPercent());
             }
