@@ -189,25 +189,18 @@ public class SalePOSController {
     }
 
 
-//    @PostMapping("/checkout")
-//    public ResponseEntity<?> checkout(@Valid @RequestBody OrderPOSCreateRequest request, BindingResult result) {
-//        if (result.hasErrors()) {
-//            return ResponseEntity.badRequest().body(result.getAllErrors());
-//        }
-//        try {
-//            Order order = salePOSService.thanhToan(request);
-//            return ResponseEntity.ok(order);
-//        } catch (RuntimeException e) {
-//            return ResponseEntity.badRequest().body(e.getMessage());
-//        }
-//    }
-
     @PostMapping("/checkout")
     public ResponseEntity<?> checkout(@RequestBody OrderPOSCreateRequest request) {
         try {
+            System.out.println("📌 [CHECKOUT] Nhận yêu cầu checkout: Order ID: " + request.getOrderId());
+            System.out.println("🔍 Customer ID: " + request.getCustomerId());
+            System.out.println("🎟 Voucher ID: " + request.getVoucherId());
+            System.out.println("📋 Order Details: " + request.getOrderDetails());
+
             Order order = salePOSService.thanhToan(request);
             return ResponseEntity.ok(new CheckoutResponse(order.getId()));
         } catch (Exception e) {
+            System.err.println("❌ [CHECKOUT] Lỗi khi checkout: " + e.getMessage());
             return ResponseEntity.status(400).body(e.getMessage());
         }
     }
@@ -238,6 +231,35 @@ public class SalePOSController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ApiResponse("error", "Lỗi khi lấy chi tiết đơn hàng: " + e.getMessage(), null));
+        }
+    }
+
+    @PutMapping("/orders/{orderId}/products/{productDetailId}")
+    public ResponseEntity<ApiResponse> updateProductQuantity(
+            @PathVariable Integer orderId,
+            @PathVariable Integer productDetailId,
+            @RequestBody Map<String, Integer> request) {
+        try {
+            Integer quantity = request.get("quantity");
+            if (quantity == null || quantity <= 0) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(new ApiResponse("error", "Số lượng không hợp lệ", null));
+            }
+
+            System.out.println("📌 [UPDATE PRODUCT QUANTITY] Cập nhật số lượng sản phẩm cho đơn hàng #" + orderId + ", ProductDetailId: " + productDetailId + ", Quantity: " + quantity);
+
+            OrderResponse response = salePOSService.updateProductQuantity(orderId, productDetailId, quantity);
+            System.out.println("✅ [UPDATE PRODUCT QUANTITY] Cập nhật số lượng thành công cho đơn hàng #" + orderId);
+            return ResponseEntity.ok(new ApiResponse("success", "Cập nhật số lượng sản phẩm thành công", response));
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ApiResponse("error", e.getMessage(), null));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse("error", e.getMessage(), null));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse("error", "Lỗi khi cập nhật số lượng sản phẩm: " + e.getMessage(), null));
         }
     }
 

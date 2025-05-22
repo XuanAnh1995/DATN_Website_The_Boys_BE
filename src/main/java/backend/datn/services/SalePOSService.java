@@ -364,6 +364,37 @@ public class SalePOSService {
             logger.info("Cập nhật voucher_id thành: {}", request.getVoucherId());
         }
 
+        // Cập nhật orderDetails
+        if (request.getOrderDetails() != null && !request.getOrderDetails().isEmpty()) {
+            for (OrderDetailCreateRequest detailReq : request.getOrderDetails()) {
+                ProductDetail productDetail = productDetailService.findById(detailReq.getProductDetailId())
+                        .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy sản phẩm với ID: " + detailReq.getProductDetailId()));
+
+                if (productDetail.getQuantity() < detailReq.getQuantity()) {
+                    throw new IllegalArgumentException("Sản phẩm " + productDetail.getProduct().getProductName() + " không đủ hàng!");
+                }
+
+                OrderDetail existingOrderDetail = order.getOrderDetails().stream()
+                        .filter(od -> od.getProductDetail().getId().equals(detailReq.getProductDetailId()))
+                        .findFirst()
+                        .orElse(null);
+
+                if (existingOrderDetail != null) {
+                    existingOrderDetail.setQuantity(detailReq.getQuantity());
+                    orderDetailRepository.save(existingOrderDetail);
+                    logger.info("Cập nhật số lượng sản phẩm trong đơn hàng. Order Detail ID: {}", existingOrderDetail.getId());
+                } else {
+                    OrderDetail newOrderDetail = new OrderDetail();
+                    newOrderDetail.setOrder(order);
+                    newOrderDetail.setProductDetail(productDetail);
+                    newOrderDetail.setQuantity(detailReq.getQuantity());
+                    order.getOrderDetails().add(newOrderDetail);
+                    orderDetailRepository.save(newOrderDetail);
+                    logger.info("Thêm mới sản phẩm vào đơn hàng. Order Detail ID: {}", newOrderDetail.getId());
+                }
+            }
+        }
+
         // ✅ Cập nhật lại tổng tiền trước khi lưu đơn hàng
         updateOrderTotal(order);
 
@@ -379,6 +410,46 @@ public class SalePOSService {
             return salePrice.multiply(discountPercent);
         }
         return salePrice;
+    }
+
+    @Transactional
+    public OrderResponse updateProductQuantity(Integer orderId, Integer productDetailId, Integer quantity) {
+        logger.info("Bắt đầu cập nhật số lượng sản phẩm. Order ID: {}, Product Detail ID: {}, Quantity: {}",
+                orderId, productDetailId, quantity);
+
+        // Tìm đơn hàng
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy đơn hàng với ID: " + orderId));
+
+        // Tìm sản phẩm
+        ProductDetail productDetail = productDetailService.findById(productDetailId)
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy sản phẩm với ID: " + productDetailId));
+
+        // Kiểm tra tồn kho
+        if (productDetail.getQuantity() < quantity) {
+            logger.error("Sản phẩm {} không đủ hàng. Yêu cầu: {}, Còn lại: {}",
+                    productDetail.getProduct().getProductName(), quantity, productDetail.getQuantity());
+            throw new IllegalArgumentException("Sản phẩm " + productDetail.getProduct().getProductName() + " không đủ hàng!");
+        }
+
+        // Tìm OrderDetail
+        OrderDetail orderDetail = order.getOrderDetails().stream()
+                .filter(od -> od.getProductDetail().getId().equals(productDetailId))
+                .findFirst()
+                .orElseThrow(() -> new EntityNotFoundException("Sản phẩm không có trong đơn hàng"));
+
+        // Cập nhật số lượng
+        orderDetail.setQuantity(quantity);
+        orderDetailRepository.save(orderDetail);
+        logger.info("Cập nhật số lượng sản phẩm thành công. Order Detail ID: {}", orderDetail.getId());
+
+        // Cập nhật tổng tiền đơn hàng
+        updateOrderTotal(order);
+
+        // Lưu đơn hàng
+        Order savedOrder = orderRepository.save(order);
+        logger.info("Cập nhật đơn hàng thành công. Order ID: {}", savedOrder.getId());
+        return OrderMapper.toOrderResponse(savedOrder);
     }
 
 }
