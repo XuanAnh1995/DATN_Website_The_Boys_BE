@@ -241,5 +241,66 @@ public class SalePOSController {
         }
     }
 
+    /**
+     * Cập nhật phương thức thanh toán của đơn hàng
+     * @param orderId ID của đơn hàng
+     * @param requestBody Map chứa paymentMethod
+     * @return ResponseEntity chứa thông tin đơn hàng đã cập nhật
+     */
+    @PutMapping("/orders/{orderId}/payment-method")
+    public ResponseEntity<ApiResponse> updatePaymentMethod(
+            @PathVariable Integer orderId,
+            @RequestBody Map<String, Integer> requestBody) {
+        try {
+            Integer paymentMethod = requestBody.get("paymentMethod");
+            System.out.println("📌 [UPDATE PAYMENT METHOD] Cập nhật phương thức thanh toán cho đơn hàng #" + orderId +
+                    ", Payment Method: " + paymentMethod);
+
+            OrderResponse response = salePOSService.updatePaymentMethod(orderId, paymentMethod);
+            System.out.println("✅ [UPDATE PAYMENT METHOD] Cập nhật thành công đơn hàng #" + orderId);
+
+            return ResponseEntity.ok(new ApiResponse("success", "Cập nhật phương thức thanh toán thành công", response));
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ApiResponse("error", e.getMessage(), null));
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse("error", e.getMessage(), null));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse("error", e.getMessage(), null));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse("error", "Lỗi khi cập nhật phương thức thanh toán: " + e.getMessage(), null));
+        }
+    }
+
+    /**
+     * Hủy đơn hàng POS
+     * @param orderId ID của đơn hàng cần hủy
+     * @return ResponseEntity chứa thông tin đơn hàng đã hủy
+     */
+    @PutMapping("/orders/{orderId}/cancel")
+    public ResponseEntity<ApiResponse> cancelOrder(@PathVariable Integer orderId) {
+        try {
+            System.out.println("📌 [CANCEL ORDER] Hủy đơn hàng #" + orderId);
+
+            OrderResponse response = salePOSService.cancelOrder(orderId);
+            System.out.println("✅ [CANCEL ORDER] Hủy đơn hàng thành công: #" + orderId);
+
+            return ResponseEntity.ok(new ApiResponse("success", "Hủy đơn hàng thành công", response));
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ApiResponse("error", e.getMessage(), null));
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse("error", e.getMessage(), null));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse("error", "Lỗi khi hủy đơn hàng: " + e.getMessage(), null));
+        }
+    }
+
+
 }
 
