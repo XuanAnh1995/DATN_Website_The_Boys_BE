@@ -2,7 +2,11 @@ package backend.datn.controllers;
 
 import backend.datn.dto.ApiResponse;
 import backend.datn.dto.request.CustomerCreateRequest;
+import backend.datn.dto.request.CustomerPasswordUpdateRequest;
 import backend.datn.dto.request.CustomerUpdateRequest;
+import backend.datn.dto.request.EmployeePasswordUpdateRequest;
+import backend.datn.dto.response.CustomerResponse;
+import backend.datn.dto.response.EmployeeResponse;
 import backend.datn.services.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -85,6 +89,31 @@ public class CustomerController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ApiResponse("error", e.getMessage()));
+        }
+    }
+
+
+    @PutMapping("/{id}/change-password")
+    public ResponseEntity<ApiResponse> changePassword(@PathVariable int id,
+                                                      @Valid @RequestBody CustomerPasswordUpdateRequest request,
+                                                      BindingResult result) {
+
+        if (result.hasErrors()) {
+            List<String> errorMessages = result.getFieldErrors().stream()
+                    .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                    .collect(Collectors.toList());
+
+            return ResponseEntity.badRequest().body(new ApiResponse("error", "Lỗi xác thực", errorMessages));
+        }
+
+        try {
+            CustomerResponse response = customerService.updatePassword(id, request);
+            return ResponseEntity.ok(new ApiResponse("success", "Cập nhật mật khẩu thành công", response));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new ApiResponse("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse("error", "Lỗi máy chủ: " + e.getMessage()));
         }
     }
 

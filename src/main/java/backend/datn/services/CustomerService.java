@@ -1,15 +1,21 @@
 package backend.datn.services;
 
 import backend.datn.dto.request.CustomerCreateRequest;
+import backend.datn.dto.request.CustomerPasswordUpdateRequest;
 import backend.datn.dto.request.CustomerUpdateRequest;
+import backend.datn.dto.request.EmployeePasswordUpdateRequest;
 import backend.datn.dto.response.CustomerResponse;
+import backend.datn.dto.response.EmployeeResponse;
 import backend.datn.entities.Customer;
+import backend.datn.entities.Employee;
 import backend.datn.exceptions.EntityAlreadyExistsException;
 import backend.datn.exceptions.EntityNotFoundException;
 import backend.datn.helpers.CodeGeneratorHelper;
 import backend.datn.helpers.RandomHelper;
 import backend.datn.mapper.CustomerMapper;
+import backend.datn.mapper.EmployeeMapper;
 import backend.datn.repositories.CustomerRepository;
+import backend.datn.repositories.EmployeeRepository;
 import jakarta.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +36,9 @@ public class CustomerService {
 
     @Autowired
     private CustomerRepository customerRepository;
+
+    @Autowired
+    private EmployeeRepository employeeRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -60,16 +69,25 @@ public class CustomerService {
     }
 
     public CustomerResponse createCustomer(CustomerCreateRequest request) {
-        logger.info("Bắt đầu tạo khách hàng mới: {}", request.getFullname());
-
-        if (request.getUsername() != null && customerRepository.existsByUsername(request.getUsername())) {
+        if (employeeRepository.existsByEmail(request.getEmail())) {
+            throw new EntityAlreadyExistsException("Email đã tồn tại.");
+        }
+        if (employeeRepository.existsByPhone(request.getPhone())) {
+            throw new EntityAlreadyExistsException("Số điện thoại đã tồn tại.");
+        }
+        if(employeeRepository.existsByUsername(request.getUsername())){
             throw new EntityAlreadyExistsException("Tên đăng nhập đã tồn tại.");
         }
 
-        if (customerRepository.existsByEmail(request.getEmail())) {
+        if(customerRepository.existsByUsername(request.getUsername())){
+            throw new EntityAlreadyExistsException("Tên đăng nhập đã tồn tại.");
+        }
+
+        if(employeeRepository.existsByEmail(request.getEmail())){
             throw new EntityAlreadyExistsException("Email đã tồn tại.");
         }
-        if (customerRepository.existsByPhone(request.getPhone())) {
+
+        if(employeeRepository.existsByPhone(request.getPhone())){
             throw new EntityAlreadyExistsException("Số điện thoại đã tồn tại.");
         }
 
@@ -121,6 +139,13 @@ public class CustomerService {
             throw new EntityAlreadyExistsException("Số điện thoại đã tồn tại.");
         }
 
+        if (employeeRepository.existsByEmailAndNotId(request.getEmail(), id)) {
+            throw new EntityAlreadyExistsException("Email đã tồn tại.");
+        }
+        if (employeeRepository.existsByPhoneAndNotId(request.getPhone(), id)) {
+            throw new EntityAlreadyExistsException("Số điện thoại đã tồn tại.");
+        }
+
         customer.setFullname(request.getFullname());
         customer.setEmail(request.getEmail());
         customer.setPhone(request.getPhone());
@@ -140,9 +165,36 @@ public class CustomerService {
         return CustomerMapper.toCustomerResponse(customer);
     }
 
+
+
+    public CustomerResponse updatePassword(int id, CustomerPasswordUpdateRequest request) {
+        Customer customer = customerRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy khách hàngvới id: " + id));
+
+        // Kiểm tra xác nhận mật khẩu mới
+        if (!request.getNewPassword().equals(request.getConfirmPassword())) {
+            throw new IllegalArgumentException("Xác nhận mật khẩu không khớp.");
+        }
+
+        // Gán mật khẩu mới đã mã hóa
+        String rawPassword = request.getNewPassword();
+        String encodedPassword = passwordEncoder.encode(rawPassword);
+        customer.setPassword(encodedPassword);
+        customer.setUpdateDate(Instant.now());
+
+        // Lưu vào DB
+        customer = customerRepository.save(customer);
+
+        return CustomerMapper.toCustomerResponse(customer);
+    }
+
+
+
     public Optional<Customer> findById(@NotNull Integer customerId) {
         return customerRepository.findById(customerId);
     }
+
+
 
 
     // thêm khach hàng vãng lai
