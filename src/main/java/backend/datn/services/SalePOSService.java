@@ -364,37 +364,6 @@ public class SalePOSService {
             logger.info("Cập nhật voucher_id thành: {}", request.getVoucherId());
         }
 
-        // Cập nhật orderDetails
-        if (request.getOrderDetails() != null && !request.getOrderDetails().isEmpty()) {
-            for (OrderDetailCreateRequest detailReq : request.getOrderDetails()) {
-                ProductDetail productDetail = productDetailService.findById(detailReq.getProductDetailId())
-                        .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy sản phẩm với ID: " + detailReq.getProductDetailId()));
-
-                if (productDetail.getQuantity() < detailReq.getQuantity()) {
-                    throw new IllegalArgumentException("Sản phẩm " + productDetail.getProduct().getProductName() + " không đủ hàng!");
-                }
-
-                OrderDetail existingOrderDetail = order.getOrderDetails().stream()
-                        .filter(od -> od.getProductDetail().getId().equals(detailReq.getProductDetailId()))
-                        .findFirst()
-                        .orElse(null);
-
-                if (existingOrderDetail != null) {
-                    existingOrderDetail.setQuantity(detailReq.getQuantity());
-                    orderDetailRepository.save(existingOrderDetail);
-                    logger.info("Cập nhật số lượng sản phẩm trong đơn hàng. Order Detail ID: {}", existingOrderDetail.getId());
-                } else {
-                    OrderDetail newOrderDetail = new OrderDetail();
-                    newOrderDetail.setOrder(order);
-                    newOrderDetail.setProductDetail(productDetail);
-                    newOrderDetail.setQuantity(detailReq.getQuantity());
-                    order.getOrderDetails().add(newOrderDetail);
-                    orderDetailRepository.save(newOrderDetail);
-                    logger.info("Thêm mới sản phẩm vào đơn hàng. Order Detail ID: {}", newOrderDetail.getId());
-                }
-            }
-        }
-
         // ✅ Cập nhật lại tổng tiền trước khi lưu đơn hàng
         updateOrderTotal(order);
 
@@ -412,43 +381,82 @@ public class SalePOSService {
         return salePrice;
     }
 
+    /**
+     * Cập nhật phương thức thanh toán của đơn hàng
+     * @param orderId ID của đơn hàng
+     * @param paymentMethod Phương thức thanh toán mới (0: Tiền mặt, 1: VNPay)
+     * @return OrderResponse chứa thông tin đơn hàng đã cập nhật
+     */
     @Transactional
-    public OrderResponse updateProductQuantity(Integer orderId, Integer productDetailId, Integer quantity) {
-        logger.info("Bắt đầu cập nhật số lượng sản phẩm. Order ID: {}, Product Detail ID: {}, Quantity: {}",
-                orderId, productDetailId, quantity);
+    public OrderResponse updatePaymentMethod(Integer orderId, Integer paymentMethod) {
+        logger.info("Bắt đầu cập nhật phương thức thanh toán. Order ID: {}, Payment Method: {}", orderId, paymentMethod);
 
-        // Tìm đơn hàng
+        // Tìm đơn hàng theo ID
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy đơn hàng với ID: " + orderId));
 
-        // Tìm sản phẩm
-        ProductDetail productDetail = productDetailService.findById(productDetailId)
-                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy sản phẩm với ID: " + productDetailId));
-
-        // Kiểm tra tồn kho
-        if (productDetail.getQuantity() < quantity) {
-            logger.error("Sản phẩm {} không đủ hàng. Yêu cầu: {}, Còn lại: {}",
-                    productDetail.getProduct().getProductName(), quantity, productDetail.getQuantity());
-            throw new IllegalArgumentException("Sản phẩm " + productDetail.getProduct().getProductName() + " không đủ hàng!");
+        // Kiểm tra xem đơn hàng có phải là đơn POS không
+        if (!order.getKindOfOrder()) {
+            logger.error("Không thể cập nhật phương thức thanh toán cho đơn hàng online qua chức năng POS. Order ID: {}", orderId);
+            throw new IllegalStateException("Chỉ có thể cập nhật phương thức thanh toán cho đơn hàng POS.");
         }
 
-        // Tìm OrderDetail
-        OrderDetail orderDetail = order.getOrderDetails().stream()
-                .filter(od -> od.getProductDetail().getId().equals(productDetailId))
-                .findFirst()
-                .orElseThrow(() -> new EntityNotFoundException("Sản phẩm không có trong đơn hàng"));
+        // Kiểm tra trạng thái đơn hàng
+        if (order.getStatusOrder() == 5 || order.getStatusOrder() == -1) {
+            logger.error("Không thể cập nhật phương thức thanh toán cho đơn hàng đã hoàn thành hoặc đã hủy. Order ID: {}", orderId);
+            throw new IllegalStateException("Chỉ có thể cập nhật phương thức thanh toán cho đơn hàng chưa hoàn thành hoặc chưa bị hủy.");
+        }
 
-        // Cập nhật số lượng
-        orderDetail.setQuantity(quantity);
-        orderDetailRepository.save(orderDetail);
-        logger.info("Cập nhật số lượng sản phẩm thành công. Order Detail ID: {}", orderDetail.getId());
+        // Kiểm tra phương thức thanh toán hợp lệ
+        if (paymentMethod == null || paymentMethod < 0 || paymentMethod > 1) {
+            logger.error("Phương thức thanh toán không hợp lệ: {}. Order ID: {}", paymentMethod, orderId);
+            throw new IllegalArgumentException("Phương thức thanh toán không hợp lệ. Chỉ chấp nhận 0 (Tiền mặt) hoặc 1 (Chuyển khoản).");
+        }
 
-        // Cập nhật tổng tiền đơn hàng
-        updateOrderTotal(order);
+        // Cập nhật phương thức thanh toán
+        order.setPaymentMethod(paymentMethod);
+        logger.info("Cập nhật phương thức thanh toán thành: {}", paymentMethod);
 
         // Lưu đơn hàng
         Order savedOrder = orderRepository.save(order);
-        logger.info("Cập nhật đơn hàng thành công. Order ID: {}", savedOrder.getId());
+        logger.info("Cập nhật phương thức thanh toán thành công. Order ID: {}, Payment Method: {}", orderId, paymentMethod);
+
+        return OrderMapper.toOrderResponse(savedOrder);
+    }
+
+    /**
+     * Hủy đơn hàng POS
+     * @param orderId ID của đơn hàng cần hủy
+     * @return OrderResponse chứa thông tin đơn hàng đã hủy
+     */
+    @Transactional
+    public OrderResponse cancelOrder(Integer orderId) {
+        logger.info("Bắt đầu hủy đơn hàng. Order ID: {}", orderId);
+
+        // Tìm đơn hàng theo ID
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy đơn hàng với ID: " + orderId));
+
+        // Kiểm tra xem đơn hàng có phải là đơn POS không
+        if (!order.getKindOfOrder()) {
+            logger.error("Không thể hủy đơn hàng online qua chức năng POS. Order ID: {}", orderId);
+            throw new IllegalStateException("Chỉ có thể hủy đơn hàng POS.");
+        }
+
+        // Kiểm tra trạng thái đơn hàng
+        if (order.getStatusOrder() != 1) {
+            logger.error("Đơn hàng không ở trạng thái 'Chờ thanh toán'. Trạng thái hiện tại: {}. Order ID: {}",
+                    order.getStatusOrder(), orderId);
+            throw new IllegalStateException("Chỉ có thể hủy đơn hàng ở trạng thái 'Chờ thanh toán'.");
+        }
+
+        // Cập nhật trạng thái
+        order.setStatusOrder(-1); // Đã hủy
+
+        // Lưu đơn hàng
+        Order savedOrder = orderRepository.save(order);
+        logger.info("Hủy đơn hàng thành công. Order ID: {}, Trạng thái: -1", orderId);
+
         return OrderMapper.toOrderResponse(savedOrder);
     }
 

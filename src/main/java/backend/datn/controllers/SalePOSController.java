@@ -189,18 +189,25 @@ public class SalePOSController {
     }
 
 
+//    @PostMapping("/checkout")
+//    public ResponseEntity<?> checkout(@Valid @RequestBody OrderPOSCreateRequest request, BindingResult result) {
+//        if (result.hasErrors()) {
+//            return ResponseEntity.badRequest().body(result.getAllErrors());
+//        }
+//        try {
+//            Order order = salePOSService.thanhToan(request);
+//            return ResponseEntity.ok(order);
+//        } catch (RuntimeException e) {
+//            return ResponseEntity.badRequest().body(e.getMessage());
+//        }
+//    }
+
     @PostMapping("/checkout")
     public ResponseEntity<?> checkout(@RequestBody OrderPOSCreateRequest request) {
         try {
-            System.out.println("📌 [CHECKOUT] Nhận yêu cầu checkout: Order ID: " + request.getOrderId());
-            System.out.println("🔍 Customer ID: " + request.getCustomerId());
-            System.out.println("🎟 Voucher ID: " + request.getVoucherId());
-            System.out.println("📋 Order Details: " + request.getOrderDetails());
-
             Order order = salePOSService.thanhToan(request);
             return ResponseEntity.ok(new CheckoutResponse(order.getId()));
         } catch (Exception e) {
-            System.err.println("❌ [CHECKOUT] Lỗi khi checkout: " + e.getMessage());
             return ResponseEntity.status(400).body(e.getMessage());
         }
     }
@@ -234,34 +241,66 @@ public class SalePOSController {
         }
     }
 
-    @PutMapping("/orders/{orderId}/products/{productDetailId}")
-    public ResponseEntity<ApiResponse> updateProductQuantity(
+    /**
+     * Cập nhật phương thức thanh toán của đơn hàng
+     * @param orderId ID của đơn hàng
+     * @param requestBody Map chứa paymentMethod
+     * @return ResponseEntity chứa thông tin đơn hàng đã cập nhật
+     */
+    @PutMapping("/orders/{orderId}/payment-method")
+    public ResponseEntity<ApiResponse> updatePaymentMethod(
             @PathVariable Integer orderId,
-            @PathVariable Integer productDetailId,
-            @RequestBody Map<String, Integer> request) {
+            @RequestBody Map<String, Integer> requestBody) {
         try {
-            Integer quantity = request.get("quantity");
-            if (quantity == null || quantity <= 0) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(new ApiResponse("error", "Số lượng không hợp lệ", null));
-            }
+            Integer paymentMethod = requestBody.get("paymentMethod");
+            System.out.println("📌 [UPDATE PAYMENT METHOD] Cập nhật phương thức thanh toán cho đơn hàng #" + orderId +
+                    ", Payment Method: " + paymentMethod);
 
-            System.out.println("📌 [UPDATE PRODUCT QUANTITY] Cập nhật số lượng sản phẩm cho đơn hàng #" + orderId + ", ProductDetailId: " + productDetailId + ", Quantity: " + quantity);
+            OrderResponse response = salePOSService.updatePaymentMethod(orderId, paymentMethod);
+            System.out.println("✅ [UPDATE PAYMENT METHOD] Cập nhật thành công đơn hàng #" + orderId);
 
-            OrderResponse response = salePOSService.updateProductQuantity(orderId, productDetailId, quantity);
-            System.out.println("✅ [UPDATE PRODUCT QUANTITY] Cập nhật số lượng thành công cho đơn hàng #" + orderId);
-            return ResponseEntity.ok(new ApiResponse("success", "Cập nhật số lượng sản phẩm thành công", response));
+            return ResponseEntity.ok(new ApiResponse("success", "Cập nhật phương thức thanh toán thành công", response));
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ApiResponse("error", e.getMessage(), null));
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new ApiResponse("error", e.getMessage(), null));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new ApiResponse("error", e.getMessage(), null));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ApiResponse("error", "Lỗi khi cập nhật số lượng sản phẩm: " + e.getMessage(), null));
+                    .body(new ApiResponse("error", "Lỗi khi cập nhật phương thức thanh toán: " + e.getMessage(), null));
         }
     }
+
+    /**
+     * Hủy đơn hàng POS
+     * @param orderId ID của đơn hàng cần hủy
+     * @return ResponseEntity chứa thông tin đơn hàng đã hủy
+     */
+    @PutMapping("/orders/{orderId}/cancel")
+    public ResponseEntity<ApiResponse> cancelOrder(@PathVariable Integer orderId) {
+        try {
+            System.out.println("📌 [CANCEL ORDER] Hủy đơn hàng #" + orderId);
+
+            OrderResponse response = salePOSService.cancelOrder(orderId);
+            System.out.println("✅ [CANCEL ORDER] Hủy đơn hàng thành công: #" + orderId);
+
+            return ResponseEntity.ok(new ApiResponse("success", "Hủy đơn hàng thành công", response));
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ApiResponse("error", e.getMessage(), null));
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse("error", e.getMessage(), null));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse("error", "Lỗi khi hủy đơn hàng: " + e.getMessage(), null));
+        }
+    }
+
 
 }
 
