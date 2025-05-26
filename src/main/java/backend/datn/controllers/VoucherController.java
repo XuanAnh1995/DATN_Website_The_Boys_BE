@@ -1,7 +1,5 @@
 package backend.datn.controllers;
 
-
-
 import backend.datn.dto.ApiResponse;
 import backend.datn.dto.request.VoucherCreateRequest;
 import backend.datn.dto.request.VoucherUpdateRequest;
@@ -20,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -31,13 +30,18 @@ public class VoucherController {
     @Autowired private VoucherService voucherService;
 
     @GetMapping
-    public ResponseEntity<ApiResponse> getALlVoucher(@RequestParam(required = false) String search,
-                                                         @RequestParam(defaultValue = "0") int page,
-                                                     @RequestParam(defaultValue = "10") int size,
-                                                     @RequestParam(defaultValue = "id") String sortBy,
-                                                     @RequestParam(defaultValue = "asc") String sortDir) {
+    public ResponseEntity<ApiResponse> getALlVoucher(
+            @RequestParam(required = false) String search,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir,
+            @RequestParam(required = false) Boolean status,
+            @RequestParam(required = false) BigDecimal minCondition,
+            @RequestParam(required = false) Double reducedPercent) {
         try {
-            Page<VoucherResponse> voucherPage = voucherService.getAllVoucher(search, page, size, sortBy, sortDir);
+            Page<VoucherResponse> voucherPage = voucherService.getAllVoucher(
+                    search, page, size, sortBy, sortDir, status, minCondition, reducedPercent);
 
             // Bọc dữ liệu vào PagedResponse
             PagedResponse<VoucherResponse> responseData = new PagedResponse<>(voucherPage);
@@ -45,27 +49,25 @@ public class VoucherController {
             ApiResponse response = new ApiResponse("success", "Lấy danh sách voucher thành công", responseData);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
-            ApiResponse response = new ApiResponse("error", "Lỗi khi lấy danh sách voucher", null);
+            ApiResponse response = new ApiResponse("error", "Lỗi khi lấy danh sách voucher: " + e.getMessage(), null);
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse> getVoucherById(@PathVariable Integer id) {
         try {
-            Optional<Voucher> voucherRespone = voucherService.findById(id);
-            ApiResponse response = new ApiResponse("success", "Lấy voucher thành công", voucherRespone);
+            Optional<Voucher> voucherResponse = voucherService.findById(id);
+            ApiResponse response = new ApiResponse("success", "Lấy voucher thành công", voucherResponse);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (EntityNotFoundException e) {
             ApiResponse response = new ApiResponse("error", e.getMessage(), null);
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            ApiResponse response = new ApiResponse("error", "Lỗi khi lấy voucher", null);
+            ApiResponse response = new ApiResponse("error", "Lỗi khi lấy voucher: " + e.getMessage(), null);
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
 
     @PostMapping
     public ResponseEntity<ApiResponse> createVoucher(@Valid @RequestBody VoucherCreateRequest voucherRequest, BindingResult result) {
@@ -76,21 +78,21 @@ public class VoucherController {
             return ResponseEntity.badRequest().body(new ApiResponse("error", "Dữ liệu không hợp lệ", errors));
         }
         try {
-            VoucherResponse voucherRespone = voucherService.createVoucher(voucherRequest);
-            ApiResponse response = new ApiResponse("success", "Tạo voucher thành công", voucherRespone);
+            VoucherResponse voucherResponse = voucherService.createVoucher(voucherRequest);
+            ApiResponse response = new ApiResponse("success", "Tạo voucher thành công", voucherResponse);
             return new ResponseEntity<>(response, HttpStatus.CREATED);
         } catch (EntityAlreadyExistsException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiResponse("error", e.getMessage(), null));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse("error", "Không thể tạo voucher", null));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse("error", "Không thể tạo voucher: " + e.getMessage(), null));
         }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse> updateVoucher( @PathVariable int id,
-                                                      @Valid @RequestBody VoucherUpdateRequest updateRequestvoucherRequest,
-                                                      BindingResult result ){
-        if (result.hasErrors()){
+    public ResponseEntity<ApiResponse> updateVoucher(@PathVariable int id,
+                                                     @Valid @RequestBody VoucherUpdateRequest updateRequestvoucherRequest,
+                                                     BindingResult result) {
+        if (result.hasErrors()) {
             List<String> errors = result.getAllErrors().stream()
                     .map(DefaultMessageSourceResolvable::getDefaultMessage)
                     .collect(Collectors.toList());
@@ -99,41 +101,37 @@ public class VoucherController {
         try {
             return ResponseEntity.ok(new ApiResponse("success", "Cập nhật voucher thành công",
                     voucherService.updateVoucher(id, updateRequestvoucherRequest)));
-        }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse("error", "Lỗi khi cập nhật voucher: " + e.getMessage()));
         }
     }
-
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse> deleteVoucher(@PathVariable Integer id) {
         try {
             voucherService.deleteVoucher(id);
-            return  ResponseEntity.ok(new ApiResponse("success", "Xóa voucher thành công", null));
+            return ResponseEntity.ok(new ApiResponse("success", "Xóa voucher thành công", null));
         } catch (EntityNotFoundException e) {
             ApiResponse response = new ApiResponse("error", e.getMessage(), null);
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            ApiResponse response = new ApiResponse("error", "Khong the xoa voucher", null);
+            ApiResponse response = new ApiResponse("error", "Không thể xóa voucher: " + e.getMessage(), null);
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-
     @PutMapping("/{id}/toggle-status")
     public ResponseEntity<ApiResponse> toggleStatusVoucher(@PathVariable Integer id) {
         try {
-            VoucherResponse voucherRespone = voucherService.toggleStatusVoucher(id);
-            ApiResponse response = new ApiResponse("success", "Thành Công Thay Đổi ", voucherRespone);
+            VoucherResponse voucherResponse = voucherService.toggleStatusVoucher(id);
+            ApiResponse response = new ApiResponse("success", "Thành công thay đổi trạng thái", voucherResponse);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (EntityNotFoundException e) {
             ApiResponse response = new ApiResponse("error", e.getMessage(), null);
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            ApiResponse response = new ApiResponse("error", "Lỗi khi thay đổi trạng thái", null);
+            ApiResponse response = new ApiResponse("error", "Lỗi khi thay đổi trạng thái: " + e.getMessage(), null);
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
-
-

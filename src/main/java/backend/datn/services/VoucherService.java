@@ -27,19 +27,32 @@ public class VoucherService {
     @Autowired
     VoucherRepository voucherRepository;
 
-
-    public Page<VoucherResponse> getAllVoucher(String search, int page, int size, String sortBy, String sortDir) {
+    public Page<VoucherResponse> getAllVoucher(
+            String search,
+            int page,
+            int size,
+            String sortBy,
+            String sortDir,
+            Boolean status,
+            BigDecimal minCondition,
+            Double reducedPercent
+    ) {
         Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ?
                 Sort.by(sortBy).ascending() :
                 Sort.by(sortBy).descending();
 
         Pageable pageable = PageRequest.of(page, size, sort);
         String formattedSearch = (search == null || search.isEmpty()) ? null : "%" + search.toLowerCase() + "%";
-        Page<Voucher> voucherPage = voucherRepository.searchVouchers(formattedSearch, pageable);
+        Page<Voucher> voucherPage = voucherRepository.searchVouchers(
+                formattedSearch,
+                status,
+                minCondition,
+                reducedPercent,
+                pageable
+        );
 
         return voucherPage.map(VoucherMapper::toVoucherResponse);
     }
-
 
     public VoucherResponse createVoucher(VoucherCreateRequest voucherRequest) {
         String voucherCode;
@@ -54,18 +67,14 @@ public class VoucherService {
         voucher.setMinCondition(voucherRequest.getMinCondition());
         voucher.setMaxDiscount(voucherRequest.getMaxDiscount());
         voucher.setReducedPercent(voucherRequest.getReducedPercent());
-
-        // 🛠 Chuyển đổi `startDate` & `endDate`
         voucher.setStartDate(voucherRequest.getStartDate());
         voucher.setEndDate(voucherRequest.getEndDate());
-
         voucher.setStatus(voucherRequest.getStatus());
 
         voucher = voucherRepository.save(voucher);
         return VoucherMapper.toVoucherResponse(voucher);
     }
 
-    // ✅ Cập nhật voucher
     public VoucherResponse updateVoucher(int id, VoucherUpdateRequest voucherUpdateRequest) {
         Voucher voucher = voucherRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Voucher không tồn tại với ID: " + id));
@@ -75,8 +84,6 @@ public class VoucherService {
         voucher.setMinCondition(voucherUpdateRequest.getMinCondition());
         voucher.setMaxDiscount(voucherUpdateRequest.getMaxDiscount());
         voucher.setReducedPercent(voucherUpdateRequest.getReducedPercent());
-
-        // 🛠 Chuyển đổi `startDate` & `endDate`
         voucher.setStartDate(voucherUpdateRequest.getStartDate());
         voucher.setEndDate(voucherUpdateRequest.getEndDate());
 
@@ -84,7 +91,6 @@ public class VoucherService {
         return VoucherMapper.toVoucherResponse(updatedVoucher);
     }
 
-    // ✅ Toggle trạng thái voucher
     @Transactional
     public VoucherResponse toggleStatusVoucher(Integer id) {
         Voucher voucher = voucherRepository.findById(id)
@@ -95,7 +101,6 @@ public class VoucherService {
         return VoucherMapper.toVoucherResponse(voucher);
     }
 
-    // ✅ Xóa voucher
     @Transactional
     public void deleteVoucher(Integer id) {
         Voucher voucher = voucherRepository.findById(id)
@@ -104,26 +109,23 @@ public class VoucherService {
         voucherRepository.delete(voucher);
     }
 
-    // ✅ Tạo mã voucher ngẫu nhiên
     public static String generateVoucherCode() {
         String uuidPart = UUID.randomUUID().toString().replace("-", "").substring(0, 6).toUpperCase();
         return "VOUCHER-" + uuidPart;
     }
 
-    // ✅ Lấy voucher theo ID
     public Optional<Voucher> findById(Integer voucherId) {
         return voucherRepository.findById(voucherId);
     }
 
-    // ✅ Hàm hỗ trợ: Chuyển đổi `String`, `Long` -> `Instant`
     private Instant parseInstant(Object date) {
         try {
             if (date instanceof String) {
-                return Instant.parse((String) date); // ✅ Chuỗi ISO 8601
+                return Instant.parse((String) date);
             } else if (date instanceof Long) {
-                return Instant.ofEpochMilli((Long) date); // ✅ Timestamp (millisecond)
+                return Instant.ofEpochMilli((Long) date);
             } else if (date instanceof Instant) {
-                return (Instant) date; // ✅ Nếu đã là Instant thì giữ nguyên
+                return (Instant) date;
             }
         } catch (Exception e) {
             throw new IllegalArgumentException("Lỗi: Ngày tháng không đúng định dạng (ISO 8601 hoặc timestamp).");
@@ -132,34 +134,29 @@ public class VoucherService {
     }
 
     public BigDecimal applyVoucher(Voucher voucher, BigDecimal totalBill) {
-        if (voucher == null || !voucher.getStatus()) { // Sử dụng getStatus()
-            return totalBill; // Không áp dụng nếu voucher không hợp lệ
+        if (voucher == null || !voucher.getStatus()) {
+            return totalBill;
         }
 
-        // Kiểm tra số tiền tối thiểu (nếu có)
-        if (voucher.getMinCondition() != null && totalBill.compareTo(voucher.getMinCondition()) < 0) { // Sử dụng getMinCondition()
-            return totalBill; // Không áp dụng nếu số tiền không đủ
+        if (voucher.getMinCondition() != null && totalBill.compareTo(voucher.getMinCondition()) < 0) {
+            return totalBill;
         }
 
-        // Kiểm tra thời gian voucher
-        if (voucher.getStartDate().isAfter(LocalDateTime.now()) || voucher.getEndDate().isBefore(LocalDateTime.now())){
-            return totalBill; // không áp dụng khi voucher không còn hiệu lực
+        if (voucher.getStartDate().isAfter(LocalDateTime.now()) || voucher.getEndDate().isBefore(LocalDateTime.now())) {
+            return totalBill;
         }
 
-        // Áp dụng giảm giá theo phần trăm
         BigDecimal discountAmount = BigDecimal.ZERO;
-        if (voucher.getReducedPercent() != null) { // Sử dụng getReducedPercent()
+        if (voucher.getReducedPercent() != null) {
             BigDecimal discountPercentage = BigDecimal.valueOf(voucher.getReducedPercent()).divide(new BigDecimal(100));
             discountAmount = totalBill.multiply(discountPercentage);
 
-            // Kiểm tra và áp dụng giới hạn giảm giá tối đa (nếu có)
-            if (voucher.getMaxDiscount() != null && discountAmount.compareTo(voucher.getMaxDiscount()) > 0) { // Sử dụng getMaxDiscount()
+            if (voucher.getMaxDiscount() != null && discountAmount.compareTo(voucher.getMaxDiscount()) > 0) {
                 discountAmount = voucher.getMaxDiscount();
             }
         }
 
-        // Tính tổng tiền sau khi giảm giá
         BigDecimal discountedTotal = totalBill.subtract(discountAmount);
-        return discountedTotal.compareTo(BigDecimal.ZERO) > 0 ? discountedTotal : BigDecimal.ZERO; // Trả về 0 nếu tổng tiền âm
+        return discountedTotal.compareTo(BigDecimal.ZERO) > 0 ? discountedTotal : BigDecimal.ZERO;
     }
 }
