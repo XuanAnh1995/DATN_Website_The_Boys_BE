@@ -30,7 +30,8 @@ public interface ProductDetailRepository extends JpaRepository<ProductDetail, In
             "AND (:collarIds IS NULL OR pd.collar.id IN :collarIds) " +
             "AND (:sleeveIds IS NULL OR pd.sleeve.id IN :sleeveIds) " +
             "AND (:minPrice IS NULL OR pd.salePrice >= :minPrice) " +
-            "AND (:maxPrice IS NULL OR pd.salePrice <= :maxPrice)")
+            "AND (:maxPrice IS NULL OR pd.salePrice <= :maxPrice) " +
+            "AND pd.status = true")
     Page<ProductDetail> findBySearchAndFilter(@Param("search") String search,
                                               @Param("sizeIds") List<Integer> sizeIds,
                                               @Param("colorIds") List<Integer> colorIds,
