@@ -173,6 +173,18 @@ public class SalePOSService {
                 newOrderDetail.setOrder(order);
                 newOrderDetail.setProductDetail(productDetail);
                 newOrderDetail.setQuantity(detailReq.getQuantity());
+
+                // Tính giá sau khuyến mãi
+                BigDecimal price = productDetail.getSalePrice();
+                if (productDetail.getPromotion() != null && productDetail.getPromotion().getStatus()
+                        && !productDetail.getPromotion().getStartDate().isAfter(LocalDateTime.now())
+                        && !productDetail.getPromotion().getEndDate().isBefore(LocalDateTime.now())) {
+                    BigDecimal discountPercentage = BigDecimal.valueOf(productDetail.getPromotion().getPromotionPercent()).divide(BigDecimal.valueOf(100));
+                    BigDecimal discountAmount = price.multiply(discountPercentage);
+                    price = price.subtract(discountAmount);
+                }
+
+                newOrderDetail.setPrice(price);
                 order.getOrderDetails().add(newOrderDetail);
                 orderDetailRepository.save(newOrderDetail);
                 logger.info("Thêm mới sản phẩm vào giỏ hàng thành công. Order Detail ID: {}", newOrderDetail.getId());

@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.math.BigDecimal;
+
 @SuperBuilder
 @Data
 @NoArgsConstructor
@@ -22,5 +24,7 @@ public class OrderDetailCreateRequest {
     @NotNull(message = "Số lượng không được để trống")
     @Positive(message = "Số lượng phải lớn hơn 0")
     private Integer quantity;
+
+    private BigDecimal price;
 
 }

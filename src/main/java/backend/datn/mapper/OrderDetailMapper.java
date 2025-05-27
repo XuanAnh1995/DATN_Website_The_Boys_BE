@@ -12,6 +12,7 @@ public class OrderDetailMapper {
                 .id(orderDetail.getId())
                 .order(orderDetail.getOrder() != null ? OrderMapper.toOrderResponse(orderDetail.getOrder()) : null)
                 .productDetail(ProductDetailMapper.toProductDetailResponse(orderDetail.getProductDetail()))
+                .price(orderDetail.getPrice())
                 .quantity(orderDetail.getQuantity())
                 .build();
     }
