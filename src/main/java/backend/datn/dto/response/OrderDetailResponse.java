@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 @Data
 @NoArgsConstructor
@@ -20,6 +21,8 @@ public class OrderDetailResponse implements Serializable {
     private OrderResponse order;
 
     private ProductDetailResponse productDetail;
+
+    private BigDecimal price;
 
     private Integer quantity;
 
