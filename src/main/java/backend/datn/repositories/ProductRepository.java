@@ -17,7 +17,8 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
             + " OR p.material.materialName LIKE %:keyword%"
             + " OR p.brand.brandName LIKE %:keyword% "
             + " OR :keyword is NULL) "
-            + " AND :status is NULL OR p.status = :status ")
+            + " AND :status is NULL OR p.status = :status "
+            + " AND p.status= true ")
     Page<Product> findAllWithFilters(String keyword, Boolean status, Pageable pageable);
 
     @Query("""
@@ -25,7 +26,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
         p.id,
         p.productCode,
         p.productName,
-        COALESCE(SUM(pd.quantity), 0), 
+        COALESCE(SUM(pd.quantity), 0),
         COALESCE(SUM(CASE WHEN o.statusOrder = 5 THEN od.quantity ELSE 0 END), 0),
         (SELECT pd2.photo FROM ProductDetail pd2 WHERE pd2.product.id = p.id ORDER BY pd2.id ASC FETCH FIRST 1 ROWS ONLY),
         (SELECT MIN(pd3.salePrice) FROM ProductDetail pd3 WHERE pd3.product.id = p.id),
@@ -45,6 +46,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
     AND (:sizeIds IS NULL OR pd.size.id IN :sizeIds)
     AND (:minPrice IS NULL OR pd.salePrice >= :minPrice)
     AND (:maxPrice IS NULL OR pd.salePrice <= :maxPrice)
+    AND p.status = true 
     GROUP BY p.id, p.productCode, p.productName
 """)
     Page<UserProductResponse> findAllWithFilters(
@@ -60,7 +62,5 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
             @Param("maxPrice") BigDecimal maxPrice,
             Pageable pageable
     );
-
-
 
 }
