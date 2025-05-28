@@ -67,6 +67,24 @@ public class ProductDetailService {
         return productDetails.map(ProductDetailMapper::toProductDetailResponse);
     }
 
+    public Page<ProductDetailResponse> getAllProductDetailsWithStatusTrue(
+            String search,
+            List<Integer> sizeIds, List<Integer> colorIds,
+            List<Integer> collarIds, List<Integer> sleeveIds,
+            Double minPrice, Double maxPrice, Pageable pageable) {
+
+        search = (search == null || search.trim().isEmpty()) ? null : search;
+        sizeIds = (sizeIds == null || sizeIds.isEmpty()) ? null : sizeIds;
+        colorIds = (colorIds == null || colorIds.isEmpty()) ? null : colorIds;
+        collarIds = (collarIds == null || collarIds.isEmpty()) ? null : collarIds;
+        sleeveIds = (sleeveIds == null || sleeveIds.isEmpty()) ? null : sleeveIds;
+
+        Page<ProductDetail> productDetails = productDetailRepository.findBySearchAndFilterWithStatusTrue(
+                search, sizeIds, colorIds, collarIds, sleeveIds, minPrice, maxPrice, pageable);
+
+        return productDetails.map(ProductDetailMapper::toProductDetailResponse);
+    }
+
     @Transactional
     public ProductDetailResponse getById(Integer id) {
         ProductDetail productDetail = productDetailRepository.findById(id)

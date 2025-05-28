@@ -48,6 +48,27 @@ public class ProductDetailController {
         }
     }
 
+    @GetMapping("/statustrue")
+    public ResponseEntity<ApiResponse> getAllProductDetailsWithStatusTrue(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false, defaultValue = "") List<Integer> colorIds,
+            @RequestParam(required = false, defaultValue = "") List<Integer> collarIds,
+            @RequestParam(required = false, defaultValue = "") List<Integer> sizeIds,
+            @RequestParam(required = false, defaultValue = "") List<Integer> sleeveIds,
+            @RequestParam(required = false) Double minPrice,
+            @RequestParam(required = false) Double maxPrice,
+            Pageable pageable) {
+        try {
+            System.out.println("Received CollarIds: " + collarIds); // Debug xem có nhận đúng không
+
+            Page<ProductDetailResponse> productDetails = productDetailService.getAllProductDetailsWithStatusTrue(
+                    search, sizeIds, colorIds, collarIds, sleeveIds, minPrice, maxPrice, pageable);
+            return ResponseEntity.ok(new ApiResponse("success", "Lấy danh sách chi tiết sản phẩm thành công", productDetails));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(new ApiResponse("error", "Lỗi khi lấy danh sách chi tiết sản phẩm: " + e.getMessage()));
+        }
+    }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse> getProductDetailById(@PathVariable Integer id) {
