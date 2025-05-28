@@ -30,8 +30,7 @@ public interface ProductDetailRepository extends JpaRepository<ProductDetail, In
             "AND (:collarIds IS NULL OR pd.collar.id IN :collarIds) " +
             "AND (:sleeveIds IS NULL OR pd.sleeve.id IN :sleeveIds) " +
             "AND (:minPrice IS NULL OR pd.salePrice >= :minPrice) " +
-            "AND (:maxPrice IS NULL OR pd.salePrice <= :maxPrice) " +
-            "AND pd.status = true")
+            "AND (:maxPrice IS NULL OR pd.salePrice <= :maxPrice) ")
     Page<ProductDetail> findBySearchAndFilter(@Param("search") String search,
                                               @Param("sizeIds") List<Integer> sizeIds,
                                               @Param("colorIds") List<Integer> colorIds,
@@ -92,4 +91,22 @@ public interface ProductDetailRepository extends JpaRepository<ProductDetail, In
     WHERE p.productCode = :productCode AND p.status = true AND pd.status = true 
 """)
     List<ProductDetailResponse> getProductVariantsByProductCode(@Param("productCode") String productCode);
+
+    @Query("SELECT pd FROM ProductDetail pd " +
+            "WHERE (:search IS NULL OR pd.product.productName LIKE %:search% OR pd.productDetailCode LIKE  :search OR pd.product.productCode LIKE :search  ) " +
+            "AND (:sizeIds IS NULL OR pd.size.id IN :sizeIds) " +
+            "AND (:colorIds IS NULL OR pd.color.id IN :colorIds) " +
+            "AND (:collarIds IS NULL OR pd.collar.id IN :collarIds) " +
+            "AND (:sleeveIds IS NULL OR pd.sleeve.id IN :sleeveIds) " +
+            "AND (:minPrice IS NULL OR pd.salePrice >= :minPrice) " +
+            "AND (:maxPrice IS NULL OR pd.salePrice <= :maxPrice) " +
+            "AND pd.status = true")
+    Page<ProductDetail> findBySearchAndFilterWithStatusTrue(@Param("search") String search,
+                                              @Param("sizeIds") List<Integer> sizeIds,
+                                              @Param("colorIds") List<Integer> colorIds,
+                                              @Param("collarIds") List<Integer> collarIds,
+                                              @Param("sleeveIds") List<Integer> sleeveIds,
+                                              @Param("minPrice") Double minPrice,
+                                              @Param("maxPrice") Double maxPrice,
+                                              Pageable pageable);
 }
