@@ -57,6 +57,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET,"/api//orders/online/**").permitAll()
                         .requestMatchers(HttpMethod.GET,"/api/v1/**").permitAll()
                         .requestMatchers(HttpMethod.GET,"/api/products/**").permitAll() // Cho phép không cần token
+                        .requestMatchers(HttpMethod.GET,"/api/employees/**").hasRole("ADMIN") // Hạn chế chỉ dành cho ADMIN
+                        .requestMatchers("/api/statistics/**").hasRole("ADMIN") // Hạn chế chỉ dành cho ADMIN
                         .requestMatchers("/api/**").hasAnyRole("ADMIN", "STAFF") // Cho phép cả ADMIN & STAFF
                         .requestMatchers("/cart/**").hasAnyRole("CUSTOMER") // Chỉ cho phép CUSTOMER
                         .anyRequest().permitAll() // Còn lại cần xác thực
