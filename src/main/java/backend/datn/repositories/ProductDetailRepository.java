@@ -87,7 +87,7 @@ public interface ProductDetailRepository extends JpaRepository<ProductDetail, In
     LEFT JOIN Collar col ON pd.collar.id = col.id
     LEFT JOIN Sleeve sl ON pd.sleeve.id = sl.id
     LEFT JOIN Material m ON p.material.id = m.id
-    LEFT JOIN Promotion pr ON pd.promotion.id = pr.id
+    LEFT JOIN Promotion pr ON pd.promotion.id = pr.id AND pr.status = true
     WHERE p.productCode = :productCode AND p.status = true AND pd.status = true 
 """)
     List<ProductDetailResponse> getProductVariantsByProductCode(@Param("productCode") String productCode);
