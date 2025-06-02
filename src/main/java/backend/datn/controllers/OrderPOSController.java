@@ -35,7 +35,7 @@ public class OrderPOSController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id") String sortKey,
-            @RequestParam(defaultValue = "desc") String sortDirection
+            @RequestParam(defaultValue = "asc") String sortDirection
     ) {
         try {
             // Gọi service để lấy danh sách đơn hàng online với tìm kiếm và phân trang
