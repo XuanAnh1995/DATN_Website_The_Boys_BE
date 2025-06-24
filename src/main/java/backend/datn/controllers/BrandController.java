@@ -5,10 +5,11 @@ import backend.datn.dto.request.BrandCreateRequest;
 import backend.datn.dto.request.BrandUpdateRequest;
 import backend.datn.dto.response.BrandResponse;
 import backend.datn.dto.response.PagedResponse;
-import backend.datn.dto.response.VoucherResponse;
 import backend.datn.exceptions.EntityAlreadyExistsException;
 import backend.datn.exceptions.EntityNotFoundException;
+import backend.datn.exceptions.ResourceNotFoundException;
 import backend.datn.services.BrandService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -59,7 +60,7 @@ public class BrandController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse> createBrand(@RequestBody BrandCreateRequest brandCreateRequest) {
+    public ResponseEntity<ApiResponse> createBrand(@Valid @RequestBody BrandCreateRequest brandCreateRequest) {
         try {
             BrandResponse brandResponse = brandService.createBrand(brandCreateRequest);
             ApiResponse response = new ApiResponse("success", "Thêm mới thương hiệu thành công", brandResponse);
@@ -75,7 +76,7 @@ public class BrandController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse> updateBrand(@PathVariable int id, @RequestBody BrandUpdateRequest brandUpdateRequest) {
+    public ResponseEntity<ApiResponse> updateBrand(@PathVariable int id,@Valid @RequestBody BrandUpdateRequest brandUpdateRequest) {
         try {
             BrandResponse brandResponse = brandService.updateBrand(id, brandUpdateRequest);
             ApiResponse response = new ApiResponse("success", "Cập nhật thương hiệu thành công", brandResponse);
@@ -95,18 +96,35 @@ public class BrandController {
 
 
     @PutMapping("/{id}/toggle-status")
-    public ResponseEntity<ApiResponse> toggleStatusBrand(@PathVariable Integer id){
+    public ResponseEntity<ApiResponse> toggleStatusBrand(@PathVariable Integer id) {
         try {
             BrandResponse brandResponse = brandService.toggleStatusBrand(id);
             ApiResponse response = new ApiResponse("success", "Chuyển đổi trạng thái thương hiệu thành công", brandResponse);
             return new ResponseEntity<>(response, HttpStatus.OK);
-        } catch (EntityNotFoundException e) {
+        } catch (ResourceNotFoundException e) {
             ApiResponse response = new ApiResponse("error", e.getMessage(), null);
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        } catch (IllegalStateException e) {
+            ApiResponse response = new ApiResponse("error", e.getMessage(), null);
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             ApiResponse response = new ApiResponse("error", "Đã xảy ra lỗi khi chuyển đổi trạng thái của thương hiệu", null);
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse> softDeleteBrand(@PathVariable Integer id) {
+        try {
+            brandService.softDeleteBrand(id);
+            ApiResponse response = new ApiResponse("success", "Xóa mềm thương hiệu thành công", null);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (ResourceNotFoundException | IllegalStateException e) {
+            ApiResponse response = new ApiResponse("error", e.getMessage(), null);
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            ApiResponse response = new ApiResponse("error", "Đã xảy ra lỗi khi xóa mềm thương hiệu", null);
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }
