@@ -4,7 +4,9 @@ import backend.datn.dto.request.BrandCreateRequest;
 import backend.datn.dto.request.BrandUpdateRequest;
 import backend.datn.dto.response.BrandResponse;
 import backend.datn.entities.Brand;
+import backend.datn.entities.Product;
 import backend.datn.exceptions.EntityAlreadyExistsException;
+import backend.datn.exceptions.EntityNotFoundException;
 import backend.datn.exceptions.ResourceNotFoundException;
 import backend.datn.mapper.BrandMapper;
 import backend.datn.repositories.BrandRepository;
@@ -17,6 +19,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 public class BrandService {
@@ -115,5 +119,25 @@ public class BrandService {
         brand.setStatus(false);
         brandRepository.save(brand);
         logger.info("Brand soft deleted successfully with id: {}", id);
+    }
+
+    // Liệt kê danh sách sản phẩm ở trạng thái đang bán của 1 thương hiệu
+    @Transactional(readOnly = true)
+    public List<Product> getProductsWithActiveStatusByBrandId(Integer id, boolean onlyActive) {
+        logger.info("Fetching product for brand with id: {} (onlyActive : {})", id, onlyActive);
+
+        Brand brand = brandRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy thương hiệu có id: " + id));
+
+        return brand.getAllProductsInBrand(onlyActive);
+    }
+
+    // Thống kê số lượng sản phẩm ở trạng thái đang bán của 1 thương hiệu
+    @Transactional(readOnly = true)
+    public long getProductCountWithActiveStatusByBrandId(Integer id, boolean onlyActive) {
+        logger.info("Fetching product count for brand with id: {}", id);
+        Brand brand = brandRepository.findById(id)
+                .orElseThrow(()-> new EntityNotFoundException("Không tìm thấy thương hiệu có id: " + id));
+        return brand.getAllProductsInBrand(onlyActive).size();
     }
 }
