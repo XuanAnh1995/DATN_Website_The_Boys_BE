@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 @Builder
 public class VoucherUpdateRequest implements Serializable {
     @NotNull(message = "ID voucher không được để trống")
-    Integer id ;
+    Long id ;
 
     @NotNull(message = "Tên voucher không được để trống")
     @Size(max = 250, message = "tên voucher không được vượt quá 250 ký tự")

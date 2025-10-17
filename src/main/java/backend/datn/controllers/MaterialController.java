@@ -38,7 +38,7 @@ public class MaterialController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse> getMaterialById(@PathVariable Integer id){
+    public ResponseEntity<ApiResponse> getMaterialById(@PathVariable Long id){
         try{
             MaterialResponse materialResponse = materialService.getMaterialById(id);
             ApiResponse response = new ApiResponse("success", "Lấy chất liệu theo id thành công", materialResponse);
@@ -69,7 +69,7 @@ public class MaterialController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse> updateMaterial(@PathVariable int id, @RequestBody MaterialUpdateRequest materialUpdateRequest) {
+    public ResponseEntity<ApiResponse> updateMaterial(@PathVariable Long id, @RequestBody MaterialUpdateRequest materialUpdateRequest) {
         try {
             MaterialResponse materialResponse = materialService.updateMaterial(id, materialUpdateRequest);
             ApiResponse response = new ApiResponse("success", "Cập nhật chất liệu thành công", materialResponse);
@@ -88,7 +88,7 @@ public class MaterialController {
     }
 
     @PutMapping("/{id}/toggle-status")
-    public ResponseEntity<ApiResponse> toggleStatusMaterial(@PathVariable Integer id){
+    public ResponseEntity<ApiResponse> toggleStatusMaterial(@PathVariable Long id){
         try {
             MaterialResponse materialResponse = materialService.toggleMaterialStatus(id);
             ApiResponse response = new ApiResponse("success", "Chuyển đổi trạng thái chất liệu thành công", materialResponse);

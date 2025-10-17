@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 @Builder
 public class OrderDetailResponse implements Serializable {
 
-    private Integer id;
+    private Long id;
 
     @JsonIgnoreProperties("orderDetails")
     private OrderResponse order;

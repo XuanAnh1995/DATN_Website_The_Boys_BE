@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface BrandRepository extends JpaRepository<Brand, Integer> {
+public interface BrandRepository extends JpaRepository<Brand, Long> {
 
     @Query("""
                 SELECT b FROM Brand b

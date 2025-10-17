@@ -63,7 +63,7 @@ public class OrderService {
     /**
      * Lấy thông tin chi tiết đơn hàng theo ID
      */
-    public OrderResponse getOrderById(int id) {
+    public OrderResponse getOrderById(Long id) {
         Order order = orderRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy đơn hàng với ID: " + id));
         return OrderMapper.toOrderResponse(order);
     }
@@ -72,7 +72,7 @@ public class OrderService {
      * Lấy đơn hàng kèm theo danh sách chi tiết đơn hàng
      */
     @Transactional
-    public OrderResponse getOrderWithDetails(int orderId) {
+    public OrderResponse getOrderWithDetails(Long orderId) {
         Order order = orderRepository.findById(orderId).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy đơn hàng với ID: " + orderId));
 
         List<OrderDetail> orderDetails = orderDetailRepository.findByOrderId(orderId);
@@ -148,7 +148,7 @@ public class OrderService {
      * Cập nhật trạng thái đơn hàng sau khi thanh toán
      */
     @Transactional
-    public OrderResponse updateOrderStatusAfterPayment(Integer id) {
+    public OrderResponse updateOrderStatusAfterPayment(Long id) {
         Order order = orderRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy đơn hàng với ID: " + id));
 
         if (order.getStatusOrder() == 5) {
@@ -186,7 +186,7 @@ public class OrderService {
 
 
     @Transactional
-    public OrderResponse toggleStatusOrder(Integer id) {
+    public OrderResponse toggleStatusOrder(Long id) {
         Order order = orderRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy đơn hàng với ID: " + id));
 
         int currentStatus = order.getStatusOrder();
@@ -234,7 +234,7 @@ public class OrderService {
 
 
     @Transactional
-    public OrderResponse updateOrderStatus(Integer id, int status) {
+    public OrderResponse updateOrderStatus(Long id, int status) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy hóa đơn với id: " + id));
 
@@ -272,7 +272,7 @@ public class OrderService {
     }
 
 
-    public Order findById(Integer orderId) {
+    public Order findById(Long orderId) {
         Order order = orderRepository.findById(orderId).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy đơn hàng với ID: " + orderId));
         return order;
     }

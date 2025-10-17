@@ -34,7 +34,7 @@ public class SizeService {
         return sizes.map(SizeMapper::toSizeResponse);
     }
 
-    public SizeResponse getSizeById(Integer id) {
+    public SizeResponse getSizeById(Long id) {
         Size size = sizeRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy kích thước có id: " + id));
         return SizeMapper.toSizeResponse(size);
@@ -52,7 +52,7 @@ public class SizeService {
     }
 
     @Transactional
-    public SizeResponse updateSize(Integer id, SizeUpdateRequest sizeUpdateRequest) {
+    public SizeResponse updateSize(Long id, SizeUpdateRequest sizeUpdateRequest) {
         Size size = sizeRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy kích thước có id: " + id));
 
@@ -65,14 +65,14 @@ public class SizeService {
     }
 
     @Transactional
-    public void deleteSize(Integer id) {
+    public void deleteSize(Long id) {
         Size size = sizeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy kích thước có id: " + id));
         sizeRepository.delete(size);
     }
 
     @Transactional
-    public SizeResponse toggleSizeStatus(Integer id) {
+    public SizeResponse toggleSizeStatus(Long id) {
         Size size = sizeRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy kích thước có id: " + id));
         size.setStatus(!size.getStatus());

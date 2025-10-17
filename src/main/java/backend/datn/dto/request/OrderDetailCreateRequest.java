@@ -16,10 +16,10 @@ import java.math.BigDecimal;
 public class OrderDetailCreateRequest {
 
     @NotNull(message = "ID đơn hàng không được để trống")
-    private Integer orderId;
+    private Long orderId;
 
     @NotNull(message = "ID chi tiết sản phẩm không được để trống")
-    private Integer productDetailId;
+    private Long productDetailId;
 
     @NotNull(message = "Số lượng không được để trống")
     @Positive(message = "Số lượng phải lớn hơn 0")

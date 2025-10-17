@@ -10,7 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
+public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     @Query("SELECT c FROM Employee c " +
             "WHERE (:keyword IS NULL OR :keyword = '' " +
             "OR c.fullname LIKE %:keyword% " +
@@ -24,13 +24,13 @@ public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
     boolean existsByPhone(String phone);
 
     @Query("SELECT COUNT(c) > 0 FROM Employee c WHERE c.username = :username AND c.id <> :id")
-    boolean existsByUsernameAndNotId(@Param("username") String username, @Param("id") Integer id);
+    boolean existsByUsernameAndNotId(@Param("username") String username, @Param("id") Long id);
 
     @Query("SELECT COUNT(c) > 0 FROM Employee c WHERE c.email = :email AND c.id <> :id")
-    boolean existsByEmailAndNotId(@Param("email") String email, @Param("id") Integer id);
+    boolean existsByEmailAndNotId(@Param("email") String email, @Param("id") Long id);
 
     @Query("SELECT COUNT(c) > 0 FROM Employee c WHERE c.phone = :phone AND c.id <> :id")
-    boolean existsByPhoneAndNotId(@Param("phone") String phone, @Param("id") Integer id);
+    boolean existsByPhoneAndNotId(@Param("phone") String phone, @Param("id") Long id);
 
     @Query("SELECT c FROM Employee c WHERE c.username = :keyword OR c.email = :keyword")
     Employee findByUsernameOrEmail(String keyword);

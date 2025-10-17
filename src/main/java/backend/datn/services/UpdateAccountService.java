@@ -98,7 +98,7 @@ public class UpdateAccountService {
     }
 
     @Transactional
-    public void deleteAddress(Integer addressId) {
+    public void deleteAddress(Long addressId) {
         Customer customer = getCurrentCustomer();
         Address address = addressRepository.findById(addressId)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy địa chỉ"));

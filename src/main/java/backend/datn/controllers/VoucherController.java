@@ -27,7 +27,8 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/vouchers")
 public class VoucherController {
 
-    @Autowired private VoucherService voucherService;
+    @Autowired
+    private VoucherService voucherService;
 
     @GetMapping
     public ResponseEntity<ApiResponse> getALlVoucher(
@@ -55,7 +56,7 @@ public class VoucherController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse> getVoucherById(@PathVariable Integer id) {
+    public ResponseEntity<ApiResponse> getVoucherById(@PathVariable Long id) {
         try {
             Optional<Voucher> voucherResponse = voucherService.findById(id);
             ApiResponse response = new ApiResponse("success", "Lấy voucher thành công", voucherResponse);
@@ -89,9 +90,12 @@ public class VoucherController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse> updateVoucher(@PathVariable int id,
-                                                     @Valid @RequestBody VoucherUpdateRequest updateRequestvoucherRequest,
-                                                     BindingResult result) {
+    public ResponseEntity<ApiResponse> updateVoucher(
+            @PathVariable Long id,
+            @Valid @RequestBody VoucherUpdateRequest updateRequestvoucherRequest,
+            BindingResult result
+    ) {
+
         if (result.hasErrors()) {
             List<String> errors = result.getAllErrors().stream()
                     .map(DefaultMessageSourceResolvable::getDefaultMessage)
@@ -107,7 +111,7 @@ public class VoucherController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse> deleteVoucher(@PathVariable Integer id) {
+    public ResponseEntity<ApiResponse> deleteVoucher(@PathVariable Long id) {
         try {
             voucherService.deleteVoucher(id);
             return ResponseEntity.ok(new ApiResponse("success", "Xóa voucher thành công", null));
@@ -121,7 +125,7 @@ public class VoucherController {
     }
 
     @PutMapping("/{id}/toggle-status")
-    public ResponseEntity<ApiResponse> toggleStatusVoucher(@PathVariable Integer id) {
+    public ResponseEntity<ApiResponse> toggleStatusVoucher(@PathVariable Long id) {
         try {
             VoucherResponse voucherResponse = voucherService.toggleStatusVoucher(id);
             ApiResponse response = new ApiResponse("success", "Thành công thay đổi trạng thái", voucherResponse);

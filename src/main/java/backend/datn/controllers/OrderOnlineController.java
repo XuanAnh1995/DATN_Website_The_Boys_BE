@@ -69,7 +69,7 @@ public class OrderOnlineController {
      * API lấy thông tin đơn hàng online theo ID
      */
     @GetMapping("/online/{id}")
-    public ResponseEntity<ApiResponse> findOrderOnlineById(@PathVariable Integer id) {
+    public ResponseEntity<ApiResponse> findOrderOnlineById(@PathVariable Long id) {
         try {
             OrderOnlineResponse orderResponse = orderOnlineService.findOrderOnlineByIdWithKindOfOrder(id);
             ApiResponse response = new ApiResponse("success", "Lấy thông tin đơn hàng online thành công", orderResponse);
@@ -84,7 +84,7 @@ public class OrderOnlineController {
      * API lấy chi tiết đơn hàng online kèm danh sách sản phẩm
      */
     @GetMapping("/online/{id}/details")
-    public ResponseEntity<ApiResponse> getOrderOnlineDetails(@PathVariable Integer id) {
+    public ResponseEntity<ApiResponse> getOrderOnlineDetails(@PathVariable Long id) {
         try {
             OrderOnlineResponse orderResponse = orderOnlineService.getOrderOnlineDetails(id);
             ApiResponse response = new ApiResponse("success", "Lấy chi tiết đơn hàng online thành công", orderResponse);
@@ -103,7 +103,7 @@ public class OrderOnlineController {
      */
     @PutMapping("/online/{id}/status")
     public ResponseEntity<ApiResponse> updateOrderStatus(
-            @PathVariable Integer id,
+            @PathVariable Long id,
             @RequestParam Integer newStatus,
             @RequestParam(required = false) String note) {
         try {

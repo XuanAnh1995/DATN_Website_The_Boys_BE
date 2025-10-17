@@ -19,7 +19,7 @@ public class Promotion {
     @Id
     @Column(name = "id", nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id = 0L;
 
     @Size(max = 255)
     @NotNull

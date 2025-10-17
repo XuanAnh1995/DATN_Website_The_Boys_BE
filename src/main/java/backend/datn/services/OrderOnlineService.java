@@ -86,7 +86,7 @@ public class OrderOnlineService {
         // Xử lý voucher nếu có
         Voucher voucher = null;
         if (orderOnlineRequest.getVoucherId() != null) {
-            int voucherId = Integer.parseInt(orderOnlineRequest.getVoucherId());
+            Long voucherId = Long.parseLong(orderOnlineRequest.getVoucherId());
             if (checkVoucher(voucherId, totalAmount)) {
                 voucher = voucherRepository.findById(voucherId).orElse(null);
             }
@@ -100,7 +100,7 @@ public class OrderOnlineService {
         // Cập nhật order
         order = orderRepository.save(order);
 
-        List<Integer> productDetailIds = orderDetails.stream()
+        List<Long> productDetailIds = orderDetails.stream()
                 .map(detail -> detail.getProductDetail().getId())
                 .collect(Collectors.toList());
         cartRepository.deleteByCustomerAndProductDetailIds(order.getCustomer().getId(), productDetailIds);
@@ -170,7 +170,7 @@ public class OrderOnlineService {
     /**
      * Kiểm tra voucher có hợp lệ không
      */
-    public boolean checkVoucher(Integer voucherId, BigDecimal totalAmount) {
+    public boolean checkVoucher(Long voucherId, BigDecimal totalAmount) {
         return voucherRepository.findById(voucherId)
                 .map(voucher -> {
                     LocalDateTime now = LocalDateTime.now();
@@ -207,7 +207,7 @@ public class OrderOnlineService {
     /**
      * Kiểm tra số lượng sản phẩm còn trong kho
      */
-    public boolean checkQuantity(Integer productId, Integer quantity) {
+    public boolean checkQuantity(Long productId, Integer quantity) {
         return productDetailRepository.findById(productId)
                 .map(product -> product.getQuantity() >= quantity)
                 .orElse(false);
@@ -264,7 +264,7 @@ public class OrderOnlineService {
     /**
      * Tìm đơn hàng online theo ID
      */
-    public OrderOnlineResponse findOrderOnlineByIdWithKindOfOrder(Integer id) {
+    public OrderOnlineResponse findOrderOnlineByIdWithKindOfOrder(Long id) {
         OrderOnline order = orderRepository.findOrderOnlineByIdWithKindOfOrder(id, false)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy đơn hàng online với ID: " + id));
 
@@ -275,7 +275,7 @@ public class OrderOnlineService {
      * Lấy chi tiết đơn hàng online kèm danh sách sản phẩm
      */
     @Transactional
-    public OrderOnlineResponse getOrderOnlineDetails(Integer orderId) {
+    public OrderOnlineResponse getOrderOnlineDetails(Long orderId) {
         OrderOnline order = orderRepository.findOrderOnlineByIdWithKindOfOrder(orderId, false)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy đơn hàng online với ID: " + orderId));
 
@@ -294,7 +294,7 @@ public class OrderOnlineService {
      * Cập nhật trạng thái đơn hàng online
      */
     @Transactional
-    public OrderOnlineResponse updateOrderStatus(Integer id, Integer newStatus, String note) {
+    public OrderOnlineResponse updateOrderStatus(Long id, Integer newStatus, String note) {
         OrderOnline order = orderRepository.findOrderOnlineByIdWithKindOfOrder(id, false)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy đơn hàng online với ID: " + id));
 

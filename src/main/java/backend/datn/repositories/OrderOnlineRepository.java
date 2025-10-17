@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface OrderOnlineRepository extends JpaRepository<OrderOnline, Integer> {
+public interface OrderOnlineRepository extends JpaRepository<OrderOnline, Long> {
 
     // Tìm đơn hàng theo mã
     OrderOnline findByOrderCode(String orderCode);
@@ -45,7 +45,7 @@ public interface OrderOnlineRepository extends JpaRepository<OrderOnline, Intege
     // Thêm phương thức tìm theo ID
     @Query("SELECT o FROM OrderOnline o WHERE o.id = :id AND o.kindOfOrder = :kindOfOrder")
     Optional<OrderOnline> findOrderOnlineByIdWithKindOfOrder(
-            @Param("id") Integer id,
+            @Param("id") Long id,
             @Param("kindOfOrder") Boolean kindOfOrder);
 }
 

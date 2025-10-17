@@ -20,7 +20,7 @@ public class CollarController {
     private CollarService collarService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse> getCollarById(@PathVariable Integer id) {
+    public ResponseEntity<ApiResponse> getCollarById(@PathVariable Long id) {
         try {
             CollarResponse collarResponse = collarService.getCollarById(id);
             ApiResponse response = new ApiResponse("success", "Lấy tay áo theo id thành công", collarResponse);
@@ -68,7 +68,7 @@ public class CollarController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse> updateCollar(@PathVariable Integer id, @RequestBody CollarUpdateRequest collarUpdateRequest) {
+    public ResponseEntity<ApiResponse> updateCollar(@PathVariable Long id, @RequestBody CollarUpdateRequest collarUpdateRequest) {
         try {
             CollarResponse collarResponse = collarService.updateCollar(id, collarUpdateRequest);
             ApiResponse response = new ApiResponse("success", "Cập nhật tay áo thành công", collarResponse);
@@ -86,7 +86,7 @@ public class CollarController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse> deleteCollar(@PathVariable Integer id) {
+    public ResponseEntity<ApiResponse> deleteCollar(@PathVariable Long id) {
         try {
             collarService.deleteCollar(id);
             ApiResponse response = new ApiResponse("success", "Collar deleted successfully", null);
@@ -101,7 +101,7 @@ public class CollarController {
     }
 
     @PutMapping("/{id}/toggle-status")
-    public ResponseEntity<ApiResponse> toggleStatusCollar(@PathVariable Integer id){
+    public ResponseEntity<ApiResponse> toggleStatusCollar(@PathVariable Long id){
         try {
             CollarResponse collarResponse = collarService.toggleCollarStatus(id);
             ApiResponse response = new ApiResponse("success", "Chuyển đổi trạng thái tay áo thành công", collarResponse);

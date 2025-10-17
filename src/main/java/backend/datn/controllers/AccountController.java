@@ -81,7 +81,7 @@ public class AccountController {
     }
 
     @DeleteMapping("/addresses/{addressId}")
-    public ResponseEntity<ApiResponse> deleteAddress(@PathVariable Integer addressId) {
+    public ResponseEntity<ApiResponse> deleteAddress(@PathVariable Long addressId) {
         try {
             updateAccountService.deleteAddress(addressId);
             ApiResponse apiResponse = new ApiResponse("success", "Xóa địa chỉ thành công", null);

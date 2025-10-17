@@ -8,13 +8,13 @@ import java.io.Serializable;
 @Data
 @Builder
 public class AddressResponse implements Serializable {
-    Integer id;
+    Long id;
     CustomerResponse customer;
-    Integer provinceId;
+    Long provinceId;
     String provinceName;
-    Integer districtId;
+    Long districtId;
     String districtName;
-    Integer wardId;
+    Long wardId;
     String wardName;
     String addressDetail;
 }

@@ -6,7 +6,7 @@ import lombok.Data;
 @Data
 public class CartItemRequest {
     @NotNull(message = "Product detail ID không được để trống")
-    private Integer productDetailId;
+    private Long productDetailId;
 
     @NotNull(message = "Số lượng không được để trống")
     private Integer quantity;

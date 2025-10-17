@@ -36,7 +36,7 @@ public class SleeveService {
         return sleevePage.map(SleeveMapper::toSleeveResponse);
     }
 
-    public SleeveResponse getSleeveById(Integer id){
+    public SleeveResponse getSleeveById(Long id){
         Sleeve sleeve = sleeveRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy tay áo có id : " + id));
         return SleeveMapper.toSleeveResponse(sleeve);
@@ -56,7 +56,7 @@ public class SleeveService {
     }
 
     @Transactional
-    public SleeveResponse updateSleeve(Integer id, SleeveUpdateRequest sleeveUpdateRequest){
+    public SleeveResponse updateSleeve(Long id, SleeveUpdateRequest sleeveUpdateRequest){
         Sleeve sleeve = sleeveRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy tay áo có id: " + id));
 
@@ -71,7 +71,7 @@ public class SleeveService {
     }
 
     @Transactional
-    public SleeveResponse toggleSleeveStatus(Integer id){
+    public SleeveResponse toggleSleeveStatus(Long id){
         Sleeve sleeve = sleeveRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy tay áo có id: " + id));
 

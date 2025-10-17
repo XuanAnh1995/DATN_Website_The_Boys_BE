@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Builder
 public class PromotionResponse implements Serializable {
 
-    private final Integer id;
+    private final Long id;
 
     private final String promotionName;
 

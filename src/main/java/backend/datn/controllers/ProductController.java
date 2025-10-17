@@ -48,7 +48,7 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse> getProductById(@PathVariable Integer id) {
+    public ResponseEntity<ApiResponse> getProductById(@PathVariable Long id) {
         try {
             ProductResponse product = productService.getProductById(id);
             return new ResponseEntity<>(new ApiResponse("success", "Product retrieved successfully", product), HttpStatus.OK);
@@ -75,7 +75,7 @@ public class ProductController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse> updateProduct(@PathVariable Integer id, @Valid @RequestBody ProductUpdateRequest request, BindingResult bindingResult) {
+    public ResponseEntity<ApiResponse> updateProduct(@PathVariable Long id, @Valid @RequestBody ProductUpdateRequest request, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             Map<String, String> errors = new HashMap<>();
             bindingResult.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
@@ -93,7 +93,7 @@ public class ProductController {
 
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse> deleteProduct(@PathVariable Integer id) {
+    public ResponseEntity<ApiResponse> deleteProduct(@PathVariable Long id) {
         try {
             productService.deleteProduct(id);
             return new ResponseEntity<>(new ApiResponse("success", "Product deleted successfully"), HttpStatus.NO_CONTENT);
@@ -105,7 +105,7 @@ public class ProductController {
     }
 
     @PatchMapping("/{id}/toggle-status")
-    public ResponseEntity<ApiResponse> toggleProductStatus(@PathVariable Integer id) {
+    public ResponseEntity<ApiResponse> toggleProductStatus(@PathVariable Long id) {
         try {
             ProductResponse product = productService.toggleProductStatus(id);
             return new ResponseEntity<>(new ApiResponse("success", "Product status toggled successfully", product), HttpStatus.OK);
@@ -130,13 +130,13 @@ public class ProductController {
     @GetMapping("/filter")
     public ResponseEntity<Page<UserProductResponse>> getFilteredProducts(
             @RequestParam(required = false) String search,
-            @RequestParam(required = false) List<Integer> brandIds,
-            @RequestParam(required = false) List<Integer> categoryIds,
-            @RequestParam(required = false) List<Integer> materialIds,
-            @RequestParam(required = false) List<Integer> collarIds,
-            @RequestParam(required = false) List<Integer> sleeveIds,
-            @RequestParam(required = false) List<Integer> colorIds,
-            @RequestParam(required = false) List<Integer> sizeIds,
+            @RequestParam(required = false) List<Long> brandIds,
+            @RequestParam(required = false) List<Long> categoryIds,
+            @RequestParam(required = false) List<Long> materialIds,
+            @RequestParam(required = false) List<Long> collarIds,
+            @RequestParam(required = false) List<Long> sleeveIds,
+            @RequestParam(required = false) List<Long> colorIds,
+            @RequestParam(required = false) List<Long> sizeIds,
             @RequestParam(required = false) BigDecimal minPrice,
             @RequestParam(required = false) BigDecimal maxPrice,
             @RequestParam(defaultValue = "id") String sortBy,

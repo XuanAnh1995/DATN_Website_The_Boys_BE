@@ -51,8 +51,8 @@ public class SalePOSController {
 
             Customer customer = (request.getCustomerId() == null ||
                     request.getCustomerId().toString().trim().isEmpty() ||
-                    request.getCustomerId() == -1)
-                    ? customerService.findById(-1).orElse(null)
+                    request.getCustomerId() == 9999L)
+                    ? customerService.findById(9999L).orElse(null)
                     : resolveCustomer(request.getCustomerId());
 
 
@@ -82,7 +82,7 @@ public class SalePOSController {
 
 // QR Thanh toán
     @PostMapping("/payment/create-vietqr-url/{orderId}")
-    public ResponseEntity<String> createVietQRPaymentUrl(@PathVariable Integer orderId) {
+    public ResponseEntity<String> createVietQRPaymentUrl(@PathVariable Long orderId) {
         try {
             String vietQrUrl = salePOSService.createVietQRPaymentUrl(orderId);
             return ResponseEntity.ok(vietQrUrl);
@@ -98,7 +98,7 @@ public class SalePOSController {
      */
     @PostMapping("/orders/{orderId}/products")
     public ResponseEntity<ApiResponse> addProductToCart(
-            @PathVariable Integer orderId,
+            @PathVariable Long orderId,
             @RequestBody OrderDetailCreateRequest request) {
         try {
 
@@ -142,12 +142,12 @@ public class SalePOSController {
      */
     @PutMapping("/orders/{orderId}/payment")
     public ResponseEntity<ApiResponse> updateOrderStatusAfterPayment(
-            @PathVariable Integer orderId,
-            @RequestBody Map<String, Integer> requestBody) {
+            @PathVariable Long orderId,
+            @RequestBody Map<String, Long> requestBody) {
         try {
             // 🔍 Kiểm tra đơn hàng trước khi thanh toán
-            Integer customerId = requestBody.get("customerId");
-            Integer voucherId = requestBody.get("voucherId");
+            Long customerId = requestBody.get("customerId");
+            Long voucherId = requestBody.get("voucherId");
             OrderResponse response = salePOSService.updateOrderStatusAfterPayment(orderId, customerId, voucherId);
 
             System.out.println("📌 Xác nhận thanh toán cho đơn hàng #" + orderId);
@@ -173,7 +173,7 @@ public class SalePOSController {
 
 
     // Hỗ trợ lấy thông tin khách hàng
-    private Customer resolveCustomer(Integer customerId) {
+    private Customer resolveCustomer(Long customerId) {
         if (customerId != null && customerId > 0) {
             return customerService.findById(customerId)
                     .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy khách hàng với ID: " + customerId));
@@ -183,7 +183,7 @@ public class SalePOSController {
 
 
     // Hỗ trợ lấy thông tin nhân viên
-    private Employee resolveEmployee(Integer employeeId) {
+    private Employee resolveEmployee(Long employeeId) {
         return employeeService.findById(employeeId)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy nhân viên với ID: " + employeeId));
     }
@@ -216,7 +216,7 @@ public class SalePOSController {
      * Lấy chi tiết đơn hàng theo ID
      */
     @GetMapping("/orders/{orderId}")
-    public ResponseEntity<ApiResponse> getOrderById(@PathVariable Integer orderId) {
+    public ResponseEntity<ApiResponse> getOrderById(@PathVariable Long orderId) {
         try {
             System.out.println("📌 [GET ORDER] Lấy chi tiết đơn hàng #" + orderId);
 
@@ -249,7 +249,7 @@ public class SalePOSController {
      */
     @PutMapping("/orders/{orderId}/payment-method")
     public ResponseEntity<ApiResponse> updatePaymentMethod(
-            @PathVariable Integer orderId,
+            @PathVariable Long orderId,
             @RequestBody Map<String, Integer> requestBody) {
         try {
             Integer paymentMethod = requestBody.get("paymentMethod");
@@ -281,7 +281,7 @@ public class SalePOSController {
      * @return ResponseEntity chứa thông tin đơn hàng đã hủy
      */
     @PutMapping("/orders/{orderId}/cancel")
-    public ResponseEntity<ApiResponse> cancelOrder(@PathVariable Integer orderId) {
+    public ResponseEntity<ApiResponse> cancelOrder(@PathVariable Long orderId) {
         try {
             System.out.println("📌 [CANCEL ORDER] Hủy đơn hàng #" + orderId);
 

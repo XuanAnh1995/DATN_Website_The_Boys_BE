@@ -5,6 +5,6 @@ import lombok.Data;
 
 @Data
 public class OrderOnlineDetailRequest  {
-    Integer productDetailId;
+    Long productDetailId;
     Integer quantity;
 }

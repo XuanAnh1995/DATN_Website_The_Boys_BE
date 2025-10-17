@@ -12,7 +12,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BrandResponse implements Serializable {
-    Integer id;
+    Long id;
     String brandName;
     Boolean status;
 }

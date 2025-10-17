@@ -8,24 +8,24 @@ import java.math.BigDecimal;
 @Data
 @Builder
 public class ProductDetailGenerateResponse {
-    private Integer productId;
+    private Long productId;
     private String productName;
 
-    private Integer size;
+    private Long size;
     private String sizeName;
 
     private String brandName;
 
-    private Integer color;
+    private Long color;
     private String colorName;
 
-    private Integer promotion;
+    private Long promotion;
     private String promotionName;
 
-    private Integer collar;
+    private Long collar;
     private String collarName;
 
-    private Integer sleeve;
+    private Long sleeve;
     private String sleeveName;
 
     private Integer quantity = 10;

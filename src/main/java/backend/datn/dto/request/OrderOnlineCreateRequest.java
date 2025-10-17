@@ -8,12 +8,12 @@ import java.util.List;
 public class OrderOnlineCreateRequest {
 
     @NotNull
-    private Integer employeeId;
+    private Long employeeId;
 
-    private Integer voucherId;
+    private Long voucherId;
 
     @NotNull
-    private Integer customerId;
+    private Long customerId;
 
     @NotNull
     private Integer paymentMethod;

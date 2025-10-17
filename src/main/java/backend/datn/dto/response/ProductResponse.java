@@ -11,7 +11,7 @@ import java.io.Serializable;
 @Data
 @Builder
 public class ProductResponse implements Serializable {
-    private final Integer id;
+    private final Long id;
     private final BrandResponse brand;
     private final CategoryResponse category;
     private final MaterialResponse material;

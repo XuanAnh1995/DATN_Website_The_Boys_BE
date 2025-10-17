@@ -12,6 +12,6 @@ import lombok.experimental.SuperBuilder;
 public class OrderPOSUpdateRequest extends OrderPOSCreateRequest {
 
     @NotNull(message = "ID đơn hàng không được để trống")
-    private Integer id;
+    private Long id;
 
 }

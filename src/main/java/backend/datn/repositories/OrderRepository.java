@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface OrderRepository extends JpaRepository<Order, Integer> {
+public interface OrderRepository extends JpaRepository<Order, Long> {
     @Query("""
                 SELECT o FROM Order o 
                 WHERE (:search IS NULL OR :search = '' OR LOWER(o.orderCode) LIKE LOWER('%' || :search || '%'))
@@ -30,7 +30,7 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
     List<Order> findByStatusOrder(int statusOrder);
 
     // Tìm đơn hàng theo khách hàng
-    List<Order> findByCustomerId(int customerId);
+    List<Order> findByCustomerId(Long customerId);
 
 
     // Tìm các đơn hàng chưa thanh toán (chuyển khoản ngân hàng và ví điện tử) quá hạn

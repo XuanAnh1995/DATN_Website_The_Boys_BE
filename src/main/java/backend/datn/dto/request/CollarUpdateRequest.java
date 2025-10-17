@@ -9,7 +9,7 @@ import lombok.Data;
 public class CollarUpdateRequest {
 
     @NotNull
-    Integer id;
+    Long id;
 
     @NotNull(message = "Vui lòng điền thông tin tên tay áo")
     String name;

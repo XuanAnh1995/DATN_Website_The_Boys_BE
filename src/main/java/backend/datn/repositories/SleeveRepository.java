@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface SleeveRepository extends JpaRepository<Sleeve, Integer> {
+public interface SleeveRepository extends JpaRepository<Sleeve, Long> {
 
     @Query(value = """
             SELECT * FROM sleeve  

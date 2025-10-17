@@ -9,7 +9,7 @@ import java.util.List;
 @Data
 @Builder
 public class ProductDetailGroupReponse implements Serializable {
-    Integer productId;
+    Long productId;
     String ColorName;
     String productName;
     List<ProductDetailGenerateResponse> productDetails;

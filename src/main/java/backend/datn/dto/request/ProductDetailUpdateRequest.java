@@ -11,21 +11,21 @@ import java.math.BigDecimal;
 public class ProductDetailUpdateRequest {
 
     @NotNull(message = "Sản phẩm không được để trống")
-    private Integer productId;
+    private Long productId;
 
     @NotNull(message = "Kích thước không được để trống")
-    private Integer sizeId;
+    private Long sizeId;
 
     @NotNull(message = "Màu sắc không được để trống")
-    private Integer colorId;
+    private Long colorId;
 
-    private Integer promotionId;
+    private Long promotionId;
 
     @NotNull(message = "Cổ áo không được để trống")
-    private Integer collarId;
+    private Long collarId;
 
     @NotNull(message = "Tay áo không được để trống")
-    private Integer sleeveId;
+    private Long sleeveId;
 
     @Size(max = 250, message = "Ảnh không được vượt quá 250 ký tự")
     @NotEmpty(message = "Ảnh không được để trống")

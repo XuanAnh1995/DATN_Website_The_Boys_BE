@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @Builder
 public class PromotionUpdateRequest implements Serializable {
 
-    Integer id;
+    Long id;
 
     @NotNull(message = "Không đẻ trống tên")
     @Size(max = 255)

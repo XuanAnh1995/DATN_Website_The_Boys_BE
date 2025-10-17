@@ -24,7 +24,7 @@ public class AddressService {
     @Autowired
     private CustomerRepository customerRepository;
 
-    public AddressResponse getById(Integer id) {
+    public AddressResponse getById(Long id) {
         Address address = addressRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Địa chỉ không tồn tại"));
         return AddressMapper.toAddressResponse(address);
@@ -56,7 +56,7 @@ public class AddressService {
     }
 
     @Transactional
-    public AddressResponse update(Integer id, AddressCreateRequest request) {
+    public AddressResponse update(Long id, AddressCreateRequest request) {
         Address address = addressRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Địa chỉ không tồn tại"));
 
@@ -73,7 +73,7 @@ public class AddressService {
     }
 
     @Transactional
-    public void delete(Integer id) {
+    public void delete(Long id) {
         Address address = addressRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Địa chỉ không tồn tại"));
         addressRepository.delete(address);

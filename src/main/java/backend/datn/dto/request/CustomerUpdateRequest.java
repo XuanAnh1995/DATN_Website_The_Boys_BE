@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 public class CustomerUpdateRequest {
 
     @NotNull(message = "ID khách hàng không được để trống")
-    private Integer id;
+    private Long id;
 
     @Size(max = 255, message = "Họ và tên không được vượt quá 255 ký tự")
     private String fullname;

@@ -43,7 +43,7 @@ public class CustomerController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse> getCustomerById(@PathVariable int id) {
+    public ResponseEntity<ApiResponse> getCustomerById(@PathVariable Long id) {
         try {
             return ResponseEntity.ok(new ApiResponse("success", "Lấy thông tin khách hàng thành công",
                     customerService.getCustomerById(id)));
@@ -75,7 +75,7 @@ public class CustomerController {
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse> updateCustomer(@PathVariable int id, @Valid @RequestBody CustomerUpdateRequest request, BindingResult result) {
+    public ResponseEntity<ApiResponse> updateCustomer(@PathVariable Long id, @Valid @RequestBody CustomerUpdateRequest request, BindingResult result) {
         if (result.hasErrors()) {
             List<String> errorMessages = result.getFieldErrors().stream()
                     .map(error -> error.getField() + ": " + error.getDefaultMessage())
@@ -94,9 +94,11 @@ public class CustomerController {
 
 
     @PutMapping("/{id}/change-password")
-    public ResponseEntity<ApiResponse> changePassword(@PathVariable int id,
-                                                      @Valid @RequestBody CustomerPasswordUpdateRequest request,
-                                                      BindingResult result) {
+    public ResponseEntity<ApiResponse> changePassword(
+            @PathVariable Long id,
+            @Valid @RequestBody CustomerPasswordUpdateRequest request,
+            BindingResult result
+    ) {
 
         if (result.hasErrors()) {
             List<String> errorMessages = result.getFieldErrors().stream()
@@ -118,7 +120,7 @@ public class CustomerController {
     }
 
     @PatchMapping("/{id}/toggle-status")
-    public ResponseEntity<ApiResponse> toggleStatusCustomer(@PathVariable int id) {
+    public ResponseEntity<ApiResponse> toggleStatusCustomer(@PathVariable Long id) {
         try {
             return ResponseEntity.ok(new ApiResponse("success", "Thay đổi trạng thái khách hàng thành công",
                     customerService.toggleStatusCustomer(id)));

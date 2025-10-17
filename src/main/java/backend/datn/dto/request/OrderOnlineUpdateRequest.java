@@ -5,6 +5,6 @@ import jakarta.validation.constraints.NotNull;
 public class OrderOnlineUpdateRequest extends OrderOnlineCreateRequest {
 
     @NotNull
-    private Integer id;
+    private Long id;
 
 }

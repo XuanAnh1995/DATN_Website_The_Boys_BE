@@ -56,7 +56,7 @@ public class OrderController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse> getOrderId(@PathVariable int id) {
+    public ResponseEntity<ApiResponse> getOrderId(@PathVariable Long id) {
         try {
             OrderResponse orderRespone = orderService.getOrderById(id);
             ApiResponse response = new ApiResponse("success", "Lấy hóa đơn theo ID thành công", orderRespone);
@@ -71,7 +71,7 @@ public class OrderController {
     }
 
     @PutMapping("/{id}/toggle-status")
-    public ResponseEntity<ApiResponse> toggleStatusOrder(@PathVariable Integer id){
+    public ResponseEntity<ApiResponse> toggleStatusOrder(@PathVariable Long id){
         try {
             OrderResponse orderResponse = orderService.toggleStatusOrder(id);
             ApiResponse response = new ApiResponse("success", "Chuyển đổi trạng thái hóa đơn thành công", orderResponse);
@@ -86,7 +86,7 @@ public class OrderController {
     }
 
     @GetMapping("/{id}/details")
-    public ResponseEntity<ApiResponse> getOrderDetails(@PathVariable int id) {
+    public ResponseEntity<ApiResponse> getOrderDetails(@PathVariable Long id) {
         try {
             OrderResponse orderResponse = orderService.getOrderWithDetails(id);
             ApiResponse response = new ApiResponse("success", "Lấy chi tiết hóa đơn thành công", orderResponse);
@@ -102,41 +102,41 @@ public class OrderController {
 
     // Cập nhật trạng thái đơn hàng theo mã số
     @PutMapping("/{id}/pending")
-    public ResponseEntity<ApiResponse> pendingOrder(@PathVariable Integer id) {
+    public ResponseEntity<ApiResponse> pendingOrder(@PathVariable Long id) {
         return updateOrderStatus(id, 0); // 0: Chờ xác nhận
     }
 
     @PutMapping("/{id}/confirm")
-    public ResponseEntity<ApiResponse> confirmOrder(@PathVariable Integer id) {
+    public ResponseEntity<ApiResponse> confirmOrder(@PathVariable Long id) {
         return updateOrderStatus(id, 2); // 2: Đã xác nhận
     }
 
     @PutMapping("/{id}/process")
-    public ResponseEntity<ApiResponse> processOrder(@PathVariable Integer id) {
+    public ResponseEntity<ApiResponse> processOrder(@PathVariable Long id) {
         return updateOrderStatus(id, 1); // 1: Chờ thanh toán
     }
 
     @PutMapping("/{id}/ship")
-    public ResponseEntity<ApiResponse> shipOrder(@PathVariable Integer id) {
+    public ResponseEntity<ApiResponse> shipOrder(@PathVariable Long id) {
         return updateOrderStatus(id, 3); // 3: Đang giao hàng
     }
 
     @PutMapping("/{id}/failed-delivery")
-    public ResponseEntity<ApiResponse> failedDelivery(@PathVariable Integer id) {
+    public ResponseEntity<ApiResponse> failedDelivery(@PathVariable Long id) {
         return updateOrderStatus(id, 4); // 4: Giao hàng không thành công
     }
 
     @PutMapping("/{id}/complete")
-    public ResponseEntity<ApiResponse> completeOrder(@PathVariable Integer id) {
+    public ResponseEntity<ApiResponse> completeOrder(@PathVariable Long id) {
         return updateOrderStatus(id, 5); // 5: Hoàn thành
     }
 
     @PutMapping("/{id}/cancel")
-    public ResponseEntity<ApiResponse> cancelOrder(@PathVariable Integer id) {
+    public ResponseEntity<ApiResponse> cancelOrder(@PathVariable Long id) {
         return updateOrderStatus(id, -1); // -1: Đã hủy
     }
 
-    private ResponseEntity<ApiResponse> updateOrderStatus(Integer id, int status) {
+    private ResponseEntity<ApiResponse> updateOrderStatus(Long id, int status) {
         try {
             OrderResponse orderResponse = orderService.updateOrderStatus(id, status);
             return ResponseEntity.ok(new ApiResponse("success", "Cập nhật trạng thái đơn hàng thành công", orderResponse));

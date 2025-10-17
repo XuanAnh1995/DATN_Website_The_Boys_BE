@@ -34,7 +34,7 @@ public class ColorService {
         return colors.map(ColorMapper::toColorResponse);
     }
 
-    public ColorResponse getColorById(Integer id) {
+    public ColorResponse getColorById(Long id) {
         Color color = colorRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy màu sắc có id: " + id));
         return ColorMapper.toColorResponse(color);
@@ -52,7 +52,7 @@ public class ColorService {
     }
 
     @Transactional
-    public ColorResponse updateColor(Integer id, ColorUpdateRequest colorUpdateRequest) {
+    public ColorResponse updateColor(Long id, ColorUpdateRequest colorUpdateRequest) {
         Color color = colorRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy màu sắc có id: " + id));
 
@@ -65,7 +65,7 @@ public class ColorService {
     }
 
     @Transactional
-    public ColorResponse toggleColorStatus(Integer id) {
+    public ColorResponse toggleColorStatus(Long id) {
         Color color = colorRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy màu sắc có id: " + id));
         color.setStatus(!color.getStatus());
@@ -74,7 +74,7 @@ public class ColorService {
     }
 
     @Transactional
-    public void deleteColor(Integer id) {
+    public void deleteColor(Long id) {
         Color color = colorRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy màu sắc có id: " + id));
         colorRepository.delete(color);

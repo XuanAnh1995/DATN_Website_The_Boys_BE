@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @Builder
 public class PromotionCreateRequest implements Serializable {
 
-    Integer id;
+    Long id;
 
     @NotNull
     @Size(max = 255)

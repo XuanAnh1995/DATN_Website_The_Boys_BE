@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface CartRepository extends JpaRepository<Cart, Integer> {
+public interface CartRepository extends JpaRepository<Cart, Long> {
     void deleteByCustomer(Customer customer);
 
     Optional<Cart> findByCustomerAndProductDetail(Customer customer, ProductDetail productDetail);
@@ -24,6 +24,6 @@ public interface CartRepository extends JpaRepository<Cart, Integer> {
     @Modifying
     @Transactional
     @Query("DELETE FROM Cart c WHERE c.customer.id = :customerId AND c.productDetail.id IN :productDetailIds")
-    void deleteByCustomerAndProductDetailIds(@Param("customerId") Integer customerId,
-                                             @Param("productDetailIds") List<Integer> productDetailIds);
+    void deleteByCustomerAndProductDetailIds(@Param("customerId") Long customerId,
+                                             @Param("productDetailIds") List<Long> productDetailIds);
 }

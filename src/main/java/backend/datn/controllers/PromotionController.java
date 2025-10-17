@@ -65,7 +65,7 @@ public class PromotionController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse> updatePromotion(@RequestBody PromotionUpdateRequest updateRequest, @PathVariable Integer id) {
+    public ResponseEntity<ApiResponse> updatePromotion(@RequestBody PromotionUpdateRequest updateRequest, @PathVariable Long id) {
         try {
             PromotionResponse promotionResponse = promotionService.updatePromotion(updateRequest, id);
             ApiResponse response = new ApiResponse("success", "Cập nhật promotion thành công", promotionResponse);
@@ -81,7 +81,7 @@ public class PromotionController {
 
     }
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse> deletePromotion(@PathVariable Integer id) {
+    public ResponseEntity<ApiResponse> deletePromotion(@PathVariable Long id) {
         try {
             promotionService.deletePromotion(id);
             ApiResponse response = new ApiResponse("success", "Xóa promotion thành công", null);
@@ -92,7 +92,7 @@ public class PromotionController {
         }
     }
     @PutMapping("/{id}/toggle-status")
-    public ResponseEntity<ApiResponse> toggleStatus(@PathVariable Integer id) {
+    public ResponseEntity<ApiResponse> toggleStatus(@PathVariable Long id) {
         try {
             PromotionResponse promotionResponse = promotionService.toggleStatusPromotionResponse(id);
             ApiResponse response = new ApiResponse("success", "Cập nhật trạng thái promotion thành công", promotionResponse);

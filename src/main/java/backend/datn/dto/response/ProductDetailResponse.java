@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 @Data
 @Builder
 public class ProductDetailResponse implements Serializable {
-    private final Integer id;
+    private final Long id;
     private final ProductResponse product;
     private final SizeResponse size;
     private final ColorResponse color;

@@ -83,7 +83,7 @@ public class VNPaymentController {
             @RequestParam(value = "isPOS", defaultValue = "false") boolean isPOS) {
         try {
             // Chuyển đổi orderId từ String sang Integer
-            Integer orderIdInt = Integer.parseInt(orderId);
+            Long orderIdInt = Long.parseLong(orderId);
             String paymentUrl = vnPaymentService.generatePaymentUrl(orderIdInt, isPOS);
             return ResponseEntity.ok(paymentUrl);
         } catch (NumberFormatException e) {
@@ -99,7 +99,7 @@ public class VNPaymentController {
     }
 
     @PostMapping("/create-qr-pay-pos/{orderId}")
-    public ResponseEntity<String> createQRPay(@PathVariable Integer orderId) {
+    public ResponseEntity<String> createQRPay(@PathVariable Long orderId) {
         try {
             Order order = orderService.findById(orderId);
             String qrPayload = vnPaymentService.generateQRPayPayload(order);

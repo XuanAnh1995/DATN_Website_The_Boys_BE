@@ -7,19 +7,19 @@ import lombok.Data;
 @Data
 public class AddressUpdateRequest {
     @NotNull(message = "ID tỉnh không được để trống")
-    Integer provinceId;
+    Long provinceId;
 
     @NotBlank(message = "Tên tỉnh không được để trống")
     String provinceName;
 
     @NotNull(message = "ID huyện không được để trống")
-    Integer districtId;
+    Long districtId;
 
     @NotBlank(message = "Tên huyện không được để trống")
     String districtName;
 
     @NotNull(message = "ID xã không được để trống")
-    Integer wardId;
+    Long wardId;
 
     @NotBlank(message = "Tên xã không được để trống")
     String wardName;

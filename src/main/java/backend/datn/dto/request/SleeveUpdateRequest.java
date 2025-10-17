@@ -16,7 +16,7 @@ import java.io.Serializable;
 
 public class SleeveUpdateRequest implements Serializable {
     @NotNull
-    Integer id;
+    Long id;
 
     @NotNull(message = "Vui lòng điền thông tin tên tay áo")
     String sleeveName;

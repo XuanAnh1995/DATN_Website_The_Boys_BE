@@ -25,7 +25,7 @@ public class AddressController {
     private AddressService addressService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse> getById(@PathVariable Integer id) {
+    public ResponseEntity<ApiResponse> getById(@PathVariable Long id) {
         try {
             AddressResponse addressResponse = addressService.getById(id);
             return ResponseEntity.ok(new ApiResponse("success", "Địa chỉ khách hàng được tìm thấy", addressResponse));
@@ -56,7 +56,7 @@ public class AddressController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse> update(@PathVariable Integer id, @Valid @RequestBody AddressCreateRequest request, BindingResult bindingResult) {
+    public ResponseEntity<ApiResponse> update(@PathVariable Long id, @Valid @RequestBody AddressCreateRequest request, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return ResponseEntity.badRequest().body(buildValidationErrorResponse(bindingResult));
         }
@@ -70,7 +70,7 @@ public class AddressController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse> delete(@PathVariable Integer id) {
+    public ResponseEntity<ApiResponse> delete(@PathVariable Long id) {
         try {
             addressService.delete(id);
             return ResponseEntity.ok(new ApiResponse("success", "Địa chỉ khách hàng được xóa thành công", null));

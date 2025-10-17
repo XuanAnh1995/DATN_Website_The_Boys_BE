@@ -11,7 +11,7 @@ import java.util.List;
 @Builder
 @Data
 public class OrderOnlineResponse  {
-    Integer id;
+    Long id;
     VoucherResponse voucher;
     CustomerResponse customer;
     String orderCode;

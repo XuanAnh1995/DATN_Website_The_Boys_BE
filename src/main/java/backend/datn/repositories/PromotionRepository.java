@@ -12,7 +12,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Repository
-public interface PromotionRepository extends JpaRepository<Promotion, Integer> {
+public interface PromotionRepository extends JpaRepository<Promotion, Long> {
     @Query("SELECT p FROM Promotion p WHERE " +
             "(:search IS NULL OR LOWER(p.promotionName) LIKE LOWER(CONCAT('%', :search, '%'))) " +
             "AND (:startDate IS NULL OR p.endDate >= :startDate) " + // Khuyến mãi kết thúc sau startDate

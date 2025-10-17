@@ -77,7 +77,7 @@ public class CartService {
 
 
     @Transactional
-    public void removeProductFromCart(Integer cartItemId) {
+    public void removeProductFromCart(Long cartItemId) {
         cartRepository.deleteById(cartItemId);
     }
 
@@ -88,7 +88,7 @@ public class CartService {
     }
 
     @Transactional
-    public CartItemResponse updateCartItemQuantity(Integer cartItemId, Integer quantity) {
+    public CartItemResponse updateCartItemQuantity(Long cartItemId, Integer quantity) {
         if (quantity <= 0) {
             throw new BadRequestException("Số lượng phải lớn hơn 0");
         }

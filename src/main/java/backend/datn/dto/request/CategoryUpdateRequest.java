@@ -9,7 +9,7 @@ import lombok.Data;
 public class CategoryUpdateRequest {
 
     @NotNull
-    Integer id;
+    Long id;
 
     @NotNull(message = "Vui lòng điền thông tin tên thể loại")
     String name;

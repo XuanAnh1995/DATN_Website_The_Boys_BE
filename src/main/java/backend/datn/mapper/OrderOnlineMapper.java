@@ -13,7 +13,7 @@ public class OrderOnlineMapper {
     public static OrderOnlineResponse toOrderOnlineResponse(OrderOnline order) {
         if (order == null) return null;
         return OrderOnlineResponse.builder()
-                .id(order.getId() != null ? Math.toIntExact(order.getId()) : 0)
+                .id(order.getId() != null ? order.getId() : 0L)
                 .voucher(order.getVoucher() != null ? VoucherMapper.toVoucherResponse(order.getVoucher()) : null)
                 .customer(order.getCustomer() != null ? CustomerMapper.toCustomerResponse(order.getCustomer()) : null)
                 .orderCode(order.getOrderCode() != null ? order.getOrderCode() : "")

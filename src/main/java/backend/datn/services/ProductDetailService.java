@@ -51,9 +51,13 @@ public class ProductDetailService {
 
     public Page<ProductDetailResponse> getAllProductDetails(
             String search,
-            List<Integer> sizeIds, List<Integer> colorIds,
-            List<Integer> collarIds, List<Integer> sleeveIds,
-            Double minPrice, Double maxPrice, Pageable pageable) {
+            List<Long> sizeIds,
+            List<Long> colorIds,
+            List<Long> collarIds,
+            List<Long> sleeveIds,
+            Double minPrice,
+            Double maxPrice,
+            Pageable pageable) {
 
         search = (search == null || search.trim().isEmpty()) ? null : search;
         sizeIds = (sizeIds == null || sizeIds.isEmpty()) ? null : sizeIds;
@@ -69,9 +73,13 @@ public class ProductDetailService {
 
     public Page<ProductDetailResponse> getAllProductDetailsWithStatusTrue(
             String search,
-            List<Integer> sizeIds, List<Integer> colorIds,
-            List<Integer> collarIds, List<Integer> sleeveIds,
-            Double minPrice, Double maxPrice, Pageable pageable) {
+            List<Long> sizeIds,
+            List<Long> colorIds,
+            List<Long> collarIds,
+            List<Long> sleeveIds,
+            Double minPrice,
+            Double maxPrice,
+            Pageable pageable) {
 
         search = (search == null || search.trim().isEmpty()) ? null : search;
         sizeIds = (sizeIds == null || sizeIds.isEmpty()) ? null : sizeIds;
@@ -86,7 +94,7 @@ public class ProductDetailService {
     }
 
     @Transactional
-    public ProductDetailResponse getById(Integer id) {
+    public ProductDetailResponse getById(Long id) {
         ProductDetail productDetail = productDetailRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy chi tiết sản phẩm"));
         return ProductDetailMapper.toProductDetailResponse(productDetail);
@@ -100,10 +108,10 @@ public class ProductDetailService {
             validateExistence(request);
             checkUniqueProductDetail(request);
 
-            for (Integer sizeId : request.getSizeId()) {
-                for (Integer colorId : request.getColorId()) {
-                    for (Integer collarId : request.getCollarId()) {
-                        for (Integer sleeveId : request.getSleeveId()) {
+            for (Long sizeId : request.getSizeId()) {
+                for (Long colorId : request.getColorId()) {
+                    for (Long collarId : request.getCollarId()) {
+                        for (Long sleeveId : request.getSleeveId()) {
                             ProductDetail productDetail = new ProductDetail();
                             mapToEntity(request, productDetail, sizeId, colorId, collarId, sleeveId);
                             productDetailRepository.save(productDetail);
@@ -117,7 +125,7 @@ public class ProductDetailService {
     }
 
     @Transactional
-    public ProductDetailResponse updateProductDetail(Integer id, ProductDetailUpdateRequest request) {
+    public ProductDetailResponse updateProductDetail(Long id, ProductDetailUpdateRequest request) {
         ProductDetail productDetail = productDetailRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy chi tiết sản phẩm"));
 
@@ -131,8 +139,9 @@ public class ProductDetailService {
     public void update(ProductDetail productDetail) {
         productDetailRepository.save(productDetail);
     }
+
     private void validateExistence(ProductDetailCreateRequest request) {
-        if(request.getPromotionId()!=null){
+        if (request.getPromotionId() != null) {
             promotionRepository.findById(request.getPromotionId())
                     .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy khuyến mãi"));
         }
@@ -140,22 +149,22 @@ public class ProductDetailService {
         productRepository.findById(request.getProductId())
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy sản phẩm"));
 
-        for (Integer size : request.getSizeId()) {
+        for (Long size : request.getSizeId()) {
             sizeRepository.findById(size)
                     .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy kích thước"));
         }
 
-        for (Integer color : request.getColorId()) {
+        for (Long color : request.getColorId()) {
             colorRepository.findById(color)
                     .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy màu sắc"));
         }
     }
 
     private void checkUniqueProductDetail(ProductDetailCreateRequest request) {
-        for (Integer size : request.getSizeId()) {
-            for (Integer color : request.getColorId()) {
-                for (Integer collar : request.getCollarId()) {
-                    for (Integer sleeve : request.getSleeveId()) {
+        for (Long size : request.getSizeId()) {
+            for (Long color : request.getColorId()) {
+                for (Long collar : request.getCollarId()) {
+                    for (Long sleeve : request.getSleeveId()) {
                         boolean exists = productDetailRepository.existsByProductAndSizeAndColorAndCollarAndSleeve(
                                 request.getProductId(), size, color, collar, sleeve);
                         if (exists) {
@@ -169,8 +178,8 @@ public class ProductDetailService {
 
 
     private void mapToEntity(ProductDetailCreateRequest request, ProductDetail entity,
-                             Integer sizeId, Integer colorId, Integer collarId, Integer sleeveId) {
-        if(request.getPromotionId()!=null){
+                             Long sizeId, Long colorId, Long collarId, Long sleeveId) {
+        if (request.getPromotionId() != null) {
             entity.setPromotion(promotionRepository.findById(request.getPromotionId()).orElse(null));
         }
         entity.setProduct(productRepository.findById(request.getProductId()).orElse(null));
@@ -204,7 +213,7 @@ public class ProductDetailService {
         entity.setPhoto(request.getPhoto());
     }
 
-    public ProductDetailResponse toggleProductDetailStatus(Integer id) {
+    public ProductDetailResponse toggleProductDetailStatus(Long id) {
         ProductDetail productDetail = productDetailRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy chi tiết sản phẩm"));
 
@@ -213,7 +222,7 @@ public class ProductDetailService {
         return ProductDetailMapper.toProductDetailResponse(productDetail);
     }
 
-    public Optional<ProductDetail> findById(@NotNull Integer productDetailId) {
+    public Optional<ProductDetail> findById(@NotNull Long productDetailId) {
         return productDetailRepository.findById(productDetailId);
     }
 
@@ -228,7 +237,7 @@ public class ProductDetailService {
                 .collect(Collectors.toList());
 
         // Bước 3: Nhóm các sản phẩm đã lọc theo màu sắc
-        Map<Integer, List<ProductDetailGenerateResponse>> groupedByColor = filteredCombinations.stream()
+        Map<Long, List<ProductDetailGenerateResponse>> groupedByColor = filteredCombinations.stream()
                 .collect(Collectors.groupingBy(ProductDetailGenerateResponse::getColor));
 
         // Bước 4: Chuyển đổi thành danh sách DTO để trả về
@@ -246,18 +255,18 @@ public class ProductDetailService {
     private List<ProductDetailGenerateResponse> generateProductDetailList(ProductDetailCreateRequest generateRequest) {
         List<ProductDetailGenerateResponse> result = new ArrayList<>();
 
-        for (Integer sizeId : generateRequest.getSizeId()) {
-            for (Integer colorId : generateRequest.getColorId()) {
-                for (Integer collarId : generateRequest.getCollarId()) {
-                    for (Integer sleeveId : generateRequest.getSleeveId()) {
+        for (Long sizeId : generateRequest.getSizeId()) {
+            for (Long colorId : generateRequest.getColorId()) {
+                for (Long collarId : generateRequest.getCollarId()) {
+                    for (Long sleeveId : generateRequest.getSleeveId()) {
                         ProductDetailGenerateResponse dto = ProductDetailGenerateResponse.builder()
                                 .productId(generateRequest.getProductId())
                                 .productName(productRepository.findById(generateRequest.getProductId())
                                         .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy sản phẩm"))
                                         .getProductName())
                                 .brandName(brandRepository.findById(productRepository.findById(generateRequest.getProductId())
-                                        .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy sản phẩm"))
-                                        .getBrand().getId())
+                                                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy sản phẩm"))
+                                                .getBrand().getId())
                                         .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy thương hiệu"))
                                         .getBrandName())
                                 .promotion(generateRequest.getPromotionId())
@@ -294,7 +303,7 @@ public class ProductDetailService {
         return result;
     }
 
-    private ProductDetailGroupReponse convertEntryToGroupResponse(Map.Entry<Integer, List<ProductDetailGenerateResponse>> entry) {
+    private ProductDetailGroupReponse convertEntryToGroupResponse(Map.Entry<Long, List<ProductDetailGenerateResponse>> entry) {
         return ProductDetailGroupReponse.builder()
                 .productId(entry.getValue().get(0).getProductId())
                 .ColorName(entry.getValue().get(0).getColorName())

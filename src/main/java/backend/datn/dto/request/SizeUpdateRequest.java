@@ -8,7 +8,7 @@ import lombok.Data;
 @Builder
 public class SizeUpdateRequest {
     @NotNull
-    Integer id;
+    Long id;
 
     @NotNull(message = "Vui lòng điền thông tin tên kích thước")
     String name;

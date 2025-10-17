@@ -11,7 +11,7 @@ import org.springframework.data.repository.query.Param;
 import java.math.BigDecimal;
 import java.util.List;
 
-public interface ProductRepository extends JpaRepository<Product, Integer> {
+public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("SELECT p FROM Product p WHERE ( p.productName LIKE %:keyword%"
             + " OR p.category.categoryName LIKE %:keyword%"
             + " OR p.material.materialName LIKE %:keyword%"
@@ -51,13 +51,13 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
 """)
     Page<UserProductResponse> findAllWithFilters(
             @Param("search") String search,
-            @Param("brandIds") List<Integer> brandIds,
-            @Param("categoryIds") List<Integer> categoryIds,
-            @Param("materialIds") List<Integer> materialIds,
-            @Param("collarIds") List<Integer> collarIds,
-            @Param("sleeveIds") List<Integer> sleeveIds,
-            @Param("colorIds") List<Integer> colorIds,
-            @Param("sizeIds") List<Integer> sizeIds,
+            @Param("brandIds") List<Long> brandIds,
+            @Param("categoryIds") List<Long> categoryIds,
+            @Param("materialIds") List<Long> materialIds,
+            @Param("collarIds") List<Long> collarIds,
+            @Param("sleeveIds") List<Long> sleeveIds,
+            @Param("colorIds") List<Long> colorIds,
+            @Param("sizeIds") List<Long> sizeIds,
             @Param("minPrice") BigDecimal minPrice,
             @Param("maxPrice") BigDecimal maxPrice,
             Pageable pageable

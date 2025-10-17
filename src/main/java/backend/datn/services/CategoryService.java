@@ -36,7 +36,7 @@ public class CategoryService {
         return categories.map(CategoryMapper::toCategoryResponse);
     }
 
-    public CategoryResponse getCategoryById(Integer id) {
+    public CategoryResponse getCategoryById(Long id) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy thể loại có id: " + id));
         return CategoryMapper.toCategoryResponse(category);
@@ -54,11 +54,14 @@ public class CategoryService {
     }
 
     @Transactional
-    public CategoryResponse updateCategory(Integer id, CategoryUpdateRequest categoryUpdateRequest) {
+    public CategoryResponse updateCategory(
+            Long id,
+            CategoryUpdateRequest categoryUpdateRequest
+    ) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy thể loại có id: " + id));
 
-        if(category.getCategoryName().equalsIgnoreCase(categoryUpdateRequest.getName()) && categoryRepository.existsByCategoryName(categoryUpdateRequest.getName())) {
+        if (category.getCategoryName().equalsIgnoreCase(categoryUpdateRequest.getName()) && categoryRepository.existsByCategoryName(categoryUpdateRequest.getName())) {
             throw new EntityAlreadyExistsException("Thể loại có tên: " + categoryUpdateRequest.getName() + " đã tồn tại");
         }
         category.setCategoryName(categoryUpdateRequest.getName());
@@ -67,7 +70,7 @@ public class CategoryService {
     }
 
     @Transactional
-    public CategoryResponse toggleCategoryStatus(Integer id) {
+    public CategoryResponse toggleCategoryStatus(Long id) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy thể loại có id: " + id));
         category.setStatus(!category.getStatus());
@@ -76,7 +79,7 @@ public class CategoryService {
     }
 
     @Transactional
-    public void deleteCategory(Integer id) {
+    public void deleteCategory(Long id) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy thể loại có id: " + id));
         categoryRepository.delete(category);

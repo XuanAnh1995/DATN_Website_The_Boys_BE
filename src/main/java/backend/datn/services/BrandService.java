@@ -47,7 +47,7 @@ public class BrandService {
     }
 
     @Transactional(readOnly = true)
-    public BrandResponse getBrandById(int id) {
+    public BrandResponse getBrandById(Long id) {
         logger.info("Fetching brand with id: {}", id);
         Brand brand = brandRepository.findById(id).
                 orElseThrow(() -> new RuntimeException("Không tìm thấy thương hiệu có id: " + id));
@@ -71,7 +71,7 @@ public class BrandService {
     }
 
     @Transactional
-    public BrandResponse updateBrand(Integer id, BrandUpdateRequest brandUpdateRequest) {
+    public BrandResponse updateBrand(Long id, BrandUpdateRequest brandUpdateRequest) {
         logger.info("Updating brand with id: {}", id);
         Brand brand = brandRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy thương hiệu có id: " + id));
@@ -88,7 +88,7 @@ public class BrandService {
     }
 
     @Transactional
-    public BrandResponse toggleStatusBrand(Integer id) {
+    public BrandResponse toggleStatusBrand(Long id) {
         logger.info("Toggling status for brand with id: {}", id);
         Brand brand = brandRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy thương hiệu có id: " + id));
@@ -106,7 +106,7 @@ public class BrandService {
     }
 
     @Transactional
-    public void softDeleteBrand(Integer id) {
+    public void softDeleteBrand(Long id) {
         logger.info("Soft deleting brand with id: {}", id);
         Brand brand = brandRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy thương hiệu có id: " + id));
@@ -123,7 +123,7 @@ public class BrandService {
 
     // Liệt kê danh sách sản phẩm ở trạng thái đang bán của 1 thương hiệu
     @Transactional(readOnly = true)
-    public List<Product> getProductsWithActiveStatusByBrandId(Integer id, boolean onlyActive) {
+    public List<Product> getProductsWithActiveStatusByBrandId(Long id, boolean onlyActive) {
         logger.info("Fetching product for brand with id: {} (onlyActive : {})", id, onlyActive);
 
         Brand brand = brandRepository.findById(id)
@@ -134,10 +134,10 @@ public class BrandService {
 
     // Thống kê số lượng sản phẩm ở trạng thái đang bán của 1 thương hiệu
     @Transactional(readOnly = true)
-    public long getProductCountWithActiveStatusByBrandId(Integer id, boolean onlyActive) {
+    public long getProductCountWithActiveStatusByBrandId(Long id, boolean onlyActive) {
         logger.info("Fetching product count for brand with id: {}", id);
         Brand brand = brandRepository.findById(id)
-                .orElseThrow(()-> new EntityNotFoundException("Không tìm thấy thương hiệu có id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy thương hiệu có id: " + id));
         return brand.getAllProductsInBrand(onlyActive).size();
     }
 }

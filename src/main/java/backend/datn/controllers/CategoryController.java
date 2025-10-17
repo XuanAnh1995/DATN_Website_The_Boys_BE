@@ -36,7 +36,7 @@ public class CategoryController {
         }
     }
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse> updateCategory(@PathVariable Integer id, @RequestBody CategoryUpdateRequest categoryUpdateRequest) {
+    public ResponseEntity<ApiResponse> updateCategory(@PathVariable Long id, @RequestBody CategoryUpdateRequest categoryUpdateRequest) {
         try {
             CategoryResponse categoryResponse = categoryService.updateCategory(id, categoryUpdateRequest);
             ApiResponse response = new ApiResponse("success", "Cập nhật thể loại thành công", categoryResponse);
@@ -54,7 +54,7 @@ public class CategoryController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse> deleteCategory(@PathVariable Integer id) {
+    public ResponseEntity<ApiResponse> deleteCategory(@PathVariable Long id) {
         try {
             categoryService.deleteCategory(id);
             ApiResponse response = new ApiResponse("success", "Category deleted successfully", null);
@@ -69,7 +69,7 @@ public class CategoryController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse> getCategoryById(@PathVariable Integer id) {
+    public ResponseEntity<ApiResponse> getCategoryById(@PathVariable Long id) {
         try {
             CategoryResponse categoryResponse = categoryService.getCategoryById(id);
             ApiResponse response = new ApiResponse("success", "Lấy thể loại theo id thành công", categoryResponse);
@@ -101,7 +101,7 @@ public class CategoryController {
     }
 
     @PutMapping("/{id}/toggle-status")
-    public ResponseEntity<ApiResponse> toggleStatusCategory(@PathVariable Integer id){
+    public ResponseEntity<ApiResponse> toggleStatusCategory(@PathVariable Long id){
         try {
             CategoryResponse categoryResponse = categoryService.toggleCategoryStatus(id);
             ApiResponse response = new ApiResponse("success", "Chuyển đổi trạng thái thể loại thành công", categoryResponse);

@@ -56,7 +56,7 @@ public class EmployeeService {
         return employees.map(EmployeeMapper::toEmployeeResponse);
     }
 
-    public EmployeeResponse getEmployeeById(int id) {
+    public EmployeeResponse getEmployeeById(Long id) {
         Employee employee = employeeRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy nhân viên với id: " + id));
         return EmployeeMapper.toEmployeeResponse(employee);
@@ -97,7 +97,7 @@ public class EmployeeService {
         employee.setCreateDate(Instant.now());
         employee.setForgetPassword(false);
         employee.setStatus(1);
-        Role role = roleRepository.findById(Integer.valueOf(request.getRoleId()))
+        Role role = roleRepository.findById(Long.valueOf(request.getRoleId()))
                 .orElseThrow(() -> new EntityNotFoundException(
                         "Không tìm thấy vai trò với id: " + request.getRoleId()));
         employee.setRole(role);
@@ -115,7 +115,7 @@ public class EmployeeService {
         return EmployeeMapper.toEmployeeResponse(employee);
     }
 
-    public EmployeeResponse updateEmployee(int id, EmployeeUpdateRequest request) {
+    public EmployeeResponse updateEmployee(Long id, EmployeeUpdateRequest request) {
         Employee employee = employeeRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy nhân viên với id: " + id));
 
@@ -135,8 +135,8 @@ public class EmployeeService {
         }
 
         if (employee.getUsername().equalsIgnoreCase("admin")) {
-            Integer currentRoleId = employee.getRole().getId();
-            Integer requestedRoleId = Integer.valueOf(request.getRoleId());
+            Long currentRoleId = employee.getRole().getId();
+            Long requestedRoleId = Long.valueOf(request.getRoleId());
             if (!currentRoleId.equals(requestedRoleId)) {
                 throw new IllegalArgumentException("Không được phép thay đổi vai trò của tài khoản admin!");
             }
@@ -151,7 +151,7 @@ public class EmployeeService {
 
 
         if (!employee.getUsername().equalsIgnoreCase("admin")) {
-            employee.setRole(roleRepository.findById(Integer.valueOf(request.getRoleId()))
+            employee.setRole(roleRepository.findById(Long.valueOf(request.getRoleId()))
                     .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy vai trò với id: " + request.getRoleId())));
         }
 
@@ -161,7 +161,7 @@ public class EmployeeService {
         return EmployeeMapper.toEmployeeResponse(employee);
     }
 
-    public EmployeeResponse updatePassword(int id, EmployeePasswordUpdateRequest request) {
+    public EmployeeResponse updatePassword(Long id, EmployeePasswordUpdateRequest request) {
         Employee employee = employeeRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy nhân viên với id: " + id));
 
@@ -183,7 +183,7 @@ public class EmployeeService {
     }
 
 
-    public EmployeeResponse toggleStatusEmployee(int id) {
+    public EmployeeResponse toggleStatusEmployee(Long id) {
         Employee employee = employeeRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy nhân viên với id: " + id));
 
@@ -192,7 +192,7 @@ public class EmployeeService {
         return EmployeeMapper.toEmployeeResponse(employee);
     }
 
-    public Optional<Employee> findById(@NotNull Integer employeeId) {
+    public Optional<Employee> findById(@NotNull Long employeeId) {
         return employeeRepository.findById(employeeId);
     }
 }

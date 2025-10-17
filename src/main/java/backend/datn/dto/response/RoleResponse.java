@@ -8,6 +8,6 @@ import java.io.Serializable;
 @Data
 @Builder
 public class RoleResponse implements Serializable {
-    Integer id;
+    Long id;
     String name;
 }

@@ -22,7 +22,7 @@ public class Brand {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
-    private Integer id;
+    private Long id = 0L;
 
     @Size(max = 100)
     @NotNull

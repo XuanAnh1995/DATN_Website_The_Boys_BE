@@ -65,7 +65,7 @@ public class OrderPOSService {
      * @param id ID của đơn hàng
      * @return OrderPOSResponse hoặc null nếu không tìm thấy
      */
-    public OrderPOSResponse getPOSOrderById(Integer id) {
+    public OrderPOSResponse getPOSOrderById(Long id) {
         Optional<OrderPOS> orderOpt = orderPOSRepository.findOrderPOSByIdWithKindOfOrder(id, true);
         return orderOpt.map(OrderPOSMapper::toOrderPOSResponse).orElse(null);
     }
@@ -74,7 +74,7 @@ public class OrderPOSService {
      * Lấy chi tiết hóa đơn POS kèm danh sách sản phẩm
      */
     @Transactional
-    public OrderPOSResponse getOrderPOSDetails(Integer orderId) {
+    public OrderPOSResponse getOrderPOSDetails(Long orderId) {
         // Tìm đơn hàng POS theo ID với kindOfOrder = true
         OrderPOS order = orderPOSRepository.findOrderPOSByIdWithKindOfOrder(orderId, true)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy đơn hàng POS với ID: " + orderId));

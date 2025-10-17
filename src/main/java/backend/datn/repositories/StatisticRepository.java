@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @Repository
-public interface StatisticRepository extends JpaRepository<ProductDetail, Integer> {
+public interface StatisticRepository extends JpaRepository<ProductDetail, Long> {
 
     // Doanh thu theo ngày
     @Query(value = """

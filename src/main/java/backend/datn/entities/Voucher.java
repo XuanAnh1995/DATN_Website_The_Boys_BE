@@ -20,7 +20,7 @@ public class Voucher {
     @Id
     @Column(name = "id", nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id = 0L;
 
     @Size(max = 50)
     @NotNull

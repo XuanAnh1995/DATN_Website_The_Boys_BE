@@ -17,7 +17,7 @@ public class ProductDetail {
     @Id
     @Column(name = "id", nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id = 0L;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

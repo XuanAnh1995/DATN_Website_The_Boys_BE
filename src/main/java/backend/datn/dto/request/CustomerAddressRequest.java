@@ -8,21 +8,21 @@ import lombok.Data;
 @Data
 public class CustomerAddressRequest {
     @NotNull
-    private Integer provinceId;
+    private Long provinceId;
 
     @NotNull
     @Size(max = 50)
     private String provinceName;
 
     @NotNull
-    private Integer districtId;
+    private Long districtId;
 
     @NotNull
     @Size(max = 50)
     private String districtName;
 
     @NotNull
-    private Integer wardId;
+    private Long wardId;
 
     @NotNull
     @Size(max = 50)

@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @Builder
 public class VoucherResponse {
 
-    private Integer id;
+    private Long id;
 
     private String voucherCode;
 

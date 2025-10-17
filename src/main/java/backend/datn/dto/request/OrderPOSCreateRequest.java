@@ -17,13 +17,13 @@ import java.util.List;
 public class OrderPOSCreateRequest {
 
 
-    private Integer orderId;
+    private Long orderId;
 
     @NotNull(message = "ID nhân viên không được để trống")
     @Min(1)
-    private Integer employeeId;
+    private Long employeeId;
 
-    private Integer voucherId;
+    private Long voucherId;
 
     @NotNull
     @Positive(message = "Tổng tiền phải lớn hơn 0")
@@ -31,7 +31,7 @@ public class OrderPOSCreateRequest {
 
     @NotNull(message = "ID khách hàng không được để trống")
     @Min(1)
-    private Integer customerId;
+    private Long customerId;
 
     @NotNull(message = "Phương thức thanh toán không được để trống")
     private Integer paymentMethod;

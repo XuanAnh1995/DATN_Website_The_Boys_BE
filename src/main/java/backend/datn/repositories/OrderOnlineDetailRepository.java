@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface OrderOnlineDetailRepository extends JpaRepository<OrderOnlineDetail, Integer> {
+public interface OrderOnlineDetailRepository extends JpaRepository<OrderOnlineDetail, Long> {
     List<OrderOnlineDetail> findByOrder(OrderOnline order);
 
 

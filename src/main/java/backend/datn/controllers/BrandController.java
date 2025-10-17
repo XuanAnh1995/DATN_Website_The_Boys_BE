@@ -57,7 +57,7 @@ public class BrandController {
 
     @Operation(summary = "Lấy thương hiệu theo ID", description = "Trả về thông tin chi tiết thương hiệu theo ID")
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse> getBrandById(@PathVariable int id) {
+    public ResponseEntity<ApiResponse> getBrandById(@PathVariable Long id) {
         try {
             BrandResponse brandResponse = brandService.getBrandById(id);
             ApiResponse response = new ApiResponse("success", "Lấy thương hiệu theo id thành công", brandResponse);
@@ -90,7 +90,7 @@ public class BrandController {
 
     @Operation(summary = "Cập nhật thương hiệu")
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse> updateBrand(@PathVariable int id,@Valid @RequestBody BrandUpdateRequest brandUpdateRequest) {
+    public ResponseEntity<ApiResponse> updateBrand(@PathVariable Long id,@Valid @RequestBody BrandUpdateRequest brandUpdateRequest) {
         try {
             BrandResponse brandResponse = brandService.updateBrand(id, brandUpdateRequest);
             ApiResponse response = new ApiResponse("success", "Cập nhật thương hiệu thành công", brandResponse);
@@ -110,7 +110,7 @@ public class BrandController {
 
     @Operation(summary = "Chuyển đổi trạng thái thương hiệu")
     @PutMapping("/{id}/toggle-status")
-    public ResponseEntity<ApiResponse> toggleStatusBrand(@PathVariable Integer id) {
+    public ResponseEntity<ApiResponse> toggleStatusBrand(@PathVariable Long id) {
         try {
             BrandResponse brandResponse = brandService.toggleStatusBrand(id);
             ApiResponse response = new ApiResponse("success", "Chuyển đổi trạng thái thương hiệu thành công", brandResponse);
@@ -129,7 +129,7 @@ public class BrandController {
 
     @Operation(summary = "Xóa mềm thương hiệu")
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse> softDeleteBrand(@PathVariable Integer id) {
+    public ResponseEntity<ApiResponse> softDeleteBrand(@PathVariable Long id) {
         try {
             brandService.softDeleteBrand(id);
             ApiResponse response = new ApiResponse("success", "Xóa mềm thương hiệu thành công", null);
@@ -145,7 +145,7 @@ public class BrandController {
 
     @Operation(summary = "Lấy danh sách sản phẩm theo thương hiệu")
     @GetMapping("/{id}/products")
-    public ResponseEntity<ApiResponse> getProductsByBrandId(@PathVariable Integer id, @RequestParam(defaultValue = "false") boolean onlyActive) {
+    public ResponseEntity<ApiResponse> getProductsByBrandId(@PathVariable Long id, @RequestParam(defaultValue = "false") boolean onlyActive) {
         try {
             List<Product> products = brandService.getProductsWithActiveStatusByBrandId(id, onlyActive);
             List<ProductResponse> productResponses = products.stream()
@@ -164,7 +164,7 @@ public class BrandController {
 
     @Operation(summary = "Lấy tổng số lượng sản phẩm của thương hiệu")
     @GetMapping("/{id}/product-count")
-    public ResponseEntity<ApiResponse> getProductCountByBrandId(@PathVariable Integer id, @RequestParam(defaultValue = "false") boolean onlyActive) {
+    public ResponseEntity<ApiResponse> getProductCountByBrandId(@PathVariable Long id, @RequestParam(defaultValue = "false") boolean onlyActive) {
         try {
             long productCount = brandService.getProductCountWithActiveStatusByBrandId(id, onlyActive);
             ApiResponse response = new ApiResponse("success", "Lấy số lượng sản phẩm thành công", productCount);

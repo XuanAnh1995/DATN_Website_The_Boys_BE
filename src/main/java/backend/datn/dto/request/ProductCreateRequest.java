@@ -6,13 +6,13 @@ import lombok.Data;
 @Data
 public class ProductCreateRequest  {
     @NotNull(message = "Thương hiệu không được để trống")
-    private Integer brandId;
+    private Long brandId;
 
     @NotNull(message = "Danh mục không được để trống")
-    private Integer categoryId;
+    private Long categoryId;
 
     @NotNull(message = "Chất liệu không được để trống")
-    private Integer materialId;
+    private Long materialId;
 
     @NotNull(message = "Tên sản phẩm không được để trống")
     private String productName;

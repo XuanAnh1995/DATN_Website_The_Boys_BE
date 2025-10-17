@@ -14,7 +14,7 @@ import java.util.List;
 
 public class OrderPOSResponse {
 
-    Integer id;
+    Long id;
     VoucherResponse voucher;
     CustomerResponse customer;
     EmployeeResponse employee;

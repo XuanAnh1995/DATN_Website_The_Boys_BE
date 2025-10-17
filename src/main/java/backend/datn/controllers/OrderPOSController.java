@@ -59,7 +59,7 @@ public class OrderPOSController {
      * @return ResponseEntity<ApiResponse> Thông tin đơn hàng POS
      */
     @GetMapping("/pos/{id}")
-    public ResponseEntity<ApiResponse> findOrderPOSById(@PathVariable Integer id) {
+    public ResponseEntity<ApiResponse> findOrderPOSById(@PathVariable Long id) {
         try {
             // Gọi service để lấy thông tin đơn hàng POS theo ID
             OrderPOSResponse orderResponse = orderPOSService.getPOSOrderById(id);
@@ -78,7 +78,7 @@ public class OrderPOSController {
      * API lấy chi tiết đơn hàng POS kèm danh sách sản phẩm
      */
     @GetMapping("/pos/{id}/details")
-    public ResponseEntity<ApiResponse> getOrderPOSDetails(@PathVariable Integer id) {
+    public ResponseEntity<ApiResponse> getOrderPOSDetails(@PathVariable Long id) {
         try {
             OrderPOSResponse orderResponse = orderPOSService.getOrderPOSDetails(id);
             ApiResponse response = new ApiResponse("success", "Lấy chi tiết đơn hàng POS thành công", orderResponse);

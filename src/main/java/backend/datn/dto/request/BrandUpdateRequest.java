@@ -15,7 +15,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class BrandUpdateRequest implements Serializable {
     @NotNull
-    Integer id;
+    Long id;
 
     @NotNull(message = "Vui lòng điền thông tin tên nhãn hàng")
     @Size(max = 100, message = "Tên nhãn hàng không được vượt quá 100 ký tự")

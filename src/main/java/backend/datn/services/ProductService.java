@@ -55,7 +55,7 @@ public class ProductService {
                 .map(ProductMapper::toProductResponse);
     }
 
-    public ProductResponse getProductById(Integer id) {
+    public ProductResponse getProductById(Long id) {
         return ProductMapper.toProductResponse(
                 productRepository.findById(id)
                         .orElseThrow(() -> new EntityNotFoundException("Product with ID " + id + " not found."))
@@ -79,7 +79,7 @@ public class ProductService {
     }
 
     @Transactional
-    public ProductResponse updateProduct(Integer id, ProductUpdateRequest request) {
+    public ProductResponse updateProduct(Long id, ProductUpdateRequest request) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Product with ID " + id + " not found."));
         product.setBrand(brandRepository.findById(request.getBrandId())
@@ -94,7 +94,7 @@ public class ProductService {
     }
 
     @Transactional
-    public void deleteProduct(Integer id) {
+    public void deleteProduct(Long id) {
         if (!productRepository.existsById(id)) {
             throw new EntityNotFoundException("Product with ID " + id + " not found.");
         }
@@ -102,7 +102,7 @@ public class ProductService {
     }
 
     @Transactional
-    public ProductResponse toggleProductStatus(Integer id) {
+    public ProductResponse toggleProductStatus(Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Product with ID " + id + " not found."));
         product.setStatus(!product.getStatus());
@@ -120,9 +120,9 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
     public Page<UserProductResponse> getAllProductUser(
-            String search, List<Integer> brandIds, List<Integer> categoryIds,
-            List<Integer> materialIds, List<Integer> collarIds, List<Integer> sleeveIds,
-            List<Integer> colorIds, List<Integer> sizeIds, BigDecimal minPrice,
+            String search, List<Long> brandIds, List<Long> categoryIds,
+            List<Long> materialIds, List<Long> collarIds, List<Long> sleeveIds,
+            List<Long> colorIds, List<Long> sizeIds, BigDecimal minPrice,
             BigDecimal maxPrice, String sortBy, String sortDir, int page, int size
     ) {
         // Kiểm tra giá trị hợp lệ của sortBy

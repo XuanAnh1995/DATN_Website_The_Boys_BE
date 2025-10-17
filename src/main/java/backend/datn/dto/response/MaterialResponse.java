@@ -12,7 +12,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @Builder
 public class MaterialResponse implements Serializable {
-    Integer id;
+    Long id;
     String materialName;
     Boolean status;
 }

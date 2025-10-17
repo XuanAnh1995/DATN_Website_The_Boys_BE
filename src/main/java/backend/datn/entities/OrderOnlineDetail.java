@@ -18,7 +18,7 @@ public class OrderOnlineDetail {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
-    private Integer id;
+    private Long id = 0L;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

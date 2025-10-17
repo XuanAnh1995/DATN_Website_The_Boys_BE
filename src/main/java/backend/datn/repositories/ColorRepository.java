@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface ColorRepository extends JpaRepository<Color, Integer> {
+public interface ColorRepository extends JpaRepository<Color, Long> {
     @Query("SELECT c FROM Color c WHERE :search IS NULL OR  LOWER(c.colorName) LIKE LOWER(CONCAT('%', :search, '%'))")
     Page<Color> searchColors(@Param("search") String search, Pageable pageable);
     boolean existsByColorName(String name);

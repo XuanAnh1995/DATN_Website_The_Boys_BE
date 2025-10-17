@@ -39,7 +39,7 @@ public class CartController {
     }
 
     @DeleteMapping("/{cartItemId}")
-    public ResponseEntity<ApiResponse> removeProductFromCart(@PathVariable Integer cartItemId) {
+    public ResponseEntity<ApiResponse> removeProductFromCart(@PathVariable Long cartItemId) {
         try {
             cartService.removeProductFromCart(cartItemId);
             return ResponseEntity.ok(new ApiResponse("success", "Xóa sản phẩm khỏi giỏ hàng thành công"));
@@ -59,7 +59,7 @@ public class CartController {
     }
 
     @PutMapping("/{cartItemId}")
-    public ResponseEntity<ApiResponse> updateCartItemQuantity(@PathVariable Integer cartItemId, @RequestParam Integer quantity) {
+    public ResponseEntity<ApiResponse> updateCartItemQuantity(@PathVariable Long cartItemId, @RequestParam Integer quantity) {
         try {
             CartItemResponse response = cartService.updateCartItemQuantity(cartItemId, quantity);
             return ResponseEntity.ok(new ApiResponse("success", "Cập nhật số lượng sản phẩm trong giỏ hàng thành công", response));

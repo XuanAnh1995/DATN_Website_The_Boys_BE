@@ -63,11 +63,11 @@ public class VNPaymentService {
     /**
      * Tạo URL thanh toán VNPay dựa trên mã đơn hàng.
      *
-     * @param orderId ID đơn hàng (khóa chính Integer cho cả Order và OrderOnline)
+     * @param orderId ID đơn hàng (khóa chính Long cho cả Order và OrderOnline)
      * @param isPOS   True nếu là đơn hàng POS, False nếu là đơn hàng Online
      */
 
-    public String generatePaymentUrl(Integer orderId, boolean isPOS) throws UnsupportedEncodingException {
+    public String generatePaymentUrl(Long orderId, boolean isPOS) throws UnsupportedEncodingException {
 
         long totalAmount;
 
@@ -164,8 +164,8 @@ public class VNPaymentService {
             throw new IllegalArgumentException("Thiếu thông tin 'vnp_TxnRef' hoặc 'vnp_ResponseCode'.");
         }
 
-        // Chuyển vnp_TxnRef thành Integer để tìm kiếm
-        Integer orderId = Integer.valueOf(vnpTxnRef);
+        // Chuyển vnp_TxnRef thành Long để tìm kiếm
+        Long orderId = Long.valueOf(vnpTxnRef);
 
         if (isPOS) {
             // Xử lý đơn hàng POS
@@ -262,7 +262,7 @@ public class VNPaymentService {
     }
 
     // Phương thức mới để lấy URL mã QR từ VNPay
-    public String generateVNPayQRUrl(Integer orderId, boolean isPOS) throws UnsupportedEncodingException {
+    public String generateVNPayQRUrl(Long orderId, boolean isPOS) throws UnsupportedEncodingException {
         long totalAmount;
 
         if (isPOS) {

@@ -62,7 +62,7 @@ public class CustomerService {
         return customers.map(CustomerMapper::toCustomerResponse);
     }
 
-    public CustomerResponse getCustomerById(int id) {
+    public CustomerResponse getCustomerById(Long id) {
         Customer customer = customerRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Customer not found with id: " + id));
         return CustomerMapper.toCustomerResponse(customer);
@@ -128,7 +128,7 @@ public class CustomerService {
         return response;
     }
 
-    public CustomerResponse updateCustomer(int id, CustomerUpdateRequest request) {
+    public CustomerResponse updateCustomer(Long id, CustomerUpdateRequest request) {
         Customer customer = customerRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy khách hàng với ID: " + id));
 
@@ -156,7 +156,7 @@ public class CustomerService {
         return CustomerMapper.toCustomerResponse(customer);
     }
 
-    public CustomerResponse toggleStatusCustomer(int id) {
+    public CustomerResponse toggleStatusCustomer(Long id) {
         Customer customer = customerRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy khách hàng với ID: " + id));
 
@@ -167,7 +167,7 @@ public class CustomerService {
 
 
 
-    public CustomerResponse updatePassword(int id, CustomerPasswordUpdateRequest request) {
+    public CustomerResponse updatePassword(Long id, CustomerPasswordUpdateRequest request) {
         Customer customer = customerRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy khách hàngvới id: " + id));
 
@@ -190,7 +190,7 @@ public class CustomerService {
 
 
 
-    public Optional<Customer> findById(@NotNull Integer customerId) {
+    public Optional<Customer> findById(@NotNull Long customerId) {
         return customerRepository.findById(customerId);
     }
 
@@ -201,7 +201,7 @@ public class CustomerService {
     public Customer getWalkInCustomer() {
         // Tạo một khách hàng vãng lai với thông tin mặc định
         Customer walkInCustomer = new Customer();
-        walkInCustomer.setId(0); // ID giả định cho khách vãng lai
+        walkInCustomer.setId(9999L); // ID giả định cho khách vãng lai
         walkInCustomer.setFullname("Khách Vãng Lai");
         walkInCustomer.setPhone("0000000000"); // Hoặc số điện thoại mặc định
         walkInCustomer.setEmail("walkin@customer.com"); // Email mặc định

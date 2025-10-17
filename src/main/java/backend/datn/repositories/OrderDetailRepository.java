@@ -12,12 +12,12 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface OrderDetailRepository extends JpaRepository<OrderDetail, Integer> {
+public interface OrderDetailRepository extends JpaRepository<OrderDetail, Long> {
     @Query("SELECT od FROM OrderDetail od WHERE od.order.id = :orderId")
-    List<OrderDetail> findByOrderId(@Param("orderId") int orderId);
+    List<OrderDetail> findByOrderId(@Param("orderId") Long orderId);
 
     // Lấy danh sách chi tiết đơn hàng theo sản phẩm
-    List<OrderDetail> findByProductDetailId(int productDetailId);
+    List<OrderDetail> findByProductDetailId(Long productDetailId);
 
     Optional<OrderDetail> findByOrderAndProductDetail(Order order, ProductDetail productDetail);
 }

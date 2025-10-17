@@ -58,24 +58,24 @@ public class SalePOSService {
     @Autowired
     private VoucherRepository voucherRepository;
 
-    public Order findOrderById(Integer orderId) {
-        return orderRepository.findById(orderId)
-                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy đơn hàng #" + orderId));
-    }
+    public Order findOrderById(Long orderId) {
+            return orderRepository.findById(orderId)
+                    .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy đơn hàng #" + orderId));
+        }
 
-    /**
-     * Tạo mới đơn hàng rỗng cho POS
-     * Được sử dụng khi bắt đầu một giao dịch bán hàng tại quầy.
-     */
-    @Transactional
-    public Order createEmptyOrder(Customer customer, Employee employee, Voucher voucher, Integer paymentMethod) {
-        logger.info("Bắt đầu tạo đơn hàng. Customer ID: {}, Employee ID: {}, Voucher ID: {}, Payment Method: {}",
-                (customer != null) ? customer.getId() : "Khách vãng lai",
-                employee.getId(),
-                (voucher != null) ? voucher.getId() : "Không có voucher",
-                paymentMethod);
+        /**
+         * Tạo mới đơn hàng rỗng cho POS
+         * Được sử dụng khi bắt đầu một giao dịch bán hàng tại quầy.
+         */
+        @Transactional
+        public Order createEmptyOrder(Customer customer, Employee employee, Voucher voucher, Integer paymentMethod) {
+            logger.info("Bắt đầu tạo đơn hàng. Customer ID: {}, Employee ID: {}, Voucher ID: {}, Payment Method: {}",
+                    (customer != null) ? customer.getId() : "Khách vãng lai",
+                    employee.getId(),
+                    (voucher != null) ? voucher.getId() : "Không có voucher",
+                    paymentMethod);
 
-        if (employee == null || employeeService.findById(employee.getId()).isEmpty()) {
+            if (employee == null || employeeService.findById(employee.getId()).isEmpty()) {
             throw new IllegalArgumentException("Nhân viên không tồn tại.");
         }
 
@@ -87,10 +87,10 @@ public class SalePOSService {
             throw new IllegalArgumentException("Phương thức thanh toán không hợp lệ. Chỉ chấp nhận 0 (Tiền mặt) hoặc 1 (VNPay).");
         }
 
-        // Nếu khách hàng là null, gán khách hàng vãng lai (ID = -1)
+        // Nếu khách hàng là null, gán khách hàng vãng lai (ID = 9999)
         if (customer == null) {
             customer = new Customer();
-            customer.setId(-1);
+            customer.setId(9999L);
             customer.setFullname("Khách vãng lai");
         }
 
@@ -114,7 +114,7 @@ public class SalePOSService {
 
     }
 
-    public String createVietQRPaymentUrl(Integer orderId) {
+    public String createVietQRPaymentUrl(Long orderId) {
         logger.info("Đang tạo URL VietQR cho đơn hàng ID: {}", orderId);
 
         Order order = orderRepository.findById(orderId)
@@ -140,7 +140,7 @@ public class SalePOSService {
      * Thêm sản phẩm vào giỏ hàng của đơn hàng POS
      * Kiểm tra tồn kho trước khi thêm, cập nhật tổng tiền đơn hàng
      */
-    public OrderResponse addProductToCart(Integer orderId, OrderDetailCreateRequest detailReq) {
+    public OrderResponse addProductToCart(Long orderId, OrderDetailCreateRequest detailReq) {
         logger.info("Bắt đầu thêm sản phẩm vào giỏ hàng. Order ID: {}, Product Detail ID: {}, Quantity: {}",
                 orderId, detailReq.getProductDetailId(), detailReq.getQuantity());
 
@@ -292,7 +292,7 @@ public class SalePOSService {
      * Kiểm tra tồn kho trước khi trừ số lượng sản phẩm
      */
     @Transactional
-    public OrderResponse updateOrderStatusAfterPayment(Integer orderId, Integer customerId, Integer voucherId) {
+    public OrderResponse updateOrderStatusAfterPayment(Long orderId, Long customerId, Long voucherId) {
         logger.info("Bắt đầu cập nhật trạng thái đơn hàng sau thanh toán. Order ID: {}, Customer ID: {}, Voucher ID: {}",
                 orderId, customerId, voucherId);
 
@@ -400,7 +400,7 @@ public class SalePOSService {
      * @return OrderResponse chứa thông tin đơn hàng đã cập nhật
      */
     @Transactional
-    public OrderResponse updatePaymentMethod(Integer orderId, Integer paymentMethod) {
+    public OrderResponse updatePaymentMethod(Long orderId, Integer paymentMethod) {
         logger.info("Bắt đầu cập nhật phương thức thanh toán. Order ID: {}, Payment Method: {}", orderId, paymentMethod);
 
         // Tìm đơn hàng theo ID
@@ -442,7 +442,7 @@ public class SalePOSService {
      * @return OrderResponse chứa thông tin đơn hàng đã hủy
      */
     @Transactional
-    public OrderResponse cancelOrder(Integer orderId) {
+    public OrderResponse cancelOrder(Long orderId) {
         logger.info("Bắt đầu hủy đơn hàng. Order ID: {}", orderId);
 
         // Tìm đơn hàng theo ID

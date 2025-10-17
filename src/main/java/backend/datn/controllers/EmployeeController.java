@@ -41,7 +41,7 @@ public class EmployeeController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse> getEmployeeById(@PathVariable int id) {
+    public ResponseEntity<ApiResponse> getEmployeeById(@PathVariable Long id) {
         try {
             return ResponseEntity.ok(new ApiResponse("success", "Lấy thông tin nhân viên thành công",
                     employeeService.getEmployeeById(id)));
@@ -71,7 +71,7 @@ public class EmployeeController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse> updateEmployee(@PathVariable int id,
+    public ResponseEntity<ApiResponse> updateEmployee(@PathVariable Long id,
                                                       @Valid @RequestBody EmployeeUpdateRequest request,
                                                       BindingResult result) {
         if (result.hasErrors()) {
@@ -94,7 +94,7 @@ public class EmployeeController {
     }
 
     @PutMapping("/{id}/change-password")
-    public ResponseEntity<ApiResponse> changePassword(@PathVariable int id,
+    public ResponseEntity<ApiResponse> changePassword(@PathVariable Long id,
                                                       @Valid @RequestBody EmployeePasswordUpdateRequest request,
                                                       BindingResult result) {
 
@@ -120,7 +120,7 @@ public class EmployeeController {
 
 
     @PatchMapping("/{id}/toggle-status")
-    public ResponseEntity<ApiResponse> toggleStatusEmployee(@PathVariable int id) {
+    public ResponseEntity<ApiResponse> toggleStatusEmployee(@PathVariable Long id) {
         try {
             return ResponseEntity.ok(new ApiResponse("success", "Thay đổi trạng thái nhân viên thành công",
                     employeeService.toggleStatusEmployee(id)));

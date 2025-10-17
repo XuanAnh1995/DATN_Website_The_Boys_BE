@@ -12,21 +12,21 @@ import java.util.List;
 public class ProductDetailCreateRequest {
 
     @NotNull(message = "Sản phẩm không được để trống")
-    private Integer productId;
+    private Long productId;
 
     @NotEmpty(message = "Kích thước không được để trống")
-    private List<Integer> sizeId;
+    private List<Long> sizeId;
 
     @NotEmpty(message = "Màu sắc không được để trống")
-    private List<Integer> colorId;
+    private List<Long> colorId;
 
     @NotEmpty(message = "Cổ áo không được để trống")
-    private List<Integer> collarId;
+    private List<Long> collarId;
 
     @NotEmpty(message = "Tay áo không được để trống")
-    private List<Integer> sleeveId;
+    private List<Long> sleeveId;
 
-    private Integer promotionId;
+    private Long promotionId;
 
     @Size(max = 250, message = "Ảnh không được vượt quá 250 ký tự")
     @NotNull(message = "Ảnh không được để trống")

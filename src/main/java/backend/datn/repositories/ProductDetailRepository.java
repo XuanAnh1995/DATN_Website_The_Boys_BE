@@ -12,16 +12,17 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface ProductDetailRepository extends JpaRepository<ProductDetail, Integer> {
+public interface ProductDetailRepository extends JpaRepository<ProductDetail, Long> {
 
     @Query("SELECT CASE WHEN COUNT(pd) > 0 THEN true ELSE false END FROM ProductDetail pd " +
             "WHERE pd.product.id = :productId AND pd.size.id = :size AND pd.color.id = :color " +
             "AND pd.collar.id = :collar AND pd.sleeve.id = :sleeve")
-    boolean existsByProductAndSizeAndColorAndCollarAndSleeve(@Param("productId") Integer productId,
-                                                             @Param("size") Integer size,
-                                                             @Param("color") Integer color,
-                                                             @Param("collar") Integer collar,
-                                                             @Param("sleeve") Integer sleeve);
+    boolean existsByProductAndSizeAndColorAndCollarAndSleeve(
+            @Param("productId") Long productId,
+            @Param("size") Long size,
+            @Param("color") Long color,
+            @Param("collar") Long collar,
+            @Param("sleeve") Long sleeve);
 
     @Query("SELECT pd FROM ProductDetail pd " +
             "WHERE (:search IS NULL OR pd.product.productName LIKE %:search% OR pd.productDetailCode LIKE  :search OR pd.product.productCode LIKE :search  ) " +
@@ -32,64 +33,65 @@ public interface ProductDetailRepository extends JpaRepository<ProductDetail, In
             "AND (:minPrice IS NULL OR pd.salePrice >= :minPrice) " +
             "AND (:maxPrice IS NULL OR pd.salePrice <= :maxPrice) ")
     Page<ProductDetail> findBySearchAndFilter(@Param("search") String search,
-                                              @Param("sizeIds") List<Integer> sizeIds,
-                                              @Param("colorIds") List<Integer> colorIds,
-                                              @Param("collarIds") List<Integer> collarIds,
-                                              @Param("sleeveIds") List<Integer> sleeveIds,
+                                              @Param("sizeIds") List<Long> sizeIds,
+                                              @Param("colorIds") List<Long> colorIds,
+                                              @Param("collarIds") List<Long> collarIds,
+                                              @Param("sleeveIds") List<Long> sleeveIds,
                                               @Param("minPrice") Double minPrice,
                                               @Param("maxPrice") Double maxPrice,
                                               Pageable pageable);
 
     // Tìm sản phẩm theo product_id
-    List<ProductDetail> findByProductId(int productId);
+    List<ProductDetail> findByProductId(Long productId);
 
     // Tìm sản phẩm theo màu sắc
-    List<ProductDetail> findByColorId(int colorId);
+    List<ProductDetail> findByColorId(Long colorId);
 
     // Tìm sản phẩm theo size
-    List<ProductDetail> findBySizeId(int sizeId);
+    List<ProductDetail> findBySizeId(Long sizeId);
 
     // Tìm sản phẩm theo mã sản phẩm
     ProductDetail findByProductDetailCode(String productDetailCode);
 
     @Query("SELECT pd FROM ProductDetail pd WHERE pd.product.productCode = :productCode")
     List<ProductDetail> findByProductCode(@Param("productCode") String productCode);
+
     // Phương thức cập nhật: Lấy các biến thể của một sản phẩm dưới dạng ProductDetailResponse
     @Query("""
-    SELECT new backend.datn.dto.response.ProductDetailResponse(
-        pd.id,
-        new backend.datn.dto.response.ProductResponse(
-            p.id,
-            new backend.datn.dto.response.BrandResponse(p.brand.id, p.brand.brandName, p.brand.status),
-            new backend.datn.dto.response.CategoryResponse(p.category.id, p.category.categoryName, p.category.status),
-            new backend.datn.dto.response.MaterialResponse(p.material.id, p.material.materialName, p.material.status),
-            p.productName,
-            p.productCode,
-            p.status
-        ),
-        new backend.datn.dto.response.SizeResponse(s.id, s.sizeName, s.status),
-        new backend.datn.dto.response.ColorResponse(c.id, c.colorName, c.status),
-        new backend.datn.dto.response.PromotionResponse(pr.id, pr.promotionName, pr.promotionPercent, pr.startDate, pr.endDate, pr.description, pr.status),
-        new backend.datn.dto.response.CollarResponse(col.id, col.collarName, col.status),
-        new backend.datn.dto.response.SleeveResponse(sl.id, sl.sleeveName, sl.status),
-        pd.photo,
-        pd.productDetailCode,
-        pd.importPrice,
-        pd.salePrice,
-        pd.quantity,
-        pd.description,
-        pd.status
-    )
-    FROM ProductDetail pd
-    LEFT JOIN Product p ON pd.product.id = p.id
-    LEFT JOIN Color c ON pd.color.id = c.id
-    LEFT JOIN Size s ON pd.size.id = s.id
-    LEFT JOIN Collar col ON pd.collar.id = col.id
-    LEFT JOIN Sleeve sl ON pd.sleeve.id = sl.id
-    LEFT JOIN Material m ON p.material.id = m.id
-    LEFT JOIN Promotion pr ON pd.promotion.id = pr.id AND pr.status = true
-    WHERE p.productCode = :productCode AND p.status = true AND pd.status = true 
-""")
+                SELECT new backend.datn.dto.response.ProductDetailResponse(
+                    pd.id,
+                    new backend.datn.dto.response.ProductResponse(
+                        p.id,
+                        new backend.datn.dto.response.BrandResponse(p.brand.id, p.brand.brandName, p.brand.status),
+                        new backend.datn.dto.response.CategoryResponse(p.category.id, p.category.categoryName, p.category.status),
+                        new backend.datn.dto.response.MaterialResponse(p.material.id, p.material.materialName, p.material.status),
+                        p.productName,
+                        p.productCode,
+                        p.status
+                    ),
+                    new backend.datn.dto.response.SizeResponse(s.id, s.sizeName, s.status),
+                    new backend.datn.dto.response.ColorResponse(c.id, c.colorName, c.status),
+                    new backend.datn.dto.response.PromotionResponse(pr.id, pr.promotionName, pr.promotionPercent, pr.startDate, pr.endDate, pr.description, pr.status),
+                    new backend.datn.dto.response.CollarResponse(col.id, col.collarName, col.status),
+                    new backend.datn.dto.response.SleeveResponse(sl.id, sl.sleeveName, sl.status),
+                    pd.photo,
+                    pd.productDetailCode,
+                    pd.importPrice,
+                    pd.salePrice,
+                    pd.quantity,
+                    pd.description,
+                    pd.status
+                )
+                FROM ProductDetail pd
+                LEFT JOIN Product p ON pd.product.id = p.id
+                LEFT JOIN Color c ON pd.color.id = c.id
+                LEFT JOIN Size s ON pd.size.id = s.id
+                LEFT JOIN Collar col ON pd.collar.id = col.id
+                LEFT JOIN Sleeve sl ON pd.sleeve.id = sl.id
+                LEFT JOIN Material m ON p.material.id = m.id
+                LEFT JOIN Promotion pr ON pd.promotion.id = pr.id AND pr.status = true
+                WHERE p.productCode = :productCode AND p.status = true AND pd.status = true 
+            """)
     List<ProductDetailResponse> getProductVariantsByProductCode(@Param("productCode") String productCode);
 
     @Query("SELECT pd FROM ProductDetail pd " +
@@ -101,12 +103,13 @@ public interface ProductDetailRepository extends JpaRepository<ProductDetail, In
             "AND (:minPrice IS NULL OR pd.salePrice >= :minPrice) " +
             "AND (:maxPrice IS NULL OR pd.salePrice <= :maxPrice) " +
             "AND pd.status = true")
-    Page<ProductDetail> findBySearchAndFilterWithStatusTrue(@Param("search") String search,
-                                              @Param("sizeIds") List<Integer> sizeIds,
-                                              @Param("colorIds") List<Integer> colorIds,
-                                              @Param("collarIds") List<Integer> collarIds,
-                                              @Param("sleeveIds") List<Integer> sleeveIds,
-                                              @Param("minPrice") Double minPrice,
-                                              @Param("maxPrice") Double maxPrice,
-                                              Pageable pageable);
+    Page<ProductDetail> findBySearchAndFilterWithStatusTrue(
+            @Param("search") String search,
+            @Param("sizeIds") List<Long> sizeIds,
+            @Param("colorIds") List<Long> colorIds,
+            @Param("collarIds") List<Long> collarIds,
+            @Param("sleeveIds") List<Long> sleeveIds,
+            @Param("minPrice") Double minPrice,
+            @Param("maxPrice") Double maxPrice,
+            Pageable pageable);
 }

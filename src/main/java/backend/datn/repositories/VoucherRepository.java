@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 import java.math.BigDecimal;
 
 @Repository
-public interface VoucherRepository extends JpaRepository<Voucher, Integer> {
+public interface VoucherRepository extends JpaRepository<Voucher, Long> {
 
     @Query("""
             SELECT v FROM Voucher v 

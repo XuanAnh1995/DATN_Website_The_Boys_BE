@@ -36,7 +36,7 @@ public class MaterialService {
         return materialPage.map(MaterialMapper::toMaterialResponse);
     }
 
-    public MaterialResponse getMaterialById(int id) {
+    public MaterialResponse getMaterialById(Long id) {
         Material material = materialRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy chất liệu có id " + id));
         return MaterialMapper.toMaterialResponse(material);
@@ -54,7 +54,7 @@ public class MaterialService {
     }
 
     @Transactional
-    public MaterialResponse updateMaterial(Integer id, MaterialUpdateRequest materialUpdateRequest) {
+    public MaterialResponse updateMaterial(Long id, MaterialUpdateRequest materialUpdateRequest) {
         Material material = materialRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy chất liệu có id " + id));
 
@@ -71,7 +71,7 @@ public class MaterialService {
     }
 
     @Transactional
-    public MaterialResponse toggleMaterialStatus(Integer id) {
+    public MaterialResponse toggleMaterialStatus(Long id) {
         Material material = materialRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy chất liệu có id: " + id));
         material.setStatus(!material.getStatus());

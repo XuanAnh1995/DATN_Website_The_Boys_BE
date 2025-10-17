@@ -30,10 +30,10 @@ public class ProductDetailController {
     @GetMapping
     public ResponseEntity<ApiResponse> getAllProductDetails(
             @RequestParam(required = false) String search,
-            @RequestParam(required = false, defaultValue = "") List<Integer> colorIds,
-            @RequestParam(required = false, defaultValue = "") List<Integer> collarIds,
-            @RequestParam(required = false, defaultValue = "") List<Integer> sizeIds,
-            @RequestParam(required = false, defaultValue = "") List<Integer> sleeveIds,
+            @RequestParam(required = false, defaultValue = "") List<Long> colorIds,
+            @RequestParam(required = false, defaultValue = "") List<Long> collarIds,
+            @RequestParam(required = false, defaultValue = "") List<Long> sizeIds,
+            @RequestParam(required = false, defaultValue = "") List<Long> sleeveIds,
             @RequestParam(required = false) Double minPrice,
             @RequestParam(required = false) Double maxPrice,
             Pageable pageable) {
@@ -51,10 +51,10 @@ public class ProductDetailController {
     @GetMapping("/statustrue")
     public ResponseEntity<ApiResponse> getAllProductDetailsWithStatusTrue(
             @RequestParam(required = false) String search,
-            @RequestParam(required = false, defaultValue = "") List<Integer> colorIds,
-            @RequestParam(required = false, defaultValue = "") List<Integer> collarIds,
-            @RequestParam(required = false, defaultValue = "") List<Integer> sizeIds,
-            @RequestParam(required = false, defaultValue = "") List<Integer> sleeveIds,
+            @RequestParam(required = false, defaultValue = "") List<Long> colorIds,
+            @RequestParam(required = false, defaultValue = "") List<Long> collarIds,
+            @RequestParam(required = false, defaultValue = "") List<Long> sizeIds,
+            @RequestParam(required = false, defaultValue = "") List<Long> sleeveIds,
             @RequestParam(required = false) Double minPrice,
             @RequestParam(required = false) Double maxPrice,
             Pageable pageable) {
@@ -71,7 +71,7 @@ public class ProductDetailController {
 
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse> getProductDetailById(@PathVariable Integer id) {
+    public ResponseEntity<ApiResponse> getProductDetailById(@PathVariable Long id) {
         try {
             ProductDetailResponse productDetail = productDetailService.getById(id);
             return ResponseEntity.ok(new ApiResponse("success", "Lấy chi tiết sản phẩm thành công", productDetail));
@@ -102,7 +102,7 @@ public class ProductDetailController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse> updateProductDetail(@PathVariable Integer id, @Valid @RequestBody ProductDetailUpdateRequest request, BindingResult result) {
+    public ResponseEntity<ApiResponse> updateProductDetail(@PathVariable Long id, @Valid @RequestBody ProductDetailUpdateRequest request, BindingResult result) {
         if (result.hasErrors()) {
             List<String> errorMessages = result.getFieldErrors().stream()
                     .map(error -> error.getField() + ": " + error.getDefaultMessage())
@@ -121,7 +121,7 @@ public class ProductDetailController {
     }
 
     @PatchMapping("/{id}/toggle-status")
-    public ResponseEntity<ApiResponse> toggleProductDetailStatus(@PathVariable Integer id) {
+    public ResponseEntity<ApiResponse> toggleProductDetailStatus(@PathVariable Long id) {
         try {
             ProductDetailResponse productDetail = productDetailService.toggleProductDetailStatus(id);
             return ResponseEntity.ok(new ApiResponse("success", "Toggle trạng thái chi tiết sản phẩm thành công", productDetail));

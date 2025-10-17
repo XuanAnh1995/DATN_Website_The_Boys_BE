@@ -3,34 +3,34 @@ package backend.datn.dto.request;
 import java.util.List;
 
 public class OrderRequest {
-    private Integer customerId;
-    private Integer employeeId;
-    private Integer voucherId;
+    private Long customerId;
+    private Long employeeId;
+    private Long voucherId;
     private Integer paymentMethod;
     private List<OrderDetailCreateRequest> orderDetails; // 🟢 Nhận danh sách sản phẩm từ FE
 
     // Getters và Setters
-    public Integer getCustomerId() {
+    public Long getCustomerId() {
         return customerId;
     }
 
-    public void setCustomerId(Integer customerId) {
+    public void setCustomerId(Long customerId) {
         this.customerId = customerId;
     }
 
-    public Integer getEmployeeId() {
+    public Long getEmployeeId() {
         return employeeId;
     }
 
-    public void setEmployeeId(Integer employeeId) {
+    public void setEmployeeId(Long employeeId) {
         this.employeeId = employeeId;
     }
 
-    public Integer getVoucherId() {
+    public Long getVoucherId() {
         return voucherId;
     }
 
-    public void setVoucherId(Integer voucherId) {
+    public void setVoucherId(Long voucherId) {
         this.voucherId = voucherId;
     }
 

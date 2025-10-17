@@ -2,13 +2,13 @@ package backend.datn.dto.response;
 
 public class CheckoutResponse {
 
-    private Integer orderId;
+    private Long orderId;
 
-    public CheckoutResponse(Integer orderId) {
+    public CheckoutResponse(Long orderId) {
         this.orderId = orderId;
     }
 
-    public Integer getOrderId() {
+    public Long getOrderId() {
         return orderId;
     }
 

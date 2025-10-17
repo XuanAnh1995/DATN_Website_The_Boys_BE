@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface OrderPOSRepository extends JpaRepository<OrderPOS, Integer> {
+public interface OrderPOSRepository extends JpaRepository<OrderPOS, Long> {
 
     // Tìm đơn hàng POS theo mã
     OrderPOS findByOrderCode(String orderCode);
@@ -40,7 +40,7 @@ public interface OrderPOSRepository extends JpaRepository<OrderPOS, Integer> {
     // Tìm đơn hàng POS theo ID với kiểm tra kindOfOrder = true
     @Query("SELECT o FROM OrderPOS o WHERE o.id = :id AND o.kindOfOrder = :kindOfOrder")
     Optional<OrderPOS> findOrderPOSByIdWithKindOfOrder(
-            @Param("id") Integer id,
+            @Param("id") Long id,
             @Param("kindOfOrder") Boolean kindOfOrder);
 
 }

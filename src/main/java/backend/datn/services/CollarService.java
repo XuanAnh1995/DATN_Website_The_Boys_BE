@@ -34,7 +34,7 @@ public class CollarService {
         return collars.map(CollarMapper::toCollarResponse);
     }
 
-    public CollarResponse getCollarById(Integer id) {
+    public CollarResponse getCollarById(Long id) {
         Collar collar = collarRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy tay áo có id: " + id));
         return CollarMapper.toCollarResponse(collar);
@@ -52,7 +52,7 @@ public class CollarService {
     }
 
     @Transactional
-    public CollarResponse updateCollar(Integer id, CollarUpdateRequest collarUpdateRequest) {
+    public CollarResponse updateCollar(Long id, CollarUpdateRequest collarUpdateRequest) {
         Collar collar = collarRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy tay áo có id: " + id));
 
@@ -65,7 +65,7 @@ public class CollarService {
     }
 
     @Transactional
-    public CollarResponse toggleCollarStatus(Integer id) {
+    public CollarResponse toggleCollarStatus(Long id) {
         Collar collar = collarRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy tay áo có id: " + id));
         collar.setStatus(!collar.getStatus());
@@ -74,7 +74,7 @@ public class CollarService {
     }
 
     @Transactional
-    public void deleteCollar(Integer id) {
+    public void deleteCollar(Long id) {
         Collar collar = collarRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy tay áo có id: " + id));
         collarRepository.delete(collar);

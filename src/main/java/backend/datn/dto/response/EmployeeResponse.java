@@ -15,7 +15,7 @@ import java.time.Instant;
 @Builder
 public class EmployeeResponse implements Serializable {
 
-    private Integer id;
+    private Long id;
 
     private String employeeCode;
 

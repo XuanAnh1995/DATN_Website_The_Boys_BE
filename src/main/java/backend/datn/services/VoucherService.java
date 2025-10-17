@@ -75,7 +75,7 @@ public class VoucherService {
         return VoucherMapper.toVoucherResponse(voucher);
     }
 
-    public VoucherResponse updateVoucher(int id, VoucherUpdateRequest voucherUpdateRequest) {
+    public VoucherResponse updateVoucher(Long id, VoucherUpdateRequest voucherUpdateRequest) {
         Voucher voucher = voucherRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Voucher không tồn tại với ID: " + id));
 
@@ -92,7 +92,7 @@ public class VoucherService {
     }
 
     @Transactional
-    public VoucherResponse toggleStatusVoucher(Integer id) {
+    public VoucherResponse toggleStatusVoucher(Long id) {
         Voucher voucher = voucherRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Voucher không có ID: " + id));
 
@@ -102,7 +102,7 @@ public class VoucherService {
     }
 
     @Transactional
-    public void deleteVoucher(Integer id) {
+    public void deleteVoucher(Long id) {
         Voucher voucher = voucherRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Voucher không có ID: " + id));
 
@@ -114,7 +114,7 @@ public class VoucherService {
         return "VOUCHER-" + uuidPart;
     }
 
-    public Optional<Voucher> findById(Integer voucherId) {
+    public Optional<Voucher> findById(Long voucherId) {
         return voucherRepository.findById(voucherId);
     }
 

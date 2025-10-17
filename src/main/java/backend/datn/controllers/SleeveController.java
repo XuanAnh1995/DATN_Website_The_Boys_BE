@@ -38,7 +38,7 @@ public class SleeveController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse> getSleeveById(@PathVariable int id) {
+    public ResponseEntity<ApiResponse> getSleeveById(@PathVariable Long id) {
         try {
             SleeveResponse sleeveResponse = sleeveService.getSleeveById(id);
             ApiResponse response = new ApiResponse("success", "Lấy tay áo theo id thành công", sleeveResponse);
@@ -69,7 +69,7 @@ public class SleeveController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse> updateSleeve(@PathVariable int id, @RequestBody SleeveUpdateRequest sleeveUpdateRequest) {
+    public ResponseEntity<ApiResponse> updateSleeve(@PathVariable Long id, @RequestBody SleeveUpdateRequest sleeveUpdateRequest) {
         try {
             SleeveResponse sleeveResponse = sleeveService.updateSleeve(id, sleeveUpdateRequest);
             ApiResponse response = new ApiResponse("success", "Cập nhật tay áo thành công", sleeveResponse);
@@ -88,7 +88,7 @@ public class SleeveController {
     }
 
     @PutMapping("/{id}/toggle-status")
-    public ResponseEntity<ApiResponse> toggleStatusSleeve(@PathVariable Integer id){
+    public ResponseEntity<ApiResponse> toggleStatusSleeve(@PathVariable Long id){
         try {
             SleeveResponse sleeveResponse = sleeveService.toggleSleeveStatus(id);
             ApiResponse response = new ApiResponse("success", "Chuyển đổi trạng thái tay áo thành công", sleeveResponse);

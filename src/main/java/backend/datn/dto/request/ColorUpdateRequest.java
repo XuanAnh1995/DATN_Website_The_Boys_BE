@@ -9,7 +9,7 @@ import lombok.Data;
 public class ColorUpdateRequest {
 
     @NotNull
-    Integer id;
+    Long id;
 
     @NotNull(message = "Vui lòng điền thông tin tên màu sắc")
     String name;

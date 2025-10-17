@@ -21,7 +21,7 @@ public class SizeController {
     private SizeService sizeService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse> getSizeById(@PathVariable Integer id) {
+    public ResponseEntity<ApiResponse> getSizeById(@PathVariable Long id) {
         try {
             SizeResponse sizeResponse = sizeService.getSizeById(id);
             ApiResponse response = new ApiResponse("success", "Lấy kích thước theo id thành công", sizeResponse);
@@ -67,7 +67,7 @@ public class SizeController {
         }
     }
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse> updateSize(@PathVariable Integer id, @RequestBody SizeUpdateRequest sizeUpdateRequest) {
+    public ResponseEntity<ApiResponse> updateSize(@PathVariable Long id, @RequestBody SizeUpdateRequest sizeUpdateRequest) {
         try {
             SizeResponse sizeResponse = sizeService.updateSize(id, sizeUpdateRequest);
             ApiResponse response = new ApiResponse("success", "Cập nhật kích thước thành công", sizeResponse);
@@ -85,7 +85,7 @@ public class SizeController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse> deleteSize(@PathVariable Integer id) {
+    public ResponseEntity<ApiResponse> deleteSize(@PathVariable Long id) {
         try {
             sizeService.deleteSize(id);
             ApiResponse response = new ApiResponse("success", "Size deleted successfully", null);
@@ -100,7 +100,7 @@ public class SizeController {
     }
 
     @PutMapping("/{id}/toggle-status")
-    public ResponseEntity<ApiResponse> toggleStatusSize(@PathVariable Integer id){
+    public ResponseEntity<ApiResponse> toggleStatusSize(@PathVariable Long id){
         try {
             SizeResponse sizeResponse = sizeService.toggleSizeStatus(id);
             ApiResponse response = new ApiResponse("success", "Chuyển đổi trạng thái kích thước thành công", sizeResponse);

@@ -15,7 +15,7 @@ public class Address {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
-    private Integer id;
+    private Long id = 0L;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -24,7 +24,7 @@ public class Address {
 
     @NotNull
     @Column(name = "province_id", nullable = false)
-    private Integer provinceId;
+    private Long provinceId;
 
     @Size(max = 50)
     @NotNull
@@ -34,7 +34,7 @@ public class Address {
 
     @NotNull
     @Column(name = "district_id", nullable = false)
-    private Integer districtId;
+    private Long districtId;
 
     @Size(max = 50)
     @NotNull
@@ -44,7 +44,7 @@ public class Address {
 
     @NotNull
     @Column(name = "ward_id", nullable = false)
-    private Integer wardId;
+    private Long wardId;
 
     @Size(max = 50)
     @NotNull

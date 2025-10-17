@@ -21,7 +21,7 @@ public class ColorController {
     private ColorService colorService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse> getColorById(@PathVariable Integer id) {
+    public ResponseEntity<ApiResponse> getColorById(@PathVariable Long id) {
         try {
             ColorResponse colorResponse = colorService.getColorById(id);
             ApiResponse response = new ApiResponse("success", "Lấy màu sắc theo id thành công", colorResponse);
@@ -67,7 +67,7 @@ public class ColorController {
         }
     }
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse> updateColor(@PathVariable Integer id, @RequestBody ColorUpdateRequest colorUpdateRequest) {
+    public ResponseEntity<ApiResponse> updateColor(@PathVariable Long id, @RequestBody ColorUpdateRequest colorUpdateRequest) {
         try {
             ColorResponse colorResponse = colorService.updateColor(id, colorUpdateRequest);
             ApiResponse response = new ApiResponse("success", "Cập nhật màu sắc thành công", colorResponse);
@@ -85,7 +85,7 @@ public class ColorController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse> deleteColor(@PathVariable Integer id) {
+    public ResponseEntity<ApiResponse> deleteColor(@PathVariable Long id) {
         try {
             colorService.deleteColor(id);
             ApiResponse response = new ApiResponse("success", "Color deleted successfully", null);
@@ -100,7 +100,7 @@ public class ColorController {
     }
 
     @PutMapping("/{id}/toggle-status")
-    public ResponseEntity<ApiResponse> toggleStatusColor(@PathVariable Integer id){
+    public ResponseEntity<ApiResponse> toggleStatusColor(@PathVariable Long id){
         try {
             ColorResponse colorResponse = colorService.toggleColorStatus(id);
             ApiResponse response = new ApiResponse("success", "Chuyển đổi trạng thái màu sắc thành công", colorResponse);

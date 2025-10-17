@@ -12,6 +12,6 @@ import lombok.experimental.SuperBuilder;
 public class OrderDetailUpdateRequest extends OrderDetailCreateRequest {
 
     @NotNull(message = "ID chi tiết đơn hàng không được để trống")
-    private Integer id;
+    private Long id;
 
 }

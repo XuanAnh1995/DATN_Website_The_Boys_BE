@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface CustomerRepository extends JpaRepository<Customer, Integer> {
+public interface CustomerRepository extends JpaRepository<Customer, Long> {
 
     @Query("SELECT c FROM Customer c " +
             "WHERE (:keyword IS NULL OR :keyword = '' " +
@@ -27,16 +27,16 @@ public interface CustomerRepository extends JpaRepository<Customer, Integer> {
 
 
 
-    Optional<Customer> findById(Integer id);
+    Optional<Customer> findById(Long id);
 
     @Query("SELECT COUNT(c) > 0 FROM Customer c WHERE c.username = :username AND c.id <> :id")
-    boolean existsByUsernameAndNotId(@Param("username") String username, @Param("id") Integer id);
+    boolean existsByUsernameAndNotId(@Param("username") String username, @Param("id") Long id);
 
     @Query("SELECT COUNT(c) > 0 FROM Customer c WHERE c.email = :email AND c.id <> :id")
-    boolean existsByEmailAndNotId(@Param("email") String email, @Param("id") Integer id);
+    boolean existsByEmailAndNotId(@Param("email") String email, @Param("id") Long id);
 
     @Query("SELECT COUNT(c) > 0 FROM Customer c WHERE c.phone = :phone AND c.id <> :id")
-    boolean existsByPhoneAndNotId(@Param("phone") String phone, @Param("id") Integer id);
+    boolean existsByPhoneAndNotId(@Param("phone") String phone, @Param("id") Long id);
 
     @Query("SELECT c FROM Customer c WHERE c.username = :keyword OR c.email = :keyword")
     Customer findByUsernameOrEmail(String keyword);

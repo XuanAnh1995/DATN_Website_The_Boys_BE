@@ -49,7 +49,7 @@ public class PromotionService {
         return promotions.map(PromotionMapper::toPromotionResponse);
     }
 
-    public PromotionResponse getPromotionById(Integer id) {
+    public PromotionResponse getPromotionById(Long id) {
         Promotion promotion = promotionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Promotion không tồn tại với ID: " + id));
         return PromotionMapper.toPromotionResponse(promotion);
@@ -76,7 +76,7 @@ public class PromotionService {
         return PromotionMapper.toPromotionResponse(promotion);
     }
 
-    public PromotionResponse updatePromotion(PromotionUpdateRequest updateRequest, Integer id) {
+    public PromotionResponse updatePromotion(PromotionUpdateRequest updateRequest, Long id) {
         Promotion promotion = promotionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Promotion không tồn tại với ID: " + id));
 
@@ -101,14 +101,14 @@ public class PromotionService {
     }
 
     @Transactional
-    public void deletePromotion(Integer id) {
+    public void deletePromotion(Long id) {
         Promotion promotion = promotionRepository.findById(id).orElseThrow(()
                 -> new RuntimeException("Promotion không tồn tại với ID: " + id));
         promotionRepository.delete(promotion);
     }
 
     @Transactional
-    public PromotionResponse toggleStatusPromotionResponse(Integer id) {
+    public PromotionResponse toggleStatusPromotionResponse(Long id) {
         Promotion promotion = promotionRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Promotion khong co id: " + id));
         promotion.setStatus(!promotion.getStatus());

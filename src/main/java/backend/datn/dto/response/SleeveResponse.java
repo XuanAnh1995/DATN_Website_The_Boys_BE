@@ -12,7 +12,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @Builder
 public class SleeveResponse implements Serializable {
-    Integer id;
+    Long id;
     String sleeveName;
     Boolean status;
 }

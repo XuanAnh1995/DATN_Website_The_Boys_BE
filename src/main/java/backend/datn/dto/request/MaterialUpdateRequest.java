@@ -16,7 +16,7 @@ import java.io.Serializable;
 public class MaterialUpdateRequest implements Serializable {
 
     @NotNull
-    Integer id;
+    Long id;
 
     @NotNull(message = "Vui lòng điền thông tin tên chất liệu")
     @Size(max = 100)

@@ -21,7 +21,7 @@ import java.util.List;
 @Builder
 public class OrderResponse implements Serializable {
 
-    private Integer id;
+    private Long id;
     private EmployeeResponse employee;
     private VoucherResponse voucher;
     private CustomerResponse customer;
