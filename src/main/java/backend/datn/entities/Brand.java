@@ -2,6 +2,7 @@ package backend.datn.entities;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
@@ -21,13 +22,14 @@ import java.util.stream.Collectors;
 public class Brand {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
-    private Long id = 0L;
+    @Column(name = "id", nullable = false)  // dành cho GENERATE TABLE/CỘT
+    private Long id;
 
-    @Size(max = 100)
-    @NotNull
+    @NotBlank(message = "Tên thương hiệu không được để trống")
+    @Size(min = 5, max = 100, message = "Tên thương hiệu phải có độ dài từ 5 đến 100 kí tự")
+    // validation từ form nhập đưa lên
     @Nationalized
-    @Column(name = "brand_name", nullable = false, length = 100)
+    @Column(name = "brand_name", nullable = false)
     private String brandName;
 
     @NotNull
@@ -44,6 +46,7 @@ public class Brand {
 
     /**
      * Lấy danh sách sản phẩm của thương hiệu.
+     *
      * @param onlyActive Nếu true, chỉ trả về các sản phẩm đang hoạt động (status = true).
      * @return Danh sách sản phẩm.
      */
@@ -58,6 +61,7 @@ public class Brand {
 
     /**
      * Thêm một sản phẩm vào danh sách sản phẩm của thương hiệu và thiết lập thương hiệu cho sản phẩm.
+     *
      * @param product Sản phẩm cần thêm.
      * @throws IllegalArgumentException nếu sản phẩm là null.
      */
@@ -71,6 +75,7 @@ public class Brand {
 
     /**
      * Xóa một sản phẩm khỏi danh sách sản phẩm của thương hiệu và hủy liên kết thương hiệu của sản phẩm.
+     *
      * @param product Sản phẩm cần xóa.
      * @throws IllegalArgumentException nếu sản phẩm là null.
      */
